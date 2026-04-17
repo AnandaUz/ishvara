@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    /* Базовые настройки */
+    "target": "ES2022",
+    "module": "ESNext",
+    "strict": true,                 /* Включаем все проверки (обязательно) */
+    "skipLibCheck": true,           /* Ускоряет сборку, не проверяя типы внутри библиотек */
+    "esModuleInterop": true,        /* Для нормального импорта CommonJS модулей */
+    "isolatedModules": true,        /* Нужно для корректной работы Vite и Esbuild */
+    "resolveJsonModule": true,      /* Позволяет импортировать .json файлы */
+    
+    /* Чистота кода */
+    "noUnusedLocals": true,         /* Ошибка, если переменная не используется */
+    "noUnusedParameters": true,     /* Ошибка, если параметр функции не используется */
+    "noFallthroughCasesInSwitch": true,
+
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,      
+  }
+}

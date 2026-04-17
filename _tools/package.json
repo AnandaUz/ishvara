@@ -1,0 +1,13 @@
+{
+  "name": "tools",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "import": "tsx Importweightfromsheets.ts"
+  },
+  "dependencies": {
+    "googleapis": "^171.4.0",
+    "mongodb": "^7.1.1"
+  }
+}

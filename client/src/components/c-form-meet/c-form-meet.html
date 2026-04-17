@@ -1,0 +1,34 @@
+<div class="form-meet">
+     <div class="header">{{header-text}}</div>
+     <div class="body">
+          <input type="text" class="name" name="userName" placeholder="Имя" required>
+          <input type="text" class="contact" name="userContact" placeholder="Ник в Telegram или телефон" required>
+          <div class="footer">
+               <button class="btn_send btn-meet">
+               {{btnText}}
+               </button>
+               <div class="bottom-text">{{bottomText}}</div>
+          </div>
+     </div>
+     
+     <div class="formMessage">
+          <div class="message-top">
+               Заявка отправлена! 
+          </div>
+          <div class="ex-message">               
+               <div class="line">Имя: <span class="ex-message-name"></span></div>
+               <div class="line">Контакт: <span class="ex-message-contact"></span></div>
+                            
+          </div>
+          
+          <p class="b1">Я, Ананда (<a href="https://t.me/ananda_uz">@ananda_uz</a>) напишу вам в ближайшее время.</p>
+          
+          <p>Для надёжности можно продублировать заявку</p>
+          <span class="ex-message-note">(в боте важно нажать на кнопку <strong>"Начать"</strong>)</span>
+          <c-anh-to_bot data-attr="meet" btn-text="Оправить заявку через ТГ бот"></c-anh-to_bot>
+     </div>
+     <div class="formError">
+          Произошла ошибка при отправке заявки. Попробуйте еще раз.
+          
+     </div>
+</div>  

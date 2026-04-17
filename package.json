@@ -1,0 +1,28 @@
+{
+  "name": "ishvara",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnandaUz/ishvara.git"
+  },
+  "type": "module",
+  "scripts": {
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "build:client": "npm run build -w client",
+    "build:server": "npm run build -w server"
+  },
+  "workspaces": [
+    "client",
+    "server",
+    "_tools"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "concurrently": "^9.2.1",
+    "rollup": "^4.60.1",
+    "tsx": "^4.20.5",
+    "typescript": "^6.0.2"
+  }
+}
