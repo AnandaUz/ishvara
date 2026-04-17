@@ -1,5 +1,5 @@
 import '../../../_base/server/config.js';
-import { bot as clientBot } from '../api.js';
+// import { bot as clientBot } from '../api.js';
 
 import { Telegraf } from "telegraf";
 
@@ -32,7 +32,7 @@ admin_bot.command("reply", async (ctx) => {
     }
 
     try {
-        await clientBot.telegram.sendMessage(clientId, text);
+        // await clientBot.telegram.sendMessage(clientId, text);
         // await ctx.reply("✅ Отправлено");
     } catch (e) {
         await ctx.reply("❌ Ошибка отправки");
