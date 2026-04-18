@@ -11,14 +11,17 @@ export const idCreateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-
+function checkOrigin(origin: string | undefined) {
+  if (!origin) return false;
+  const allowedOrigin = process.env.CLIENT_URL?.split(',') || [];
+  return allowedOrigin.includes(origin);
+}
 
 export const start = async (req:Request, res:Response) => {
   const origin = req.headers.origin;
-  const allowedOrigin = process.env.CLIENT_URL;
 
   // 2. Проверка Origin
-  if (origin !== allowedOrigin) {
+  if (!checkOrigin(origin)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -38,10 +41,9 @@ export const start = async (req:Request, res:Response) => {
 };
 export async function pushEvents (req:Request, res:Response) {
   const origin = req.headers.origin;
-  const allowedOrigin = process.env.CLIENT_URL;
 
   // 2. Проверка Origin
-  if (origin !== allowedOrigin) {
+  if (!checkOrigin(origin)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -55,10 +57,9 @@ export async function pushEvents (req:Request, res:Response) {
 }
 export async function saveCookies (req:Request, res:Response) {
   const origin = req.headers.origin;
-  const allowedOrigin = process.env.CLIENT_URL;
 
   // 2. Проверка Origin
-  if (origin !== allowedOrigin) {
+  if (!checkOrigin(origin)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
