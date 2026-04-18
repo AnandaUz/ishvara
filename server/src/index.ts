@@ -15,9 +15,9 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(cors({
-    origin: process.env.CLIENT_URL || '',
+    origin: process.env.CLIENT_URLS?.split(',') || [],
     credentials: true
-}));
+}))
 
 app.get("/", (_req, res) => {
     res.send("работаю");
