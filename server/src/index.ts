@@ -14,8 +14,16 @@ const app = express();
 
 const port = process.env.PORT || 8080;
 
+const allowedOrigins = process.env.CLIENT_URL?.split(',') || [];
+console.log(allowedOrigins);
 app.use(cors({
-    origin: process.env.CLIENT_URLS?.split(',') || [],
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }))
 
