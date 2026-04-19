@@ -6,13 +6,6 @@ import { notFoundPage } from './pages/notFound';
 const routes: Routes = {
   '/':               (params) => import('./pages/home/home').then(m => m.homePage(params)),
   '/ad':          (params) => import('./pages/admin/admin').then(m => m.adminPage(params)),
-  '/meet':           (params) => import('./pages/meet/meet').then(m => m.meetPage(params)),
-  '/privacy-policy': (params) => import('./pages/privacy-policy').then(m => m.privacyPolicyPage(params)),
-  '/coaching': (params) => import('./pages/coaching/coaching').then(m => m.coachingPage(params)),
-  '/mastermind': (params) => import('./pages/mastermind/mastermind').then(m => m.mastermindPage(params)),
-  '/guide': (params) => import('./pages/guide/guide').then(m => m.guidePage(params)),
-  '/meditation': (params) => import('@pages/meditation/meditation').then(m => m.meditationPage(params)),
-
 };
 
 function matchRoute(routes: Routes, path: string): { page: Page; params: Record<string, string> } {

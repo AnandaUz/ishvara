@@ -54,7 +54,7 @@ export const adminPage: Page = () => {
   return {
     pageClass: 'admin',
     html: `
-    <c-top></c-top>
+
     <div class="cont">
 
       <h1>Управление статистикой</h1>

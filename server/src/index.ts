@@ -9,13 +9,13 @@ import { connectDB } from '../../_base/server/db.js';
 // import { bot } from './bot.js';
 
 import trackerRouter from './routers/tracker.routers.js';
+import guestsRouter from './routers/guests.routers.js';
 
 const app = express();
 
 const port = process.env.PORT || 8080;
 
 const allowedOrigins = process.env.CLIENT_URL?.split(',') || [];
-console.log(allowedOrigins);
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -33,6 +33,7 @@ app.get("/", (_req, res) => {
 app.use(express.json())
 
 app.use('/api/tracker', trackerRouter);
+app.use('/api/guests', guestsRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

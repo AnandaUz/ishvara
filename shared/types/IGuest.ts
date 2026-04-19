@@ -15,13 +15,13 @@ export interface IGuest {
     username?: string
   }
   instagram?: {
-    pixel?:boolean
     fbp?: string          // _fbp cookie от Facebook
     fbc?: string          // _fbc cookie
     comp_name?: string
     adset_name?: string
     ad_name?: string
   }
+  paramsString?: string
   maxScroll?: number     // максимальный скролл %
   duration?: number      // время на странице в секундах
   events?: [number, number][]  // [[время, код], ...]

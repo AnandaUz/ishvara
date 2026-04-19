@@ -1,10 +1,10 @@
 import type { Page } from '../types';
-import '@components/top/c-top';
+
 
 export const notFoundPage: Page = () => {
   return {
     html: `
-    <c-top></c-top>
+
     <h1>404</h1>
     <div class="cont">
       

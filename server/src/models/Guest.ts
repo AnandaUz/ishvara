@@ -18,14 +18,14 @@ const GuestSchema = new Schema<IGuestDocument>({
     username: { type: String },
   },
   isMobile: { type: Boolean },
-  instagram: {
-    pixel: { type: Boolean },
+  instagram: {   
     fbp: { type: String },
     fbc: { type: String },
     comp_name: { type: String },
     adset_name: { type: String },
     ad_name: { type: String },
   },
+  paramsString: { type: String },
   maxScroll: { type: Number },
   duration:  { type: Number },
   events:    { type: [[Schema.Types.Mixed]], default: []},
