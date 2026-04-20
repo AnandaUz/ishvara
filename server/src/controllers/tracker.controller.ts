@@ -51,12 +51,9 @@ export async function pushEvents (req:Request, res:Response) {
 
   const { _id, events } = req.body;
 
-  console.log(_id, events);
-
   if (!_id) {
     return res.status(400).json({ error: 'Bad request' });
   }
-
 
   const lastChange = req.body.lastChange || undefined;
   await Guest.updateOne(
