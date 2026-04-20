@@ -1,0 +1,25 @@
+button {
+  font-family: 'Montserrat', sans-serif;
+}
+.btn {
+     border: none;
+     cursor: pointer;
+     background: none;
+  
+}
+.sml-btn {
+  --w: 16px;
+  width: var(--w);
+  height: var(--w);
+  
+}
+.btn-delete {
+  background: url('@/assets/ico-trash.svg') no-repeat center center;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background: url('@/assets/ico-trash-h.svg') no-repeat center center;
+    background-size: contain;
+  }
+}

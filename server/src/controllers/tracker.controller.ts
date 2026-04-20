@@ -5,7 +5,7 @@ import Guest from '../models/Guest.js';
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
 export const idCreateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, 
-  max: 10,
+  max: 10000,
   message: "Too many sessions created from this IP",
   standardHeaders: true,
   legacyHeaders: false,
@@ -26,11 +26,13 @@ export const start = async (req:Request, res:Response) => {
   }
 
   try {
-    const { ua, referrer, instagram } = req.body;
+    const { ua, referrer, instagram, name, paramsString } = req.body;
     const newGuest = new Guest({
       ua,
       referrer,      
       instagram,
+      name,
+      paramsString,
     });
 
     const savedGuest = await newGuest.save();
@@ -48,6 +50,14 @@ export async function pushEvents (req:Request, res:Response) {
   }
 
   const { _id, events } = req.body;
+
+  console.log(_id, events);
+
+  if (!_id) {
+    return res.status(400).json({ error: 'Bad request' });
+  }
+
+
   const lastChange = req.body.lastChange || undefined;
   await Guest.updateOne(
     { _id },
@@ -64,6 +74,10 @@ export async function saveCookies (req:Request, res:Response) {
   }
 
   const { _id, result } = req.body;
+
+  if (!_id) {
+    return res.status(400).json({ error: 'Bad request' });
+  }
 
   const fbp = result.fbp || undefined;
   const fbc = result.fbc || undefined;

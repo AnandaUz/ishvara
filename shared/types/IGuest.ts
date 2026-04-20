@@ -8,6 +8,8 @@ export interface IGuest {
   referrer?: string
   isMobile?: boolean
   name?: string
+  
+
   tg?: {
     id: string
     first_name?: string
@@ -17,12 +19,12 @@ export interface IGuest {
   instagram?: {
     fbp?: string          // _fbp cookie от Facebook
     fbc?: string          // _fbc cookie
-    comp_name?: string
+    comp_name?: string 
     adset_name?: string
     ad_name?: string
   }
   paramsString?: string
   maxScroll?: number     // максимальный скролл %
   duration?: number      // время на странице в секундах
-  events?: [number, number][]  // [[время, код], ...]
+  events?: [number|string, number|string][]  // [[время, код], ...]
 }
