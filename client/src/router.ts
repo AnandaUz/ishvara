@@ -46,7 +46,7 @@ export async function render(): Promise<void> {
     const result = await page(params);
     const { html, title, init, pageClass } = result;
     main.innerHTML = html;
-    document.title = 'Ананда' + (title ? ' | ' + title : ' Шадрин');
+    document.title = 'Ишвара' + (title ? ' | ' + title : ' Шадрин');
     init?.();
     document.body.className = '';
     if (pageClass) {

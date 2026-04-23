@@ -5,7 +5,9 @@ button {
      border: none;
      cursor: pointer;
      background: none;
-  
+    background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }
 .sml-btn {
   --w: 16px;
@@ -14,12 +16,17 @@ button {
   
 }
 .btn-delete {
-  background: url('@/assets/ico-trash.svg') no-repeat center center;
-  background-size: contain;
-  border: none;
-  cursor: pointer;
+  background-image: url('@/assets/ico-trash.svg');
+
   &:hover {
-    background: url('@/assets/ico-trash-h.svg') no-repeat center center;
-    background-size: contain;
+    background-image: url('@/assets/ico-trash-h.svg');
+
+  }
+}
+.btn-clear {
+  background-image: url('@/assets/ico-clear-events.svg');
+  &:hover {
+    background-image: url('@/assets/ico-clear-events-h.svg');
+
   }
 }
