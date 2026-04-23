@@ -73,8 +73,6 @@ BaseID: ${userID} `;
             id: ctx.from.id.toString(),
             username: username || "",
           },
-          paramsString: JSON.stringify(ctx.payload),
-          events: [],
         };
         await updateGuest(userID, guestData);
       } catch (error) {
