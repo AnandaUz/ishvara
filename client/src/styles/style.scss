@@ -1,5 +1,7 @@
-@use "@styles/breakpoints";
+
 @use "@styles/buttons";
+@use "@styles/globalConst";
+@use "@base/client/scss/breakpoints";
 
 :root {
   line-height: 1.5;
@@ -170,19 +172,7 @@ h1 {
   font-size: 25px;
   
   @include breakpoints.tablet {    
-    font-size: 34px;
-
-    &:before {
-      content: "";
-      display: block;
-      position: absolute;
-
-      width: 80%;
-      height: 1px;
-      bottom: 1px;
-
-      background: rgba(89, 0, 0, 0.35);
-    }
+    font-size: 34px;    
   }
 }
 h2 {

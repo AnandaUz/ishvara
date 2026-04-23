@@ -1,9 +1,9 @@
 import '@styles/style.scss'
-import './main.ts'
-import { render } from './router';
+import '@/main.ts'
+import { render } from '@features/router';
 
-import { renderHeader } from './components/header'; // добавить
-import { renderFooter } from './components/footer'; // добавить
+import { renderHeader } from '@components/header'; // добавить
+import { renderFooter } from '@components/footer'; // добавить
 
 async function init() {
   renderHeader();

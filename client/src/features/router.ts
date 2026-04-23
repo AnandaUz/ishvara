@@ -1,11 +1,11 @@
-import type { Page, Routes } from './types';
+import type { Page, Routes } from '../types';
 
-import { notFoundPage } from './pages/notFound';
+import { notFoundPage } from '../pages/notFound';
 
 
 const routes: Routes = {
-  '/':               (params) => import('./pages/home/home').then(m => m.homePage(params)),
-  '/ad':          (params) => import('./pages/admin/admin').then(m => m.adminPage(params)),
+  '/':               (params) => import('../pages/home/home').then(m => m.homePage(params)),
+  '/ad':          (params) => import('../pages/admin/admin').then(m => m.adminPage(params)),
 };
 
 function matchRoute(routes: Routes, path: string): { page: Page; params: Record<string, string> } {

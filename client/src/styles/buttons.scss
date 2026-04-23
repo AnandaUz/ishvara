@@ -17,16 +17,19 @@ button {
 }
 .btn-delete {
   background-image: url('@/assets/ico-trash.svg');
-
   &:hover {
     background-image: url('@/assets/ico-trash-h.svg');
-
   }
 }
 .btn-clear {
   background-image: url('@/assets/ico-clear-events.svg');
   &:hover {
     background-image: url('@/assets/ico-clear-events-h.svg');
-
+  }
+}
+.btn-gear {
+  background-image: url('@/assets/ico-gear.svg');
+  &:hover {
+    background-image: url('@/assets/ico-gear-h.svg');
   }
 }
