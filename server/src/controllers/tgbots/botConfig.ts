@@ -6,11 +6,11 @@ export interface BotConfig {
 export const botConfigs: BotConfig[] = [
   {
     mode: "mastermind",
-    token: process.env.BOT_TOKEN || "",
+    token: process.env.TGBOT_MM_TOKEN || "",
   },
   {
     mode: "meditation",
-    token: process.env.MEDITATION_BOT_TOKEN || "",
+    token: process.env.TGBOT_MEDITATION_TOKEN || "",
   },
   // добавляешь новый бот — просто новая строка здесь
 ];

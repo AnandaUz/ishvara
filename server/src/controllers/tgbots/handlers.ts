@@ -1,5 +1,5 @@
 import { Telegraf } from "telegraf";
-import { sendMessageTo_mainAdmin } from "../controllers/tgbot_admin.controller.js";
+import { sendMessageTo_mainAdmin } from "../tgbot_admin.controller.js";
 
 export function applyHandlers(bot: Telegraf) {
 
