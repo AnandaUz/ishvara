@@ -35,9 +35,15 @@ export class CGuestBlock extends HTMLElement {
       event_source_url: activeProject.config.companyPageURL,
       action_source: "website",
       user_data: {},
+      event_id: "init_123",
+    };
+
+    data.custom_data = {
+      content_name: this.data.instagram?.comp_name || "",
     };
     if (eventObj && "value" in eventObj && eventObj.value) {
       data.custom_data = {
+        ...data.custom_data,
         currency: "USD",
         value: eventObj.value,
       };

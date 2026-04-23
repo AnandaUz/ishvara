@@ -49,8 +49,8 @@ export async function sendMetaEvent(req: Request, res: Response) {
       },
     );
 
-    // const json = await result.json();
-    // console.log("Meta response:", JSON.stringify(json));
+    const json = await result.json();
+    console.log("Meta response:", JSON.stringify(json));
 
     if (!result.ok) {
       const error = await result.json();

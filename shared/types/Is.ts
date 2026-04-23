@@ -11,8 +11,10 @@ export interface IPixelEventData {
     client_ip_address?: string;
     client_user_agent?: string;
   };
+  event_id?: string;
   custom_data?: {
     value?: number;
     currency?: string;
+    content_name?: string;
   };
 }
