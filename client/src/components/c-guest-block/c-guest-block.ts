@@ -56,7 +56,7 @@ export class CGuestBlock extends HTMLElement {
 
     const res = await api.guest.sendMetaEvent([data]);
     if (res.ok) {
-      const res2 = await api.guest.addTag(this.data._id, tag);
+      const res2 = await api.guest.addTag(this.data._id || "dfdf", tag);
       if (res2.ok) {
         if (!this.data.tags) this.data.tags = [];
         this.data.tags.push(tag);
@@ -125,14 +125,23 @@ export class CGuestBlock extends HTMLElement {
     {
       const isFbc = this.data.instagram?.fbc;
       const isFbp = this.data.instagram?.fbp;
-      cookieString += `<span class="${isFbc ? "ok" : ""}"></span>`;
       cookieString += `<span class="${isFbp ? "ok" : ""}"></span>`;
+      cookieString += `<span class="${isFbc ? "ok" : ""}"></span>`;
     }
     const paramsString = this.data.paramsString || "";
-    const createdAt = new Date(this.data.createdAt);
-    const lastChange = new Date(this.data.lastChange);
+
+    let createdAt: Date | undefined = undefined;
+    const d_createdAt = this.data.createdAt;
+    if (d_createdAt) {
+      createdAt = new Date(d_createdAt);
+    }
+    let lastChange: Date | undefined = undefined;
+    const d_lastChange = this.data.lastChange;
+    if (d_lastChange) {
+      lastChange = new Date(d_lastChange);
+    }
     let duration = "";
-    if (this.data.createdAt && this.data.lastChange) {
+    if (createdAt && lastChange) {
       const d = (lastChange.getTime() - createdAt.getTime()) / 1000;
       if (d > 60) {
         duration = (d / 60).toFixed(1) + "m";
@@ -141,7 +150,13 @@ export class CGuestBlock extends HTMLElement {
       }
     }
     let id = this.data._id;
-    if (this.data.name) id = `<div class='withName'>${this.data.name}</div>`;
+    let name = "";
+    if (this.data.name) {
+      name = this.data.name;
+    } else if (this.data.tg?.first_name) {
+      name = this.data.tg.first_name + " " + this.data.tg.last_name;
+    }
+    if (name) id = `<div class='withName'>${name}</div>`;
 
     body.innerHTML = `            
     <div class='id'>${id}</div>
@@ -150,7 +165,6 @@ export class CGuestBlock extends HTMLElement {
     <div class='duration'>${duration}</div>
     <div class='company-string'>${companyString}</div>
     <div class='cookie-string'>${cookieString}</div>
-    <div class='params-string'>${paramsString}</div>
 
     <div class='events-bl'></div>`;
 

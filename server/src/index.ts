@@ -52,7 +52,7 @@ app.use("/api/guests", guestsRouter);
 // app.use('/api/telegram', telegramRoutes);
 
 // маршрут для Telegram webhook
-app.post("/tgbot_users_webhook", (req, res) => {
+app.post("/tgbots_user_webhook", (req, res) => {
   const mode = req.query.mode as string;
   const bot = botRegistry.get(mode);
 

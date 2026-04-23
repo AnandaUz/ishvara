@@ -1,8 +1,9 @@
 import { Telegraf } from "telegraf";
 import { sendMessageTo_mainAdmin } from "../tgbot_admin.controller.js";
+import { updateGuest } from "../guests.controller.js";
+import { IGuest } from "../../../../shared/types/IGuest.js";
 
 export function applyHandlers(bot: Telegraf) {
-
   bot.start(async (ctx) => {
     if (!ctx.from) return;
 
@@ -17,11 +18,21 @@ export function applyHandlers(bot: Telegraf) {
 
     let typeText = "";
     switch (payload) {
-      case "meditation": typeText = "на КОЛЛЕКТИВНУЮ МЕДИТАЦИЮ"; break;
-      case "mastermind": typeText = "на МАСТЕРМАЙНД"; break;
-      case "coaching":   typeText = "на КОУЧ-СЕССИЮ"; break;
-      case "meet":       typeText = "на бесплатную встречу"; break;
-      case "question":   typeText = "на вопрос"; break;
+      case "meditation":
+        typeText = "на КОЛЛЕКТИВНУЮ МЕДИТАЦИЮ";
+        break;
+      case "mastermind":
+        typeText = "на МАСТЕРМАЙНД";
+        break;
+      case "coaching":
+        typeText = "на КОУЧ-СЕССИЮ";
+        break;
+      case "meet":
+        typeText = "на бесплатную встречу";
+        break;
+      case "question":
+        typeText = "на вопрос";
+        break;
     }
 
     const suffix = typeText ? ` ${typeText}` : "";
@@ -43,14 +54,33 @@ export function applyHandlers(bot: Telegraf) {
     }
 
     const username = ctx.from.username;
-    const adminMsg = `${userID} 📩 Новая заявка${suffix}
+    const adminMsg = `📩 Новая заявка${suffix}
 От: ${fullName}
 ID: <code>${ctx.from.id}</code>
 ${username ? `Username: @${username}` : "Username: нет"}
-Ссылка: <a href="tg://user?id=${ctx.from.id}">${fullName}</a>`;
+Ссылка: <a href="tg://user?id=${ctx.from.id}">${fullName}</a>
+BaseID: ${userID} `;
 
     await sendMessageTo_mainAdmin(adminMsg);
     await ctx.reply(clientMsg);
+
+    if (userID) {
+      try {
+        const guestData: IGuest = {
+          tg: {
+            first_name: firstName,
+            last_name: lastName || "",
+            id: ctx.from.id.toString(),
+            username: username || "",
+          },
+          paramsString: JSON.stringify(ctx.payload),
+          events: [],
+        };
+        await updateGuest(userID, guestData);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   });
 
   bot.on("message", async (ctx) => {
@@ -60,8 +90,6 @@ ${username ? `Username: @${username}` : "Username: нет"}
     const clientId = ctx.from.id;
     const text = msg.text || "[не текст]";
 
-    await sendMessageTo_mainAdmin(
-      `/reply <code>${clientId}</code>\n\n${text}`
-    );
+    await sendMessageTo_mainAdmin(`/reply <code>${clientId}</code>\n\n${text}`);
   });
 }

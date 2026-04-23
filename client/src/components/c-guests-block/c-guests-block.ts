@@ -11,6 +11,7 @@ import {
   META_EVENTS_LEVEL,
   type IEventCodeItem,
 } from "@shared/types/GuestConst";
+import { api } from "@/services/api";
 
 export class TGuestsBlock extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
@@ -77,17 +78,15 @@ export class TGuestsBlock extends HTMLElement {
     btn_clear.className = "btn sml-btn btn-clear";
     this.menu.appendChild(btn_clear);
 
-    //  const btn_clear = document.createElement('button');
-    //  btn_clear.className = 'btn sml-btn btn-clear';
-    //  btn_clear.addEventListener('click', async () => {
-    //      const res = await api.guest.clearEvents(this.data._id);
-    //  if (res.ok) {
-    //    this.data.events = [];
-    //    this.querySelector('.events-bl')!.innerHTML = '';
-    //  }
-    //     });
-
-    //     menu.appendChild(btn_clear);
+    btn_clear.addEventListener("click", async () => {
+      const guest = this.menu!.targetElement as CGuestBlock;
+      if (!guest) return;
+      const res = await api.guest.clearEvents(guest.data._id);
+      if (res.ok) {
+        guest.data.events = [];
+        guest.querySelector(".events-bl")!.innerHTML = "";
+      }
+    });
   }
 
   render() {

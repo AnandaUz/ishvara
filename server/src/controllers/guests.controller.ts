@@ -1,3 +1,4 @@
+import { IGuest } from "../../../shared/types/IGuest.js";
 import Guest from "../models/Guest.js";
 import { Request, Response } from "express";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
@@ -12,6 +13,9 @@ export async function getGuests(_req: Request, res: Response) {
     { $sort: { sortField: -1 } },
   ]);
   res.json(guests);
+}
+export async function updateGuest(_id: string, data: Partial<IGuest>) {
+  await Guest.updateOne({ _id }, { $set: data });
 }
 export async function deleteGuest(_req: Request, res: Response) {
   const { _id } = _req.body;

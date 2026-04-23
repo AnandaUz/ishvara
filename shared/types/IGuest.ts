@@ -1,7 +1,7 @@
 export interface IGuest {
-  _id: string; // session id
-  createdAt: Date;
-  lastChange: Date;
+  _id?: string; // session id
+  createdAt?: Date;
+  lastChange?: Date;
   ua?: string; // user agent
   referrer?: string;
   name?: string;
