@@ -80,3 +80,15 @@ export const META_EVENT_LEVEL_BY_CODE = Object.fromEntries(
 export const META_EVENT_BY_CODE = Object.fromEntries(
   Object.values(META_EVENTS_LEVEL).map((item) => [item.code, item]),
 );
+
+interface IGuestTag {
+  code: number;
+  title: string;
+}
+export const GUEST_TAGS = {
+  // начинаю с 10 так как использовал предыдущие чтобы указывать уровень событий для меты
+  returned: {
+    code: 10,
+    title: "Вернувшийся",
+  },
+} as const satisfies Record<string, IGuestTag>;

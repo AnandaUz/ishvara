@@ -68,20 +68,31 @@ export async function sendMetaEvent(req: Request, res: Response) {
   }
 }
 
-// async function hashSHA256(value: string): Promise<string> {
-//   const buffer = await crypto.subtle.digest(
-//     "SHA-256",
-//     new TextEncoder().encode(value),
-//   );
-//   return Array.from(new Uint8Array(buffer))
-//     .map((b) => b.toString(16).padStart(2, "0"))
-//     .join("");
-// }
+export async function hashSHA256(value: string): Promise<string> {
+  const buffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
 
-export async function addTag(_req: Request, res: Response) {
-  const { _id, tag } = _req.body;
+async function addTag(_id: string, tag: number) {
   try {
     await Guest.updateOne({ _id }, { $addToSet: { tags: tag } });
+  } catch (error) {
+    console.log("addTag error:", error);
+  }
+}
+export const guestObj = {
+  addTag,
+};
+
+export async function post_addTag(_req: Request, res: Response) {
+  const { _id, tag } = _req.body;
+  try {
+    await addTag(_id, tag);
     res.json({ ok: true });
   } catch (error) {
     res.status(500).json({ error: "error" });
