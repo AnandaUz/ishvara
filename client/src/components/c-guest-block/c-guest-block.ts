@@ -119,7 +119,7 @@ export class CGuestBlock extends HTMLElement {
 
     let companyString = "";
     if (this.data.instagram?.comp_name) {
-      companyString = `<span class='comp-name'>${this.data.instagram?.comp_name}</span><span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`;
+      companyString = `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`;
     }
     let cookieString = "";
     {
@@ -128,7 +128,7 @@ export class CGuestBlock extends HTMLElement {
       cookieString += `<span class="${isFbp ? "ok" : ""}"></span>`;
       cookieString += `<span class="${isFbc ? "ok" : ""}"></span>`;
     }
-    const paramsString = this.data.paramsString || "";
+    // const paramsString = this.data.paramsString || "";
 
     let createdAt: Date | undefined = undefined;
     const d_createdAt = this.data.createdAt;
@@ -149,17 +149,16 @@ export class CGuestBlock extends HTMLElement {
         duration = d.toFixed(1) + "s";
       }
     }
-    let id = this.data._id;
+
     let name = "";
     if (this.data.name) {
       name = this.data.name;
     } else if (this.data.tg?.first_name) {
       name = this.data.tg.first_name + " " + this.data.tg.last_name;
     }
-    if (name) id = `<div class='withName'>${name}</div>`;
 
     body.innerHTML = `            
-    <div class='id'>${id}</div>
+    <div class='name'>${name}</div>
     <div class='create-time'>${getTimeStr(this.data.createdAt)}</div>
     <div class='last-change'>${getTimeStr(this.data.lastChange)}</div>
     <div class='duration'>${duration}</div>
@@ -171,12 +170,19 @@ export class CGuestBlock extends HTMLElement {
     const btn_delete = document.createElement("button");
     btn_delete.className = "btn sml-btn btn-delete";
     btn_delete.addEventListener("click", async () => {
-      const res = await api.guest.delete(this.data._id);
+      const res = await api.guest.delete(this.data!._id!);
       if (res.ok) {
         this.remove();
       }
     });
     body.appendChild(btn_delete);
+
+    const btn_info = document.createElement("button");
+    btn_info.className = "btn sml-btn btn-info-circle";
+    btn_info.addEventListener("click", async () => {
+      this.owner.modalMenu!.open(this.data!._id!);
+    });
+    body.appendChild(btn_info);
 
     const btn_gear = document.createElement("button");
     btn_gear.className = "btn sml-btn btn-gear";

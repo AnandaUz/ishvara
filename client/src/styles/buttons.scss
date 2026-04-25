@@ -1,11 +1,11 @@
 button {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 .btn {
-     border: none;
-     cursor: pointer;
-     background: none;
-    background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  background: none;
+  background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
 }
@@ -13,23 +13,76 @@ button {
   --w: 16px;
   width: var(--w);
   height: var(--w);
-  
 }
 .btn-delete {
-  background-image: url('@/assets/ico-trash.svg');
+  background-image: url("@/assets/ico-trash.svg");
   &:hover {
-    background-image: url('@/assets/ico-trash-h.svg');
+    background-image: url("@/assets/ico-trash-h.svg");
   }
 }
 .btn-clear {
-  background-image: url('@/assets/ico-clear-events.svg');
+  background-image: url("@/assets/ico-clear-events.svg");
   &:hover {
-    background-image: url('@/assets/ico-clear-events-h.svg');
+    background-image: url("@/assets/ico-clear-events-h.svg");
   }
 }
 .btn-gear {
-  background-image: url('@/assets/ico-gear.svg');
+  background-image: url("@/assets/ico-gear.svg");
   &:hover {
-    background-image: url('@/assets/ico-gear-h.svg');
+    background-image: url("@/assets/ico-gear-h.svg");
+  }
+}
+.btn-info-circle {
+  background-image: url("@/assets/info-circle.svg");
+  &:hover {
+    background-image: url("@/assets/info-circle-h.svg");
+  }
+}
+.btn-big {
+  margin: 0 0 5px;
+  padding: 8px 15px;
+  display: inline-grid;
+  box-shadow: 0 1px 6px #0005;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+
+  background:
+    url("@/assets/btn-bg-t.svg") center top repeat-x,
+    url("@/assets/btn-bg-b.svg") center bottom repeat-x,
+    #0070f3;
+  &.off {
+    background:
+      url("@/assets/btn-bg-t.svg") center top repeat-x,
+      url("@/assets/btn-bg-b.svg") center bottom repeat-x,
+      #f37500;
+    .isOff {
+      display: block;
+    }
+    .isOn {
+      display: none;
+    }
+  }
+  .isOff,
+  .isOn {
+    font-size: 12px;
+    color: #ffffffa8;
+  }
+
+  .isOff {
+    display: none;
+  }
+  .isOn {
+    display: block;
+  }
+  &:active {
+    position: relative;
+    top: 2px;
+  }
+
+  &:visited {
+    color: rgba(255, 255, 255, 0.9);
   }
 }

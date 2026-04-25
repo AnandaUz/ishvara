@@ -6,6 +6,7 @@ export interface IGuest {
   referrer?: string;
   name?: string;
   userAgentString?: string;
+  phone?: string;
 
   tg?: {
     id: string;

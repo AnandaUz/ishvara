@@ -95,33 +95,34 @@
       }
     }
   }
+  .btn-info-circle {
+    position: absolute;
+    right: 215px;
+    top: 1px;
+  }
   .btn-delete {
     position: absolute;
     right: 1px;
-    top: 14px;
+    bottom: 1px;
   }
   .btn-gear {
     position: absolute;
     bottom: 0;
     left: 44px;
   }
-  .id {
-    font-size: 12px;
-    color: rgba(0, 0, 50, 0.5);
+  .name {
     position: absolute;
     right: 10px;
     top: 2px;
-    .withName {
-      font-size: 16px;
-      color: #c93101;
-      font-weight: bold;
-    }
+    font-size: 16px;
+    color: #9d0000d9;
+    font-weight: bold;
   }
   .company-string {
     position: absolute;
     font-size: 11px;
     color: #5ab372;
-    right: 11px;
+    right: 25px;
     top: 19px;
     display: flex;
     flex-direction: row;

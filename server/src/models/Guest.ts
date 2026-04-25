@@ -12,6 +12,7 @@ const GuestSchema = new Schema<IGuestDocument>({
   referrer: { type: String },
   name: { type: String },
   userAgentString: { type: String },
+  phone: { type: String },
   tg: {
     id: { type: String },
     first_name: { type: String },

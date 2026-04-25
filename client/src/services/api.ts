@@ -1,3 +1,4 @@
+import type { IGuest } from "@shared/types/IGuest";
 import type { IPixelEventData } from "@shared/types/Is";
 
 const guest = {
@@ -35,6 +36,18 @@ const guest = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ data: eventData }),
+    });
+  },
+  getOne: async (id: string) => {
+    return fetch(import.meta.env.VITE_API_URL + "/api/guests/one/" + id);
+  },
+  patchOne: async (id: string, data: Partial<IGuest>) => {
+    return fetch(import.meta.env.VITE_API_URL + "/api/guests/one/" + id, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     });
   },
 };

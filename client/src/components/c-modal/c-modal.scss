@@ -1,0 +1,42 @@
+c-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 99999;
+
+  &[open] {
+    display: flex;
+    animation: fadeIn 0.25s ease forwards;
+  }
+
+  &[open] &__box {
+    transform: translateY(0);
+  }
+}
+.c-modal {
+  &__box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    width: min(480px, 90vw);
+    transform: translateY(20px);
+    transition: transform 0.25s ease;
+
+    min-width: 100px;
+    min-height: 100px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

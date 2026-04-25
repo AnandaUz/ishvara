@@ -6,16 +6,27 @@ import { DESC_EVENTS } from "@/features/events";
 import { projectsManager } from "@/features/projectsManager";
 import { CGuestBlock } from "../c-guest-block/c-guest-block";
 import { CPopup } from "../c-popup/c-popup";
+import { CGuestCard } from "../c-guest-card/c-guest-card";
 // import { api } from "@/services/api";
 import {
   META_EVENTS_LEVEL,
   type IEventCodeItem,
 } from "@shared/types/GuestConst";
 import { api } from "@/services/api";
+import { CModal } from "../c-modal/c-modal";
 
 export class TGuestsBlock extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
   menu: CPopup | null = null;
+  modalMenu: CModal | null = null;
+  guestForm: CGuestCard | null = null;
+
+  modalOpen_func(id: string) {
+    const modal = this.modalMenu;
+    if (!modal) return;
+
+    this.guestForm?.init(id, this.modalMenu);
+  }
   constructor() {
     super();
     this.innerHTML = template;
@@ -29,6 +40,16 @@ export class TGuestsBlock extends HTMLElement {
     this.menu = new CPopup();
 
     this.appendChild(this.menu);
+
+    this.modalMenu = new CModal();
+    this.modalMenu.onOpen = (id: any) => {
+      this.modalOpen_func(id);
+    };
+
+    this.guestForm = new CGuestCard();
+    this.modalMenu.querySelector(".c-modal__box")!.appendChild(this.guestForm);
+
+    this.appendChild(this.modalMenu);
 
     const m: IEventCodeItem[] = [];
     m.push(META_EVENTS_LEVEL.EngagedView);

@@ -1,6 +1,7 @@
 import { IGuest } from "../../../shared/types/IGuest.js";
 import Guest from "../models/Guest.js";
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
 
 export async function getGuests(_req: Request, res: Response) {
@@ -98,3 +99,18 @@ export async function post_addTag(_req: Request, res: Response) {
     res.status(500).json({ error: "error" });
   }
 }
+
+// получить одного гостя
+export async function getOneGuest(_req: Request, res: Response) {
+  const guest = await Guest.findById(_req.params.id);
+  if (!guest) return res.status(404).json({ error: "not found" });
+  res.json(guest);
+}
+
+// обновить гостя
+export async function patchOneGuest(req: Request, res: Response) {
+  await Guest.updateOne({ _id: new mongoose.Types.ObjectId(req.params.id) }, { $set: req.body })
+  res.json({ ok: true });
+}
+
+
