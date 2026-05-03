@@ -69,16 +69,6 @@ export async function sendMetaEvent(req: Request, res: Response) {
   }
 }
 
-export async function hashSHA256(value: string): Promise<string> {
-  const buffer = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(value),
-  );
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 async function addTag(_id: string, tag: number) {
   try {
     await Guest.updateOne({ _id }, { $addToSet: { tags: tag } });
@@ -109,8 +99,10 @@ export async function getOneGuest(_req: Request, res: Response) {
 
 // обновить гостя
 export async function patchOneGuest(req: Request, res: Response) {
-  await Guest.updateOne({ _id: new mongoose.Types.ObjectId(req.params.id) }, { $set: req.body })
+  const id = req.params!.id as string;
+  await Guest.updateOne(
+    { _id: new mongoose.Types.ObjectId(id) },
+    { $set: req.body },
+  );
   res.json({ ok: true });
 }
-
-

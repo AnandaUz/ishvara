@@ -1,13 +1,21 @@
-import { EventEmitter } from '@base/client/features/event-emitter';
+import { EventEmitter } from "@base/client/features/event-emitter";
 
-import { DESC_EVENTS, type DeskEvents } from '@features/events';
+export const DESC_EVENTS = {
+  project: {
+    Changed: "project:changed",
+  },
+  guests: {
+    Filter: {
+      LevelChanged: "guests:filter:level:changed",
+    },
+  },
+} as const;
 
-export class Store extends EventEmitter<DeskEvents>
-{
+export type DeskEvents = {
+  [DESC_EVENTS.project.Changed]: string;
+  [DESC_EVENTS.guests.Filter.LevelChanged]: number;
+};
 
-
-
-}
+export class Store extends EventEmitter<DeskEvents> {}
 
 export const store = new Store();
-

@@ -1,8 +1,8 @@
 import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
-// import guest from "@/services/tracker.services";
-// import template from "./c-guest-block.html?raw";
-import { getTimeStr } from "@/services/tools";
+import template from "./c-guest-block.html?raw";
+
+import { cleanName, getTimeStr, hashSHA256 } from "@/services/tools";
 import { api } from "@/services/api";
 import {
   META_EVENT_LEVEL_BY_CODE,
@@ -10,14 +10,18 @@ import {
   EVENT_BY_CODE,
   META_EVENT_BY_CODE,
 } from "@shared/types/GuestConst";
-import type { TGuestsBlock } from "../c-guests-block/c-guests-block";
 import type { IPixelEventData } from "@shared/types/Is";
 import { projectsManager } from "@/features/projectsManager";
+import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
+import { DESC_EVENTS, store } from "@/features/store";
 
 export class CGuestBlock extends HTMLElement {
   data: IGuest;
-  owner: TGuestsBlock;
+  owner: CGuestsMain;
   // private _levelBehavior: number = 0;
+  private isRender: boolean = false;
+  private body!: HTMLDivElement;
+  private timeLineBlock!: HTMLDivElement;
   async sendMetaEvent(tag: number) {
     if (this.levelBehavior === tag) return true;
 
@@ -35,12 +39,29 @@ export class CGuestBlock extends HTMLElement {
       event_source_url: activeProject.config.companyPageURL,
       action_source: "website",
       user_data: {},
-      event_id: "init_123",
+      event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     };
 
-    data.custom_data = {
-      content_name: this.data.instagram?.comp_name || "",
-    };
+    data.user_data.ct = await hashSHA256("tashkent"); // хешируется, lowercase
+    data.user_data.country = await hashSHA256("uz"); // код страны, тоже хешируется
+
+    if (userData.tg && userData.tg.first_name) {
+      data.user_data.fn = await hashSHA256(cleanName(userData.tg.first_name));
+    }
+    if (userData.tg && userData.tg.last_name) {
+      data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
+    }
+
+    data.custom_data = {};
+
+    if (
+      userData.instagram?.comp_name &&
+      userData.instagram?.comp_name !== "{{campaign.name}}"
+    ) {
+      data.custom_data.content_name = this.data.instagram?.comp_name || "";
+    } else {
+      data.custom_data.content_name = activeProject.config.id;
+    }
     if (eventObj && "value" in eventObj && eventObj.value) {
       data.custom_data = {
         ...data.custom_data,
@@ -76,18 +97,10 @@ export class CGuestBlock extends HTMLElement {
     }
     return t;
   }
-  render() {
+  set_eventLevel() {
+    const bg = this.querySelector(".bg") as HTMLDivElement;
     const data = this.data;
-    const owner = this.owner;
-    this.innerHTML = "";
-    const bg = document.createElement("div");
-    bg.classList.add("bg");
-    this.appendChild(bg);
-    for (let i = 0; i < 7; i++) {
-      const bgItem = document.createElement("div");
-      bgItem.classList.add("bgg", "bg" + i);
-      bg.appendChild(bgItem);
-    }
+
     if (data.tags?.includes(1)) {
       bg.classList.add("l1");
     }
@@ -109,45 +122,80 @@ export class CGuestBlock extends HTMLElement {
     if (data.tags?.includes(7)) {
       bg.classList.add("l7");
     }
+  }
+  render_eventLevel() {
+    const bg = this.querySelector(".bg") as HTMLDivElement;
 
-    const body = document.createElement("div");
-    body.classList.add("body");
-    this.appendChild(body);
+    for (let i = 0; i < 7; i++) {
+      const bgItem = document.createElement("div");
+      bgItem.classList.add("bgg", "bg" + i);
+      bg.appendChild(bgItem);
+    }
+  }
+  render() {
+    const data = this.data;
+    const owner = this.owner;
+    this.innerHTML = template;
+    this.body = this.querySelector(".body")!;
+    this.timeLineBlock = this.querySelector(".time-line-block")!;
+    this.render_eventLevel();
+    this.render_timeLine();
+    this.set_eventLevel();
 
     this.data = data;
     this.owner = owner;
 
-    let companyString = "";
+    const body = this.body;
+
+    const setBlock = (name: string, html?: string) => {
+      const el = body.querySelector(name) as HTMLDivElement;
+      if (!el) throw new Error(`Block ${name} not found`);
+      el.innerHTML = html || "";
+      return el;
+    };
+
     if (this.data.instagram?.comp_name) {
-      companyString = `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`;
+      setBlock(
+        ".company-string",
+        `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`,
+      );
     }
-    let cookieString = "";
+
     {
       const isFbc = this.data.instagram?.fbc;
       const isFbp = this.data.instagram?.fbp;
-      cookieString += `<span class="${isFbp ? "ok" : ""}"></span>`;
-      cookieString += `<span class="${isFbc ? "ok" : ""}"></span>`;
+      setBlock(
+        ".cookie-string",
+        `
+        <span class="${isFbp ? "ok" : ""}"></span>
+        <span class="${isFbc ? "ok" : ""}"></span>`,
+      );
     }
-    // const paramsString = this.data.paramsString || "";
 
-    let createdAt: Date | undefined = undefined;
-    const d_createdAt = this.data.createdAt;
+    const d_createdAt = this.data.createdAt
+      ? new Date(this.data.createdAt)
+      : null;
     if (d_createdAt) {
-      createdAt = new Date(d_createdAt);
+      const t = getTimeStr(d_createdAt);
+      setBlock(".create-time", `${t}`);
     }
-    let lastChange: Date | undefined = undefined;
-    const d_lastChange = this.data.lastChange;
+
+    const d_lastChange = this.data.lastChange
+      ? new Date(this.data.lastChange)
+      : null;
     if (d_lastChange) {
-      lastChange = new Date(d_lastChange);
+      const t = getTimeStr(d_lastChange);
+      setBlock(".last-change", `${t}`);
     }
-    let duration = "";
-    if (createdAt && lastChange) {
-      const d = (lastChange.getTime() - createdAt.getTime()) / 1000;
+    if (d_createdAt && d_lastChange) {
+      const d = (d_lastChange.getTime() - d_createdAt.getTime()) / 1000;
+      let duration = "";
       if (d > 60) {
         duration = (d / 60).toFixed(1) + "m";
       } else {
         duration = d.toFixed(1) + "s";
       }
+      setBlock(".time-duration", `${duration}`);
     }
 
     let name = "";
@@ -156,43 +204,39 @@ export class CGuestBlock extends HTMLElement {
     } else if (this.data.tg?.first_name) {
       name = this.data.tg.first_name + " " + this.data.tg.last_name;
     }
+    setBlock(".name", name).addEventListener("click", async () => {
+      this.owner.modalMenu!.open(this);
+    });
 
-    body.innerHTML = `            
-    <div class='name'>${name}</div>
-    <div class='create-time'>${getTimeStr(this.data.createdAt)}</div>
-    <div class='last-change'>${getTimeStr(this.data.lastChange)}</div>
-    <div class='duration'>${duration}</div>
-    <div class='company-string'>${companyString}</div>
-    <div class='cookie-string'>${cookieString}</div>
+    if (this.data.tg?.username) {
+      const userName = this.data.tg.username.replaceAll("@", "");
+      setBlock(
+        ".tg-user-name",
+        `<a href="https://t.me/${userName}" target="_blank">@${userName}</a>`,
+      );
+    }
 
-    <div class='events-bl'></div>`;
-
-    const btn_delete = document.createElement("button");
-    btn_delete.className = "btn sml-btn btn-delete";
+    const btn_delete = body.querySelector(".btn-delete")!;
     btn_delete.addEventListener("click", async () => {
       const res = await api.guest.delete(this.data!._id!);
       if (res.ok) {
         this.remove();
       }
     });
-    body.appendChild(btn_delete);
 
-    const btn_info = document.createElement("button");
-    btn_info.className = "btn sml-btn btn-info-circle";
+    const btn_info = body.querySelector(".btn-info-circle")!;
     btn_info.addEventListener("click", async () => {
-      this.owner.modalMenu!.open(this.data!._id!);
+      this.owner.modalMenu!.open(this);
     });
-    body.appendChild(btn_info);
 
-    const btn_gear = document.createElement("button");
-    btn_gear.className = "btn sml-btn btn-gear";
+    const btn_gear = body.querySelector(".btn-gear")! as HTMLButtonElement;
     btn_gear.addEventListener("click", async (e: MouseEvent) => {
       e.stopPropagation(); // чтобы не закрылся сразу
       this.owner.menu!.toggle(btn_gear, this);
     });
-    body.appendChild(btn_gear);
-
-    const eventsBl = body.querySelector(".events-bl");
+  }
+  render_timeLine() {
+    const timeLineBlock = this.timeLineBlock;
 
     let t = 0;
     const k = 40; // 20 пикселей на секунду
@@ -223,7 +267,7 @@ export class CGuestBlock extends HTMLElement {
       if (kod === "t") {
         if (i > 0) {
           const blBR = document.createElement("br");
-          eventsBl?.appendChild(blBR);
+          timeLineBlock.appendChild(blBR);
         }
         eventElement.innerHTML = `<span></span><span class='page-name'>${event![1]}</span>`;
         if (newStarTime) {
@@ -246,7 +290,7 @@ export class CGuestBlock extends HTMLElement {
               eventElement.classList.add("event");
               // eventElement.classList.add('scale');
               eventElement.style.width = k + "px";
-              eventsBl?.appendChild(eventElement);
+              timeLineBlock.appendChild(eventElement);
             }
             xx -= n * dT;
           }
@@ -274,23 +318,38 @@ export class CGuestBlock extends HTMLElement {
         }
       }
 
-      eventsBl?.appendChild(eventElement);
+      timeLineBlock.appendChild(eventElement);
 
       t = time;
     }
   }
-  constructor(data: IGuest, owner: TGuestsBlock) {
+  constructor(data: IGuest, owner: CGuestsMain) {
     super();
+    //
 
-    this.classList.add("guest-bl");
     this.data = data;
     this.owner = owner;
-    this.render();
+
+    store.on(DESC_EVENTS.guests.Filter.LevelChanged, () => {
+      if (this.owner.filters.eventLevel > this.levelBehavior) {
+        this.removeAttribute("visible");
+      } else {
+        this.setAttribute("visible", "");
+        if (!this.isRender) {
+          this.render();
+          this.isRender = true;
+        }
+        this.classList.remove("mode-0");
+        this.classList.remove("mode-1");
+        if (this.owner.filters.eventLevel === 0) {
+          this.classList.add("mode-0");
+        } else {
+          this.classList.add("mode-1");
+        }
+      }
+    });
   }
-  async connectedCallback() {
-    // const guest = this.getAttribute('data-guest') || '';
-    // this.innerHTML = template.replace('{{guest}}', guest);
-  }
+  async connectedCallback() {}
 }
 
 customElements.define("c-guest-block", CGuestBlock);

@@ -1,11 +1,10 @@
-
 @use "@styles/buttons";
 @use "@styles/globalConst";
 @use "@base/client/scss/breakpoints";
 
 :root {
   line-height: 1.5;
-  font-weight: 400;  
+  font-weight: 400;
 }
 * {
   margin: 0;
@@ -18,29 +17,32 @@
 /* montserrat-regular - latin */
 @font-face {
   font-display: swap;
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-regular.woff2') format('woff2');
+  src: url("@assets/fonts/montserrat-v31-cyrillic_latin-regular.woff2")
+    format("woff2");
 }
 /* montserrat-italic - latin */
 @font-face {
-  font-display: swap; 
-  font-family: 'Montserrat';
+  font-display: swap;
+  font-family: "Montserrat";
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-italic.woff2') format('woff2'); 
+  src: url("@assets/fonts/montserrat-v31-cyrillic_latin-italic.woff2")
+    format("woff2");
 }
 /* montserrat-600 - latin */
 @font-face {
   font-display: swap;
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('@assets/fonts/montserrat-v31-cyrillic_latin-600.woff2') format('woff2');
+  src: url("@assets/fonts/montserrat-v31-cyrillic_latin-600.woff2")
+    format("woff2");
 }
 
 /* Базовые настройки */
@@ -49,16 +51,16 @@ html {
   scroll-behavior: smooth;
 }
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400; /* обычный */
   line-height: 1.2;
   color: rgba(88, 21, 0, 0.8);
   font-size: 18px;
-  min-height: 100vh;  
+  min-height: 100vh;
   min-width: 320px;
-  background: url('@/assets/bg.png');
-  display: flex;          
-  flex-direction: column; 
+  background: url("@/assets/bg.png");
+  display: flex;
+  flex-direction: column;
   font-size: 16px;
 }
 a {
@@ -77,24 +79,27 @@ a {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: url("@/assets/bg-circle.svg"),#F0FBFF url('@/assets/bg-center.jpg') no-repeat top center;
+  background:
+    url("@/assets/bg-circle.svg"),
+    #f0fbff url("@/assets/bg-center.jpg") no-repeat top center;
   background-size: 1073px, cover;
-  background-position: right -501px top -500px, 0 0;
+  background-position:
+    right -501px top -500px,
+    0 0;
   background-repeat: no-repeat;
-
 }
 main {
   flex-grow: 1;
-  
 }
-footer {
-  flex-shrink: 0;
-  // background: rgba(187, 211, 227, 0.66);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+// footer {
+//   flex-shrink: 0;
+//   // background: rgba(187, 211, 227, 0.66);
+//   font-size: 12px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   padding: 400px 0 0;
+// }
 header {
   flex-shrink: 0;
   a {
@@ -118,7 +123,6 @@ header {
     display: inline-block;
   }
 }
-
 
 .user-list {
   a {
@@ -151,7 +155,8 @@ header {
   }
 }
 
-h1, h2 {
+h1,
+h2 {
   background: rgba(255, 68, 0, 0.7);
   margin: 0;
   color: #fff;
@@ -160,19 +165,17 @@ h1, h2 {
   text-align: center;
   position: relative;
   line-height: 0.8;
-  
+
   @include breakpoints.tablet {
-    background:none;
+    background: none;
     color: rgba(255, 68, 0, 0.75);
-
   }
-
 }
-h1 { 
+h1 {
   font-size: 25px;
-  
-  @include breakpoints.tablet {    
-    font-size: 34px;    
+
+  @include breakpoints.tablet {
+    font-size: 34px;
   }
 }
 h2 {
@@ -182,7 +185,6 @@ h2 {
   margin: 0 0 10px;
   line-height: 1;
 }
-
 
 .list-p {
   p {
@@ -218,21 +220,20 @@ h3 {
   color: var(--darkBlue);
 }
 footer {
-      display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    /* background: rgba(224, 243, 255, 0.6392156863); */
-    padding: 9px;
-    border-top: 4px solid #ffffff5e;
-    margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* background: rgba(224, 243, 255, 0.6392156863); */
+  padding: 9px;
+  border-top: 4px solid #ffffff5e;
+  margin: 200px 0 0;
 
   .container {
     background: #e9f7fd;
     padding: 10px 0 5px;
     color: #31556b;
     border-top: 1px solid #cce7ed;
-
   }
   a.anh {
     color: #148ad7;
@@ -243,7 +244,6 @@ footer {
       color: #000ba5;
     }
   }
-
 }
 
 a.bA {
@@ -274,7 +274,7 @@ a.bA {
     top: 6px;
     left: 16px;
     background-image: url("@/assets/str.png");
-    width:335px;
+    width: 335px;
     height: 30px;
     transition: left 0.2s ease;
   }

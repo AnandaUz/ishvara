@@ -7,9 +7,10 @@ export interface IGuest {
   name?: string;
   userAgentString?: string;
   phone?: string;
+  companyId?: string;
 
   tg?: {
-    id: string;
+    id?: string;
     first_name?: string;
     last_name?: string;
     username?: string;

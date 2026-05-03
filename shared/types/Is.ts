@@ -10,6 +10,10 @@ export interface IPixelEventData {
     fbc?: string;
     client_ip_address?: string;
     client_user_agent?: string;
+    fn?: string;
+    ln?: string;
+    ct?: string;
+    country?: string;
   };
   event_id?: string;
   custom_data?: {

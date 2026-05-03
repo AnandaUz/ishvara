@@ -1,0 +1,30 @@
+c-guests-filters-bl {
+  display: flex;
+  gap: 3px;
+  .btn {
+    width: 25px;
+    height: 18px;
+    border-radius: 4px;
+    opacity: 0.5;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      opacity: 1;
+    }
+    &.active {
+      opacity: 1;
+
+      &:before {
+        --w: 3px;
+        --h: 9px;
+        content: "";
+        width: var(--w);
+        height: var(--h);
+        background: rgba(0, 0, 0, 0.4392156863);
+        border-radius: 4px;
+      }
+    }
+  }
+}

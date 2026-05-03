@@ -5,6 +5,7 @@ export interface ProjectConfig {
   id: string;
   filterFunc: (guest: IGuest) => boolean;
   companyPageURL: string;
+  isOff?: boolean;
 }
 
 export const projects_configs: ProjectConfig[] = [
@@ -12,6 +13,7 @@ export const projects_configs: ProjectConfig[] = [
     name: "Коллективные медитации",
     id: "meditations",
     filterFunc: (guest: IGuest) => {
+      if (guest.companyId === "meditations") return true;
       if (guest.instagram?.comp_name === "MeditationTashkent") return true;
 
       return false;
@@ -22,9 +24,21 @@ export const projects_configs: ProjectConfig[] = [
     name: "Беспалтные встречи (ПММ)",
     id: "free-meetings",
     filterFunc: (guest: IGuest) => {
+      if (guest.companyId === "free-meetings") return true;
       if (guest.instagram?.comp_name === "lead") return true;
       if (guest.instagram?.comp_name === "lead2") return true;
 
+      return false;
+    },
+    companyPageURL: "https://esho.uz/meet",
+    isOff: true,
+  },
+  {
+    name: "Платный мастермайнд",
+    id: "mastermind",
+    filterFunc: (guest: IGuest) => {
+      if (guest.companyId === "mastermind") return true;
+      if (guest.instagram?.comp_name === "MasterMind") return true;
       return false;
     },
     companyPageURL: "https://esho.uz/meet",
@@ -33,6 +47,7 @@ export const projects_configs: ProjectConfig[] = [
     name: "Остальные",
     id: "other",
     filterFunc: (guest: IGuest) => {
+      if (guest.companyId === "other") return true;
       for (const project of projects_configs) {
         if (project.id === "other") continue;
         if (project.filterFunc(guest)) return false;

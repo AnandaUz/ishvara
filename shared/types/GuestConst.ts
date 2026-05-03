@@ -67,7 +67,7 @@ export const META_EVENTS_LEVEL = {
     code: 2,
     title: "Проявил интерес к странице (посмотрел видео)",
   },
-  EngagedView: {
+  ViewContent: {
     code: 1,
     title: "Живой и вовлечённый",
   },

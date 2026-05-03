@@ -1,17 +1,18 @@
-.guests-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: #082f613d;
-  border-radius: 5px;
-  padding: 2px;
-}
-.guest-bl {
+c-guest-block {
   background: rgb(250, 250, 254);
   border-radius: 5px;
-  min-height: 30px;
+
   position: relative;
   overflow: hidden;
+  transition: background 0.2s;
+  display: none;
+
+  &[visible] {
+    display: block;
+  }
+  &:hover {
+    background: rgb(213, 227, 233);
+  }
   .bg {
     position: absolute;
     top: 0;
@@ -79,13 +80,13 @@
   }
   .cookie-string {
     position: absolute;
-    right: 185px;
-    top: 5px;
+    left: 170px;
+    top: 1px;
     display: flex;
     flex-direction: row;
     gap: 3px;
     span {
-      --w: 5px;
+      --w: 4px;
       width: var(--w);
       height: var(--w);
       border-radius: 50%;
@@ -97,26 +98,31 @@
   }
   .btn-info-circle {
     position: absolute;
-    right: 215px;
+    left: 190px;
     top: 1px;
   }
   .btn-delete {
     position: absolute;
-    right: 1px;
+    left: 1px;
     bottom: 1px;
   }
   .btn-gear {
     position: absolute;
     bottom: 0;
-    left: 44px;
+    left: 100px;
   }
   .name {
     position: absolute;
-    right: 10px;
-    top: 2px;
+    left: 216px;
+    top: 0px;
     font-size: 16px;
-    color: #9d0000d9;
+    color: rgba(157, 0, 0, 0.8509803922);
     font-weight: bold;
+    z-index: 1000;
+    cursor: pointer;
+    &:hover {
+      color: #ff0000;
+    }
   }
   .company-string {
     position: absolute;
@@ -155,29 +161,29 @@
   }
   .create-time,
   .last-change,
-  .duration {
+  .time-duration {
     font-size: 11px;
     color: #9db6a0;
     position: absolute;
-    left: 8px;
+    left: 22px;
     top: 5px;
   }
   .last-change {
     top: 19px;
   }
-  .duration {
+  .time-duration {
     top: 5px;
     color: #970909;
-    left: 37px;
+    left: 53px;
     width: 34px;
     text-align: right;
     z-index: 100;
     background: #fff;
     border-radius: 3px;
   }
-  .events-bl {
+  .time-line-block {
     border-radius: 5px;
-    padding: 0px 196px 0 65px;
+    padding: 0px 196px 0 110px;
     margin: 8px;
 
     .event {
@@ -280,6 +286,83 @@
         span {
           background: rgb(221, 126, 2);
         }
+      }
+    }
+  }
+  .tg-user-name {
+    position: absolute;
+    right: 0;
+    font-size: 13px;
+    a {
+      padding: 2px 5px;
+      border-radius: 7px;
+
+      &:hover {
+        background: rgb(91 155 187);
+        color: #fff;
+      }
+    }
+  }
+  &.mode-1 {
+    .body {
+      display: grid;
+      min-height: unset;
+      height: unset;
+
+      grid-template-columns: auto auto [name] auto [user-name] 1fr [company] auto;
+      .tg-user-name {
+        grid-column: user-name;
+        grid-row: 1;
+        font-size: 13px;
+        align-self: center;
+        position: unset;
+      }
+      .company-string {
+        grid-column: company;
+        justify-self: end;
+        position: unset;
+        padding: 5px 27px 0 0;
+      }
+      .time-line-block {
+        display: none;
+      }
+      .create-time {
+        display: none;
+      }
+      .last-change {
+        display: none;
+      }
+      .time-duration {
+        display: none;
+      }
+      .cookie-string {
+        position: unset;
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+      }
+      .name {
+        grid-column: 3;
+        position: unset;
+        grid-row: 1;
+        padding: 2px 7px;
+      }
+      .btn-delete {
+        left: auto;
+        right: 2px;
+      }
+      .btn-gear {
+        position: unset;
+        grid-column: 1;
+        grid-row: 1;
+        margin: 2px 5px;
+        justify-content: center;
+        align-items: center;
+        display: grid;
+        align-self: center;
+      }
+      .btn-info-circle {
+        display: none;
       }
     }
   }

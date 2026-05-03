@@ -1,6 +1,5 @@
 import { projects_configs, type ProjectConfig } from "@/projects_config";
-import { store } from "./store";
-import { DESC_EVENTS } from "./events";
+import { DESC_EVENTS, store } from "./store";
 import type { IGuest } from "@shared/types/IGuest";
 
 class TProject {
