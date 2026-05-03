@@ -4,8 +4,8 @@ import Guest from "../models/Guest.js";
 import mongoose from "mongoose";
 import { guestObj } from "./guests.controller.js";
 import { GUEST_TAGS } from "../../../shared/types/GuestConst.js";
-import { BitProjects } from "../../../client/src/projects_config.js";
-import { IBigProjectConfig } from "../../../client/src/projects_config.js";
+import { BitProjects } from "../../../shared/projects_config.js";
+import { IBigProjectConfig } from "../../../shared/projects_config.js";
 
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
 export const idCreateLimiter = rateLimit({

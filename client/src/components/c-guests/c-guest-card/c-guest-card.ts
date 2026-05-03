@@ -4,7 +4,7 @@ import type { IGuest } from "@shared/types/IGuest";
 import type { CModal } from "@components/c-modal/c-modal";
 import type { CGuestBlock } from "@/components/c-guest-block/c-guest-block";
 import template from "./c-guest-card.html?raw";
-import { projects_configs } from "@/projects_config";
+import { projects_configs } from "@/tabs_config";
 
 export class CGuestCard extends HTMLElement {
   private _id: string = "";

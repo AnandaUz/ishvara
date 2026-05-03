@@ -1,6 +1,6 @@
 import "./c-project-tabs.scss";
 // import template from "./c-project-tabs.html?raw";
-import { projects_configs } from "@/projects_config";
+import { projects_configs } from "@/tabs_config";
 import { DESC_EVENTS, store } from "@features/store";
 import { projectsManager } from "@features/projectsManager";
 
