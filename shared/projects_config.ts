@@ -31,8 +31,8 @@ export const BitProjects: Record<string, IBigProjectConfig> = {
     id: 100,
     summary: "сейчас этои ПММ и КМ",
     companys: {
-      mastermind: {
-        name: "mastermind",
+      MasterMind: {
+        name: "MasterMind",
         id: 1,
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
