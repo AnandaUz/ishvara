@@ -8,12 +8,13 @@ interface IGuestDocument extends Omit<IGuest, "_id"> {
 const GuestSchema = new Schema<IGuestDocument>({
   createdAt: { type: Date, default: Date.now },
   lastChange: { type: Date },
-  ua: { type: String },
   referrer: { type: String },
   name: { type: String },
   userAgentString: { type: String },
   phone: { type: String },
+  projectId: { type: Number },
   companyId: { type: String },
+  ip: { type: String },
   tg: {
     id: { type: String },
     first_name: { type: String },
@@ -23,9 +24,9 @@ const GuestSchema = new Schema<IGuestDocument>({
   instagram: {
     fbp: { type: String },
     fbc: { type: String },
-    comp_name: { type: String },
-    adset_name: { type: String },
-    ad_name: { type: String },
+    comp_name: { type: Number || String },
+    adset_name: { type: Number || String },
+    ad_name: { type: Number || String },
   },
   paramsString: { type: String },
   events: { type: [[Schema.Types.Mixed]], default: [] },

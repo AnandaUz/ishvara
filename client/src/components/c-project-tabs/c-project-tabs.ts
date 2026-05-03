@@ -12,6 +12,7 @@ class ProjectTabs extends HTMLElement {
     this.classList.add("c-project-tabs");
 
     projects_configs.forEach((project) => {
+      if (project.isOff) return;
       const tab = document.createElement("div");
       tab.textContent = project.name;
       tab.classList.add("tab");

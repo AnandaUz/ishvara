@@ -2,12 +2,14 @@ export interface IGuest {
   _id?: string; // session id
   createdAt?: Date;
   lastChange?: Date;
-  ua?: string; // user agent
+
   referrer?: string;
   name?: string;
   userAgentString?: string;
   phone?: string;
-  companyId?: string;
+  projectId?: number;
+  ip?: string;
+  companyId: string; //для совместимости
 
   tg?: {
     id?: string;
@@ -18,9 +20,9 @@ export interface IGuest {
   instagram?: {
     fbp?: string; // _fbp cookie от Facebook
     fbc?: string; // _fbc cookie
-    comp_name?: string;
-    adset_name?: string;
-    ad_name?: string;
+    comp_name?: string | number;
+    adset_name?: string | number;
+    ad_name?: string | number;
   };
   paramsString?: string;
   events?: [number | string, number | string][]; // [[время, код], ...]
