@@ -12,7 +12,7 @@ import {
   META_EVENT_BY_CODE,
 } from "@shared/types/GuestConst";
 import type { IPixelEventData } from "@shared/types/Is";
-import { projectsManager } from "@/features/projectsManager";
+
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
 import { DESC_EVENTS, store } from "@/features/store";
 
@@ -30,8 +30,8 @@ export class CGuestBlock extends HTMLElement {
   async sendMetaEvent(tag: number) {
     if (this.levelBehavior === tag) return true;
 
-    const activeProject = projectsManager.activeProject;
-    if (!activeProject?.config.companyPageURL) return false;
+    // const activeProject = projectsManager.activeProject;
+    // if (!activeProject?.config.companyPageURL) return false;
 
     const eventName = META_EVENT_LEVEL_BY_CODE[tag]!;
     const eventTime = Math.floor(Date.now() / 1000); //this.data.lastChange;
@@ -41,10 +41,11 @@ export class CGuestBlock extends HTMLElement {
     const data: IPixelEventData = {
       event_name: eventName,
       event_time: eventTime,
-      event_source_url: activeProject.config.companyPageURL,
+      event_source_url: this.companyConfig.companyPageURL,
       action_source: "website",
       user_data: {},
       event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      ip: userData.ip || "",
     };
 
     data.user_data.ct = await hashSHA256("tashkent"); // хешируется, lowercase
@@ -57,19 +58,19 @@ export class CGuestBlock extends HTMLElement {
       data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
     }
 
-    data.custom_data = {};
+    // data.custom_data = {};
 
-    if (
-      userData.instagram?.comp_name &&
-      userData.instagram?.comp_name !== "{{campaign.name}}"
-    ) {
-      data.custom_data.content_name = this.data.instagram?.comp_name || "";
-    } else {
-      data.custom_data.content_name = activeProject.config.id;
-    }
+    // if (
+    //   userData.instagram?.comp_name &&
+    //   userData.instagram?.comp_name !== "{{campaign.name}}"
+    // ) {
+    //   data.custom_data.content_name = this.data.instagram?.comp_name || "";
+    // } else {
+    //   data.custom_data.content_name = activeProject.config.id;
+    // }
     if (eventObj && "value" in eventObj && eventObj.value) {
       data.custom_data = {
-        ...data.custom_data,
+        // ...data.custom_data,
         currency: "USD",
         value: eventObj.value,
       };
@@ -80,7 +81,10 @@ export class CGuestBlock extends HTMLElement {
     if (userData?.userAgentString)
       data.user_data.client_user_agent = userData.userAgentString;
 
-    const res = await api.guest.sendMetaEvent([data]);
+    const pixelData = this.companyConfig.pixel;
+
+    const res = await api.guest.sendMetaEvent([data], pixelData);
+
     if (res.ok) {
       const res2 = await api.guest.addTag(this.data._id || "dfdf", tag);
       if (res2.ok) {

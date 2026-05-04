@@ -8,10 +8,7 @@ export interface IBigProjectConfig {
       id: number;
       summary?: string;
       companyPageURL: string;
-      pixel?: {
-        token: string;
-        id: string;
-      };
+      pixel?: string;
       adsets: {
         [key: string]: {
           name: string;
@@ -38,10 +35,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
       MasterMind: {
         name: "MasterMind",
         id: 1,
-        pixel: {
-          token: "token---------",
-          id: "id--------",
-        },
+        pixel: "masterMind",
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
         adsets: {
@@ -53,8 +47,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
     `,
             id: 1,
             ads: {
-              video0: { name: "video0", id: 1 },
-              video1: { name: "video1", id: 2 },
+              video0: { name: "video-0", id: 1 },
+              video1: { name: "video-1", id: 2 },
             },
           },
         },

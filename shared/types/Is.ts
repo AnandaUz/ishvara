@@ -21,4 +21,5 @@ export interface IPixelEventData {
     currency?: string;
     content_name?: string;
   };
+  ip?: string;
 }

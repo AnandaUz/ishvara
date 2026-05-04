@@ -29,13 +29,13 @@ const guest = {
       body: JSON.stringify({ _id: id, tag: tag }),
     });
   },
-  sendMetaEvent: async (eventData: IPixelEventData[]) => {
+  sendMetaEvent: async (eventData: IPixelEventData[], pixelData: any) => {
     return fetch(import.meta.env.VITE_API_URL + "/api/guests/send-meta-event", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ data: eventData }),
+      body: JSON.stringify({ data: eventData, pixelData }),
     });
   },
   getOne: async (id: string) => {

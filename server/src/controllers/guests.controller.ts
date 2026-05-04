@@ -2,6 +2,7 @@ import { IGuest } from "../../../shared/types/IGuest.js";
 import Guest from "../models/Guest.js";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { pixels_configs } from "../pixels_configs.js";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
 
 export async function getGuests(_req: Request, res: Response) {
@@ -30,10 +31,16 @@ export async function clearEvents(_req: Request, res: Response) {
 }
 
 export async function sendMetaEvent(req: Request, res: Response) {
-  const PIXEL_ID = process.env.MY_PIXEL_ID!;
-  const ACCESS_TOKEN = process.env.MY_PIXEL_TOKEN!;
+  const { data, pixelData } = req.body;
 
-  const { data } = req.body;
+  const pixel_config =
+    pixels_configs[pixelData! as keyof typeof pixels_configs];
+  const PIXEL_ID = pixel_config?.id;
+  const PIXEL_TOKEN = pixel_config?.token;
+
+  if (!PIXEL_ID || !PIXEL_TOKEN) {
+    return res.status(400).json({ error: "pixel_config is not found" });
+  }
 
   try {
     if (!data) {
@@ -41,12 +48,12 @@ export async function sendMetaEvent(req: Request, res: Response) {
       return;
     }
 
-    // console.log(data);
-    // res.status(400).json({ error: "data is required" });
-    // return;
+    console.log(data, PIXEL_ID, PIXEL_TOKEN);
+    res.status(400).json({ error: "data is required" });
+    return;
 
     const result = await fetch(
-      `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
+      `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${PIXEL_TOKEN}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
