@@ -92,16 +92,23 @@ export class CGuestCard extends HTMLElement {
       },
     );
 
+    initInputBlock(
+      "params-string",
+      () => guest.paramsString || "",
+      (v: string) => {
+        guest.paramsString = v;
+      },
+    );
+
     const company = this.querySelector(".company") as HTMLSelectElement;
     let lastOption: HTMLOptionElement | null = null;
     projects_configs.forEach((project) => {
+      if (project.isOff) return;
       const option = document.createElement("option");
       option.value = project.id;
       option.textContent = project.name;
       company.appendChild(option);
-      if (project.isOff) {
-        option.disabled = true;
-      }
+
       if (this.guest.companyId === project.id) {
         option.selected = true;
       }

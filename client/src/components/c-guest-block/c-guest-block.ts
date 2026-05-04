@@ -1,6 +1,7 @@
 import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
+import { bigProjects } from "@shared/projects_config";
 
 import { cleanName, getTimeStr, hashSHA256 } from "@/services/tools";
 import { api } from "@/services/api";
@@ -22,6 +23,10 @@ export class CGuestBlock extends HTMLElement {
   private isRender: boolean = false;
   private body!: HTMLDivElement;
   private timeLineBlock!: HTMLDivElement;
+  private projectConfig?: any;
+  private companyConfig?: any;
+  private adsetConfig?: any;
+  private adConfig?: any;
   async sendMetaEvent(tag: number) {
     if (this.levelBehavior === tag) return true;
 
@@ -155,10 +160,20 @@ export class CGuestBlock extends HTMLElement {
     };
 
     if (this.data.instagram?.comp_name) {
-      setBlock(
-        ".company-string",
-        `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`,
-      );
+      if (typeof this.data.projectId === "number") {
+        if (this.data.instagram?.comp_name) {
+          setBlock(
+            ".company-string",
+            `<span class='ad-name'>${this.adsetConfig?.name}</span>
+            <span class='ad-name'>${this.adConfig?.name}</span>`,
+          );
+        }
+      } else {
+        setBlock(
+          ".company-string",
+          `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`,
+        );
+      }
     }
 
     {
@@ -326,6 +341,31 @@ export class CGuestBlock extends HTMLElement {
   constructor(data: IGuest, owner: CGuestsMain) {
     super();
     //
+
+    const project = Object.values(bigProjects).find(
+      (project) => project.id === data.projectId,
+    );
+    if (project) {
+      this.projectConfig = project;
+      const comp_name = data.instagram?.comp_name! || "";
+      const adset_name = data.instagram?.adset_name! || "";
+      const ad_name = data.instagram?.ad_name! || "";
+      if (comp_name) {
+        this.companyConfig = Object.values(project.companys).find(
+          (c) => c.id === comp_name || c.name === comp_name,
+        );
+      }
+      if (adset_name && this.companyConfig) {
+        this.adsetConfig = Object.values(this.companyConfig.adsets).find(
+          (a: any) => a.id === adset_name || a.name === adset_name,
+        );
+      }
+      if (ad_name && this.adsetConfig) {
+        this.adConfig = Object.values(this.adsetConfig.ads).find(
+          (a: any) => a.id === ad_name || a.name === ad_name,
+        );
+      }
+    }
 
     this.data = data;
     this.owner = owner;

@@ -4,7 +4,7 @@ import Guest from "../models/Guest.js";
 import mongoose from "mongoose";
 import { guestObj } from "./guests.controller.js";
 import { GUEST_TAGS } from "../../../shared/types/GuestConst.js";
-import { BitProjects } from "../../../shared/projects_config.js";
+import { bigProjects } from "../../../shared/projects_config.js";
 import { IBigProjectConfig } from "../../../shared/projects_config.js";
 
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
@@ -51,6 +51,8 @@ export const start = async (req: Request, res: Response) => {
     let instagram: IInstagram | undefined = undefined;
     let paramsString: string | undefined = undefined;
 
+    let f = false;
+
     if (urlParamsString) {
       const urlParams = new URLSearchParams(urlParamsString);
 
@@ -59,24 +61,38 @@ export const start = async (req: Request, res: Response) => {
       const ad_name = urlParams.get("ad_name");
 
       const project: IBigProjectConfig | undefined = Object.values(
-        BitProjects,
+        bigProjects,
       ).find((p) => p.id === projectId);
 
       if (comp_name) {
         const company = project?.companys[comp_name];
 
-        instagram = { comp_name: company!.id };
-        if (adset_name) {
-          const adset = company?.adsets[adset_name];
+        if (!company) {
+          f = true;
+        } else {
+          instagram = { comp_name: company!.id };
+          if (adset_name) {
+            const adset = company?.adsets[adset_name];
 
-          instagram.adset_name = adset!.id;
-          if (ad_name) {
-            const ad = adset?.ads[ad_name];
-            instagram.ad_name = ad!.id;
+            if (!adset) {
+              f = true;
+            } else {
+              instagram.adset_name = adset!.id;
+              if (ad_name) {
+                const ad = adset?.ads[ad_name];
+                if (!ad) {
+                  f = true;
+                } else {
+                  instagram.ad_name = ad!.id;
+                }
+              }
+            }
           }
         }
       }
-    } else {
+    }
+
+    if (f) {
       paramsString = urlParamsString;
     }
 
@@ -96,7 +112,7 @@ export const start = async (req: Request, res: Response) => {
       { upsert: true, returnDocument: "after" },
     );
 
-    if (_id !== guest._id) {
+    if (_id && _id !== guest._id) {
       await guestObj.addTag(guest._id.toString(), GUEST_TAGS.returned.code);
     }
 

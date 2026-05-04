@@ -8,6 +8,10 @@ export interface IBigProjectConfig {
       id: number;
       summary?: string;
       companyPageURL: string;
+      pixel?: {
+        token: string;
+        id: string;
+      };
       adsets: {
         [key: string]: {
           name: string;
@@ -25,7 +29,7 @@ export interface IBigProjectConfig {
     };
   };
 }
-export const BitProjects: Record<string, IBigProjectConfig> = {
+export const bigProjects: Record<string, IBigProjectConfig> = {
   mastermind_paid: {
     name: "Сайт esho.uz",
     id: 100,
@@ -34,6 +38,10 @@ export const BitProjects: Record<string, IBigProjectConfig> = {
       MasterMind: {
         name: "MasterMind",
         id: 1,
+        pixel: {
+          token: "token---------",
+          id: "id--------",
+        },
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
         adsets: {

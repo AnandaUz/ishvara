@@ -1,5 +1,5 @@
 import type { IGuest } from "@shared/types/IGuest";
-import { BitProjects } from "@shared/projects_config";
+import { bigProjects } from "@shared/projects_config";
 
 export interface ProjectConfig {
   name: string;
@@ -47,9 +47,9 @@ export const projects_configs: ProjectConfig[] = [
     name: "ПММ - встречи - новый пиксель",
     id: "new-pixel",
     filterFunc: (guest: IGuest) => {
-      const project = BitProjects.mastermind_paid;
+      const project = bigProjects.mastermind_paid;
       if (guest.projectId === project?.id) {
-        const company = project?.companys.mastermind;
+        const company = project?.companys.MasterMind;
         if (company?.id === guest.instagram?.comp_name) {
           const i =
             company?.adsets[
