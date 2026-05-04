@@ -47,8 +47,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
     `,
             id: 1,
             ads: {
-              video0: { name: "video-0", id: 1 },
-              video1: { name: "video-1", id: 2 },
+              "video-0": { name: "video-0", id: 1 },
+              "video-1": { name: "video-1", id: 2 },
             },
           },
         },
