@@ -9,6 +9,7 @@ export interface IGuest {
   phone?: string;
   projectId?: number;
   ip?: string;
+  oldId?: string;
   companyId?: string; //для совместимости
 
   tg?: {

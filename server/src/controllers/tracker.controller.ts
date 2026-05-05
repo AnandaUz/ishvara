@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import Guest from "../models/Guest.js";
 import mongoose from "mongoose";
-import { guestObj } from "./guests.controller.js";
-import { GUEST_TAGS } from "../../../shared/types/GuestConst.js";
+// import { guestObj } from "./guests.controller.js";
+// import { GUEST_TAGS } from "../../../shared/types/GuestConst.js";
 import { bigProjects } from "../../../shared/projects_config.js";
 import { IBigProjectConfig } from "../../../shared/projects_config.js";
+import { IGuest } from "../../../shared/types/IGuest.js";
 
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
 export const idCreateLimiter = rateLimit({
@@ -40,13 +41,20 @@ export const start = async (req: Request, res: Response) => {
       referrer,
       createdAt,
       urlParamsString,
-      userAgentString,
       projectId,
+      userAgentString,
     } = req.body;
 
-    const objectId = _id
-      ? new mongoose.Types.ObjectId(_id)
-      : new mongoose.Types.ObjectId();
+    let _idGuest;
+    let isNew = false;
+    let oldGuest: IGuest | null = null;
+    if (_id) {
+      _idGuest = new mongoose.Types.ObjectId(_id);
+      oldGuest = await Guest.findById(_idGuest);
+    } else {
+      _idGuest = new mongoose.Types.ObjectId();
+      isNew = true;
+    }
 
     let instagram: IInstagram | undefined = undefined;
     let paramsString: string | undefined = undefined;
@@ -96,27 +104,32 @@ export const start = async (req: Request, res: Response) => {
       paramsString = urlParamsString;
     }
 
-    const guest = await Guest.findOneAndUpdate(
-      { _id: objectId },
-      {
-        $setOnInsert: {
-          createdAt,
-          projectId,
-          referrer,
-          instagram,
-          paramsString,
-          userAgentString,
-          ip: getClientIp(req),
-        },
-      },
-      { upsert: true, returnDocument: "after" },
-    );
-
-    if (_id && _id !== guest._id) {
-      await guestObj.addTag(guest._id.toString(), GUEST_TAGS.returned.code);
+    if (oldGuest) {
+      if (
+        instagram?.adset_name &&
+        oldGuest?.instagram?.adset_name !== instagram.adset_name
+      ) {
+        isNew = true;
+      }
     }
 
-    res.status(200).json({ _id: guest._id });
+    if (isNew) {
+      const ip = getClientIp(req);
+      const guestData = {
+        createdAt,
+        projectId,
+        referrer,
+        userAgentString,
+        ...(oldGuest?._id && { oldId: oldGuest._id.toString() }),
+        ...(ip && { ip }),
+        ...(instagram && { instagram }),
+        ...(paramsString && { paramsString }),
+      };
+      const guest = await Guest.create(guestData);
+      res.status(200).json({ _id: guest._id });
+    } else {
+      res.status(200).json({ _id: _idGuest.toString() });
+    }
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }

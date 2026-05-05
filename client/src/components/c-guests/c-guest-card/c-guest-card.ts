@@ -38,21 +38,10 @@ export class CGuestCard extends HTMLElement {
       inp.value = getValue();
       inp.addEventListener("input", () => setValue(inp.value));
     };
-    // const addValueItem = (labelValue: string, getValue: () => string) => {
-    //   let div_line = document.createElement("div");
-    //   div_line.className = "bl-value-item";
-    //   div.appendChild(div_line);
-
-    //   let lbl = document.createElement("div");
-    //   lbl.className = "bl-value-item__label";
-    //   lbl.textContent = labelValue;
-    //   div_line.appendChild(lbl);
-
-    //   let val = document.createElement("div");
-    //   val.className = "bl-value-item__value";
-    //   val.innerHTML = getValue();
-    //   div_line.appendChild(val);
-    // };
+    const initTextBlock = (className: string, getValue: () => string) => {
+      let div = this.querySelector("." + className) as HTMLElement;
+      div.textContent = getValue();
+    };
 
     initInputBlock(
       "guest-name",
@@ -125,7 +114,8 @@ export class CGuestCard extends HTMLElement {
       i++;
     });
 
-    // addValueItem("Юзер агент", () => guest.userAgentString || "");
+    initTextBlock("ip", () => guest.ip || "");
+    initTextBlock("user-agent-string", () => guest.userAgentString || "");
 
     let btn = this.querySelector(".btn-big") as HTMLButtonElement;
     btn.addEventListener("click", async () => {

@@ -101,6 +101,7 @@ export class CGuestsMain extends HTMLElement {
         if (guest.levelBehavior === element[0].code) return;
         if (await guest.sendMetaEvent(element[0].code)) {
           resetBtnStatus(element[0].code + 1);
+          this.modalMenu?.close();
         }
       });
     }

@@ -10,64 +10,82 @@ c-guest-block {
   &[visible] {
     display: block;
   }
+
   &:hover {
     background: rgb(213, 227, 233);
   }
+
   .bg {
     position: absolute;
     top: 0;
     left: 0px;
     width: 100%;
     height: 100%;
+
     .bgg {
       display: inline-block;
       width: 14.2857%;
       height: 100%;
       display: none;
     }
+
     &.l1 .bg0 {
       display: inline-block;
     }
+
     &.l2 .bg1 {
       display: inline-block;
     }
+
     &.l3 .bg2 {
       display: inline-block;
     }
+
     &.l4 .bg3 {
       display: inline-block;
     }
+
     &.l5 .bg4 {
       display: inline-block;
     }
+
     &.l6 .bg5 {
       display: inline-block;
     }
+
     &.l7 .bg6 {
       display: inline-block;
     }
+
     .bg0 {
       background: var(--color-level-0);
     }
+
     .bg1 {
       background: var(--color-level-1);
     }
+
     .bg2 {
       background: var(--color-level-2);
     }
+
     .bg3 {
       background: var(--color-level-3);
     }
+
     .bg4 {
       background: var(--color-level-4);
     }
+
     .bg5 {
       background: var(--color-level-5);
     }
+
     .bg6 {
       background: var(--color-level-6);
     }
   }
+
   .body {
     position: relative;
     z-index: 1;
@@ -78,6 +96,7 @@ c-guest-block {
     overflow: hidden;
     min-height: 34px;
   }
+
   .cookie-string {
     position: absolute;
     left: 170px;
@@ -85,32 +104,46 @@ c-guest-block {
     display: flex;
     flex-direction: row;
     gap: 3px;
+
     span {
       --w: 4px;
       width: var(--w);
       height: var(--w);
       border-radius: 50%;
       background: #ebebeb;
+
       &.ok {
         background: #00b702;
       }
     }
+
+    .old-guest {
+      --w: 6px;
+      width: calc(var(--w) + 1px);
+      height: var(--w);
+      border-radius: 1px;
+      background: #ff5e00;
+    }
   }
+
   .btn-info-circle {
     position: absolute;
     left: 190px;
     top: 1px;
   }
+
   .btn-delete {
     position: absolute;
     left: 1px;
     bottom: 1px;
   }
+
   .btn-gear {
     position: absolute;
     bottom: 0;
     left: 100px;
   }
+
   .name {
     position: absolute;
     left: 216px;
@@ -120,10 +153,12 @@ c-guest-block {
     font-weight: bold;
     z-index: 1000;
     cursor: pointer;
+
     &:hover {
       color: #ff0000;
     }
   }
+
   .company-string {
     position: absolute;
     font-size: 11px;
@@ -133,6 +168,7 @@ c-guest-block {
     display: flex;
     flex-direction: row;
     gap: 10px;
+
     .comp-name {
       display: inline-block;
       max-width: 200px;
@@ -140,14 +176,17 @@ c-guest-block {
       overflow: hidden;
       white-space: nowrap;
     }
+
     .adset-name {
       display: inline-block;
     }
+
     .ad-name {
       display: inline-block;
       color: #5ab372;
     }
   }
+
   .params-string {
     position: absolute;
     font-size: 11px;
@@ -159,6 +198,7 @@ c-guest-block {
     top: 1px;
     color: #ff5500;
   }
+
   .create-time,
   .last-change,
   .time-duration {
@@ -168,9 +208,11 @@ c-guest-block {
     left: 22px;
     top: 5px;
   }
+
   .last-change {
     top: 19px;
   }
+
   .time-duration {
     top: 5px;
     color: #970909;
@@ -181,6 +223,7 @@ c-guest-block {
     background: #fff;
     border-radius: 3px;
   }
+
   .time-line-block {
     border-radius: 5px;
     padding: 0px 196px 0 110px;
@@ -194,17 +237,21 @@ c-guest-block {
       height: 3px;
       position: relative;
       margin: 0 0 0 2px;
+
       // min-width: 7px;
       &.scale {
         background: #b0b0f9;
       }
+
       &.ex-scale {
         background: #a643af;
       }
+
       i {
         font-size: 10px;
         color: #00b7037e;
       }
+
       span {
         --w: 8px;
         display: block;
@@ -220,6 +267,7 @@ c-guest-block {
         top: -2px;
         z-index: 10;
       }
+
       &.goalBtnClick {
         span {
           --w: 18px;
@@ -231,6 +279,7 @@ c-guest-block {
           border-radius: 5px;
         }
       }
+
       &.goalBtnGaude {
         span {
           --w: 18px;
@@ -242,10 +291,12 @@ c-guest-block {
           border-radius: 5px;
         }
       }
+
       &.page-out {
         span {
           background: #f785e8;
         }
+
         .time {
           position: absolute;
           color: #000;
@@ -260,11 +311,14 @@ c-guest-block {
           line-height: 6px;
         }
       }
+
       &.page-in {
+
         // margin: 0 0 0 12px;
         span {
           background: rgb(7, 108, 190);
         }
+
         .page-name,
         .time {
           background: none;
@@ -277,11 +331,13 @@ c-guest-block {
           color: #000;
           right: auto;
         }
+
         .time {
           left: -25px;
           background: #fff;
         }
       }
+
       &.show-page {
         span {
           background: rgb(221, 126, 2);
@@ -289,10 +345,12 @@ c-guest-block {
       }
     }
   }
+
   .tg-user-name {
     position: absolute;
     right: 0;
     font-size: 13px;
+
     a {
       padding: 2px 5px;
       border-radius: 7px;
@@ -303,6 +361,7 @@ c-guest-block {
       }
     }
   }
+
   &.mode-1 {
     .body {
       display: grid;
@@ -310,6 +369,7 @@ c-guest-block {
       height: unset;
 
       grid-template-columns: auto auto [name] auto [user-name] 1fr [company] auto;
+
       .tg-user-name {
         grid-column: user-name;
         grid-row: 1;
@@ -317,40 +377,49 @@ c-guest-block {
         align-self: center;
         position: unset;
       }
+
       .company-string {
         grid-column: company;
         justify-self: end;
         position: unset;
         padding: 5px 27px 0 0;
       }
+
       .time-line-block {
         display: none;
       }
+
       .create-time {
         display: none;
       }
+
       .last-change {
         display: none;
       }
+
       .time-duration {
         display: none;
       }
+
       .cookie-string {
         position: unset;
         grid-column: 2;
         grid-row: 1;
         align-self: center;
       }
+
       .name {
         grid-column: 3;
         position: unset;
         grid-row: 1;
         padding: 2px 7px;
       }
+
       .btn-delete {
         left: auto;
         right: 2px;
       }
+
       .btn-gear {
         position: unset;
         grid-column: 1;
@@ -361,6 +430,7 @@ c-guest-block {
         display: grid;
         align-self: center;
       }
+
       .btn-info-circle {
         display: none;
       }

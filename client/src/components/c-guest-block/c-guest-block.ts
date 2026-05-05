@@ -23,7 +23,7 @@ export class CGuestBlock extends HTMLElement {
   private isRender: boolean = false;
   private body!: HTMLDivElement;
   private timeLineBlock!: HTMLDivElement;
-  private projectConfig?: any;
+  // private projectConfig?: any;
   private companyConfig?: any;
   private adsetConfig?: any;
   private adConfig?: any;
@@ -45,8 +45,11 @@ export class CGuestBlock extends HTMLElement {
       action_source: "website",
       user_data: {},
       event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      ip: userData.ip || "",
     };
+
+    if (userData.ip) {
+      data.user_data.client_ip_address = userData.ip;
+    }
 
     data.user_data.ct = await hashSHA256("tashkent"); // хешируется, lowercase
     data.user_data.country = await hashSHA256("uz"); // код страны, тоже хешируется
@@ -58,19 +61,8 @@ export class CGuestBlock extends HTMLElement {
       data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
     }
 
-    // data.custom_data = {};
-
-    // if (
-    //   userData.instagram?.comp_name &&
-    //   userData.instagram?.comp_name !== "{{campaign.name}}"
-    // ) {
-    //   data.custom_data.content_name = this.data.instagram?.comp_name || "";
-    // } else {
-    //   data.custom_data.content_name = activeProject.config.id;
-    // }
     if (eventObj && "value" in eventObj && eventObj.value) {
       data.custom_data = {
-        // ...data.custom_data,
         currency: "USD",
         value: eventObj.value,
       };
@@ -183,9 +175,13 @@ export class CGuestBlock extends HTMLElement {
     {
       const isFbc = this.data.instagram?.fbc;
       const isFbp = this.data.instagram?.fbp;
+      const isOldGuest = this.data.oldId
+        ? `<span class='old-guest'></span>`
+        : "";
       setBlock(
         ".cookie-string",
         `
+        ${isOldGuest}
         <span class="${isFbp ? "ok" : ""}"></span>
         <span class="${isFbc ? "ok" : ""}"></span>`,
       );
@@ -350,7 +346,7 @@ export class CGuestBlock extends HTMLElement {
       (project) => project.id === data.projectId,
     );
     if (project) {
-      this.projectConfig = project;
+      // this.projectConfig = project;
       const comp_name = data.instagram?.comp_name! || "";
       const adset_name = data.instagram?.adset_name! || "";
       const ad_name = data.instagram?.ad_name! || "";

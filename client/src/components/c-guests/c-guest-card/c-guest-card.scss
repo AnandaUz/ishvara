@@ -3,7 +3,8 @@
 c-guest-card {
   display: block;
 
-  .input-block {
+  .input-block,
+  .text-block {
     display: grid;
     grid-template-columns: 93px 1fr;
     gap: 12px;
@@ -15,6 +16,11 @@ c-guest-card {
       font-size: 14px;
       line-height: 1;
       color: #123c5b;
+    }
+  }
+  .text-block {
+    div {
+      font-size: 14px;
     }
   }
   .group-bl {

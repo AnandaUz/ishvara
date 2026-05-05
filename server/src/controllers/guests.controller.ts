@@ -48,9 +48,9 @@ export async function sendMetaEvent(req: Request, res: Response) {
       return;
     }
 
-    console.log(data, PIXEL_ID, PIXEL_TOKEN);
-    res.status(400).json({ error: "data is required" });
-    return;
+    // console.log(data, PIXEL_ID, PIXEL_TOKEN);
+    // res.status(400).json({ error: "data is required" });
+    // return;
 
     const result = await fetch(
       `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${PIXEL_TOKEN}`,

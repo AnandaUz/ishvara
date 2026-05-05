@@ -13,8 +13,9 @@ const GuestSchema = new Schema<IGuestDocument>({
   userAgentString: { type: String },
   phone: { type: String },
   projectId: { type: Number },
+  oldId: { type: String, required: false },
   companyId: { type: String },
-  ip: { type: String },
+  ip: { type: String, required: false },
   tg: {
     id: { type: String },
     first_name: { type: String },
