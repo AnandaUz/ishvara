@@ -11,19 +11,22 @@ class ProjectTabs extends HTMLElement {
     this.tabs = [];
     this.classList.add("c-project-tabs");
 
-    projects_configs.forEach((project) => {
-      // if (project.isOff) return;
-      const tab = document.createElement("div");
-      tab.textContent = project.name;
-      tab.classList.add("tab");
-      this.appendChild(tab);
-      tab.id = project.id;
+    projects_configs
+      .sort((a, b) => (a.isOff ? 1 : 0) - (b.isOff ? 1 : 0))
+      .forEach((project) => {
+        const tab = document.createElement("div");
+        tab.textContent = project.name;
+        tab.classList.add("tab");
+        if (project.isOff) tab.classList.add("off");
 
-      tab.addEventListener("click", () => {
-        projectsManager.setProject(project.id);
+        this.appendChild(tab);
+        tab.id = project.id;
+
+        tab.addEventListener("click", () => {
+          projectsManager.setProject(project.id);
+        });
+        this.tabs.push(tab);
       });
-      this.tabs.push(tab);
-    });
 
     store.on(DESC_EVENTS.project.Changed, (id: string) => {
       this.setProject(id);

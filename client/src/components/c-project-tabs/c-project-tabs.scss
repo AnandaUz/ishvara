@@ -2,7 +2,7 @@
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    
+
     .tab {
         padding: 5px;
         background: #b2dae4;
@@ -10,13 +10,20 @@
         border-radius: 0 0 8px 8px;
         font-size: 13px;
         color: #1b695f;
+
+        &.off {
+            background: #bbbbbb;
+
+        }
+
         &:hover {
             background: #6796a1;
             color: #fff;
         }
+
         &.active {
-           background: #5eb5ca;
-           color: #fff;
+            background: #5eb5ca;
+            color: #fff;
         }
     }
 }

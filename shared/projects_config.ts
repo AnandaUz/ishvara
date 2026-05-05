@@ -61,7 +61,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
         companyPageURL: "https://esho.uz/meditation",
         adsets: {
           "CM-contact-with-interests-05_05_26": {
-            name: "КМ новый пиксель с интересами. цель - просмотр контента",
+            name: "новый пиксель/с интересами/просмотр контента",
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 1,
@@ -70,7 +70,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             },
           },
           "CM-contact-05_05_26": {
-            name: "КМ новый пиксель без интересов. цель - просмотр контента",
+            name: "новый пиксель/без интересов/просмотр контента",
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 2,

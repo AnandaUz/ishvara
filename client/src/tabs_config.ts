@@ -16,6 +16,20 @@ export const projects_configs: ProjectConfig[] = [
       if (guest.companyId === "meditations") return true;
       if (guest.instagram?.comp_name === "MeditationTashkent") return true;
 
+      const project = bigProjects.mastermind_paid;
+      if (guest.projectId === project?.id) {
+        const company = project?.companys.MeditationTashkent;
+        if (company?.id === guest.instagram?.comp_name) {
+          const i = company?.adsets["CM-contact-with-interests-05_05_26"];
+          if (guest.instagram?.adset_name === i?.id) {
+            return true;
+          }
+          const ii = company?.adsets["CM-contact-05_05_26"];
+          if (guest.instagram?.adset_name === ii?.id) {
+            return true;
+          }
+        }
+      }
       return false;
     },
     // companyPageURL: "https://esho.uz/meditation",

@@ -111,6 +111,8 @@ export const start = async (req: Request, res: Response) => {
       ) {
         isNew = true;
       }
+    } else {
+      isNew = true;
     }
 
     if (isNew) {
