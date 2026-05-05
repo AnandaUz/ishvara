@@ -134,14 +134,14 @@ c-guest-block {
 
   .btn-delete {
     position: absolute;
-    left: 1px;
+    right: 1px;
     bottom: 1px;
   }
 
   .btn-gear {
     position: absolute;
     bottom: 0;
-    left: 100px;
+    left: 1px;
   }
 
   .name {
@@ -238,6 +238,10 @@ c-guest-block {
       position: relative;
       margin: 0 0 0 2px;
 
+      &.page-in {
+        margin: 0 0 0 -10px;
+      }
+
       // min-width: 7px;
       &.scale {
         background: #b0b0f9;
@@ -333,8 +337,13 @@ c-guest-block {
         }
 
         .time {
-          left: -25px;
-          background: #fff;
+          left: -57px;
+
+          padding: 1px;
+          height: auto;
+          display: block;
+          width: 53px;
+          text-align: right;
         }
       }
 
@@ -348,7 +357,7 @@ c-guest-block {
 
   .tg-user-name {
     position: absolute;
-    right: 0;
+    right: 193px;
     font-size: 13px;
 
     a {

@@ -202,16 +202,16 @@ export class CGuestBlock extends HTMLElement {
       const t = getTimeStr(d_lastChange);
       setBlock(".last-change", `${t}`);
     }
-    if (d_createdAt && d_lastChange) {
-      const d = (d_lastChange.getTime() - d_createdAt.getTime()) / 1000;
-      let duration = "";
-      if (d > 60) {
-        duration = (d / 60).toFixed(1) + "m";
-      } else {
-        duration = d.toFixed(1) + "s";
-      }
-      setBlock(".time-duration", `${duration}`);
-    }
+    // if (d_createdAt && d_lastChange) {
+    //   const d = (d_lastChange.getTime() - d_createdAt.getTime()) / 1000;
+    //   let duration = "";
+    //   if (d > 60) {
+    //     duration = (d / 60).toFixed(1) + "m";
+    //   } else {
+    //     duration = d.toFixed(1) + "s";
+    //   }
+    //   setBlock(".time-duration", `${duration}`);
+    // }
 
     let name = "";
     if (this.data.name) {
@@ -255,6 +255,8 @@ export class CGuestBlock extends HTMLElement {
 
     let t = 0;
     const k = 40; // 20 пикселей на секунду
+
+    let currentDate: string = "";
     for (let i = 0; i < this.data.events!.length; i++) {
       const event = this.data.events![i];
       if (!event) continue;
@@ -286,7 +288,15 @@ export class CGuestBlock extends HTMLElement {
         }
         eventElement.innerHTML = `<span></span><span class='page-name'>${event![1]}</span>`;
         if (newStarTime) {
-          eventElement.innerHTML += `<span class='time'>${getTimeStr(newStarTime)}</span>`;
+          const d = `${newStarTime.getDate().toString().padStart(2, "0")}.${(newStarTime.getMonth() + 1).toString().padStart(2, "0")}`;
+
+          let s = `<span class='time'>`;
+          if (d !== currentDate) {
+            currentDate = d;
+            s += `${d} `;
+          }
+          s += `${getTimeStr(newStarTime)}</span>`;
+          eventElement.innerHTML += s;
         }
         eventElement.className += " " + "page-in";
       } else {

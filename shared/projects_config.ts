@@ -53,6 +53,33 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
           },
         },
       },
+      MeditationTashkent: {
+        name: "Медитации в Ташкенте",
+        id: 2,
+        pixel: "masterMind",
+        summary: "Коллективные медитации",
+        companyPageURL: "https://esho.uz/meditation",
+        adsets: {
+          "CM-contact-with-interests-05_05_26": {
+            name: "КМ новый пиксель с интересами. цель - просмотр контента",
+            createdAt: "05.05.2026",
+            summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            id: 1,
+            ads: {
+              "v-meditation-0": { name: "v-meditation-0", id: 1 },
+            },
+          },
+          "CM-contact-05_05_26": {
+            name: "КМ новый пиксель без интересов. цель - просмотр контента",
+            createdAt: "05.05.2026",
+            summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            id: 2,
+            ads: {
+              "v-meditation-0": { name: "v-meditation-0", id: 1 },
+            },
+          },
+        },
+      },
     },
   },
 } as const;
