@@ -30,8 +30,9 @@ const GuestSchema = new Schema<IGuestDocument>({
     ad_name: { type: Number || String },
   },
   paramsString: { type: String },
-  events: { type: [[Schema.Types.Mixed]], default: [] },
-  tags: { type: [Number], default: [] },
+  events: { type: [[Schema.Types.Mixed]] },
+  tags: { type: [Number] },
+  notes: { type: String },
 });
 
 GuestSchema.index({ "instagram.comp_name": 1 });

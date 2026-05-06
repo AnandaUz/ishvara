@@ -13,9 +13,6 @@ class TProject {
   }
   get guests(): IGuest[] {
     const guests = this.owner.guests.filter((guest: IGuest) => {
-      if (guest._id === "69fa5d4383227d3b71129667") {
-        console.log(guest);
-      }
       return this.config.filterFunc(guest);
     });
     return guests;

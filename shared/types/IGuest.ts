@@ -28,4 +28,5 @@ export interface IGuest {
   paramsString?: string;
   events?: [number | string, number | string][]; // [[время, код], ...]
   tags?: number[];
+  notes?: string;
 }

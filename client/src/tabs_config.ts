@@ -91,4 +91,11 @@ export const projects_configs: ProjectConfig[] = [
       return true;
     },
   },
+  {
+    name: "Всё",
+    id: "all",
+    filterFunc: (guest: IGuest) => {
+      return true;
+    },
+  },
 ];

@@ -160,8 +160,8 @@ export class CGuestBlock extends HTMLElement {
         if (this.data.instagram?.comp_name) {
           setBlock(
             ".company-string",
-            `<span class='ad-name'>${this.adsetConfig?.name}</span>
-            <span class='ad-name'>${this.adConfig?.name}</span>`,
+            `<span class='ad-name'>${this.adsetConfig?.name || "🔆"}</span>
+            <span class='ad-name'>${this.adConfig?.name || "🔆"}</span>`,
           );
         }
       } else {
@@ -187,21 +187,21 @@ export class CGuestBlock extends HTMLElement {
       );
     }
 
-    const d_createdAt = this.data.createdAt
-      ? new Date(this.data.createdAt)
-      : null;
-    if (d_createdAt) {
-      const t = getTimeStr(d_createdAt);
-      setBlock(".create-time", `${t}`);
-    }
+    // const d_createdAt = this.data.createdAt
+    //   ? new Date(this.data.createdAt)
+    //   : null;
+    // if (d_createdAt) {
+    //   const t = getTimeStr(d_createdAt);
+    //   setBlock(".create-time", `${t}`);
+    // }
 
-    const d_lastChange = this.data.lastChange
-      ? new Date(this.data.lastChange)
-      : null;
-    if (d_lastChange) {
-      const t = getTimeStr(d_lastChange);
-      setBlock(".last-change", `${t}`);
-    }
+    // const d_lastChange = this.data.lastChange
+    //   ? new Date(this.data.lastChange)
+    //   : null;
+    // if (d_lastChange) {
+    //   const t = getTimeStr(d_lastChange);
+    //   setBlock(".last-change", `${t}`);
+    // }
     // if (d_createdAt && d_lastChange) {
     //   const d = (d_lastChange.getTime() - d_createdAt.getTime()) / 1000;
     //   let duration = "";
@@ -248,6 +248,46 @@ export class CGuestBlock extends HTMLElement {
     btn_gear.addEventListener("click", async (e: MouseEvent) => {
       e.stopPropagation(); // чтобы не закрылся сразу
       this.owner.menu!.toggle(btn_gear, this);
+    });
+
+    const notesString = this.querySelector(".notes-string") as HTMLDivElement;
+    let oldNotes: string | undefined;
+    if (this.data.notes) {
+      notesString.innerHTML = this.data.notes;
+      oldNotes = this.data.notes;
+    }
+    const btn_edit = body.querySelector(".btn-edit")! as HTMLButtonElement;
+    const activeNotes = () => {
+      notesString.contentEditable = "true";
+      notesString.classList.add("edit");
+      notesString.focus();
+    };
+    btn_edit.addEventListener("click", async (e: MouseEvent) => {
+      e.stopPropagation(); // чтобы не закрылся сразу
+      activeNotes();
+    });
+    notesString.addEventListener("keydown", (e: KeyboardEvent) => {
+      if ((e.key === "Enter" && !e.shiftKey) || e.key === "Escape") {
+        e.preventDefault();
+        notesString.blur(); // сохранение через blur
+      }
+    });
+    notesString.addEventListener("dblclick", async () => {
+      activeNotes();
+    });
+    notesString.addEventListener("blur", async () => {
+      notesString.contentEditable = "false";
+      notesString.classList.remove("edit");
+      const notes = notesString.innerHTML;
+      if (!oldNotes || notes !== oldNotes) {
+        this.data.notes = notes;
+        const res = await api.guest.patchOne(this.data._id!, {
+          notes,
+        });
+        if (!res.ok) {
+          alert("Ошибка сохранения заметки!");
+        }
+      }
     });
   }
   render_timeLine() {

@@ -15,6 +15,8 @@ c-guest-block {
     background: rgb(213, 227, 233);
   }
 
+
+
   .bg {
     position: absolute;
     top: 0;
@@ -87,20 +89,60 @@ c-guest-block {
   }
 
   .body {
+    display: grid;
+    grid-template-columns: [start]auto auto auto auto [name] auto [user-name] 1fr [company] auto[end];
+    column-gap: 3px;
     position: relative;
     z-index: 1;
     height: 100%;
-    display: block;
     float: left;
     width: 100%;
     overflow: hidden;
-    min-height: 34px;
+    min-height: 30px;
+    padding: 2px;
+  }
+
+  .btn-edit {
+    grid-column: 2;
+    grid-row: 1/2;
+  }
+
+  .notes-string {
+    grid-column: 4/end;
+    grid-row: 3;
+    color: #1d7277;
+    z-index: 1000;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    border: none;
+
+    &:empty {
+      display: none;
+    }
+
+    &.edit {
+      background: #fff;
+      display: block;
+    }
+
+  }
+
+  .tg-user-name {
+    grid-column: user-name;
+    grid-row: 1;
+    font-size: 13px;
+    align-self: center;
+    position: unset;
   }
 
   .cookie-string {
-    position: absolute;
-    left: 170px;
-    top: 1px;
+    grid-column: 4;
+    grid-row: 1/2;
+
+    align-self: start;
+    padding: 2px;
+
     display: flex;
     flex-direction: row;
     gap: 3px;
@@ -127,9 +169,8 @@ c-guest-block {
   }
 
   .btn-info-circle {
-    position: absolute;
-    left: 190px;
-    top: 1px;
+    grid-column: 3;
+    grid-row: 1/2;
   }
 
   .btn-delete {
@@ -139,15 +180,14 @@ c-guest-block {
   }
 
   .btn-gear {
-    position: absolute;
-    bottom: 0;
-    left: 1px;
+    grid-column: 1;
+    grid-row: 1/2;
   }
 
   .name {
-    position: absolute;
-    left: 216px;
-    top: 0px;
+    grid-column: name;
+    grid-row: 1;
+
     font-size: 16px;
     color: rgba(157, 0, 0, 0.8509803922);
     font-weight: bold;
@@ -160,11 +200,10 @@ c-guest-block {
   }
 
   .company-string {
-    position: absolute;
+    grid-column: company;
+    grid-row: 1/2;
     font-size: 11px;
     color: #5ab372;
-    right: 25px;
-    top: 19px;
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -199,35 +238,37 @@ c-guest-block {
     color: #ff5500;
   }
 
-  .create-time,
-  .last-change,
-  .time-duration {
-    font-size: 11px;
-    color: #9db6a0;
-    position: absolute;
-    left: 22px;
-    top: 5px;
-  }
+  // .create-time,
+  // .last-change,
+  // .time-duration {
+  //   font-size: 11px;
+  //   color: #9db6a0;
+  //   position: absolute;
+  //   left: 22px;
+  //   top: 5px;
+  // }
 
   .last-change {
     top: 19px;
   }
 
-  .time-duration {
-    top: 5px;
-    color: #970909;
-    left: 53px;
-    width: 34px;
-    text-align: right;
-    z-index: 100;
-    background: #fff;
-    border-radius: 3px;
-  }
+  // .time-duration {
+  //   top: 5px;
+  //   color: #970909;
+  //   left: 53px;
+  //   width: 34px;
+  //   text-align: right;
+  //   z-index: 100;
+  //   background: #fff;
+  //   border-radius: 3px;
+  // }
 
   .time-line-block {
+    grid-column: start/end;
+    grid-row: 2;
+
     border-radius: 5px;
-    padding: 0px 196px 0 110px;
-    margin: 8px;
+    padding: 0px 154px 0 154px;
 
     .event {
       display: inline-block;
@@ -337,13 +378,13 @@ c-guest-block {
         }
 
         .time {
-          left: -57px;
-
+          left: -79px;
           padding: 1px;
           height: auto;
           display: block;
-          width: 53px;
+          width: 67px;
           text-align: right;
+          font-size: 11px;
         }
       }
 
@@ -377,15 +418,9 @@ c-guest-block {
       min-height: unset;
       height: unset;
 
-      grid-template-columns: auto auto [name] auto [user-name] 1fr [company] auto;
+      grid-template-columns: [start] auto auto auto auto [name] auto [user-name] 1fr [company] auto;
 
-      .tg-user-name {
-        grid-column: user-name;
-        grid-row: 1;
-        font-size: 13px;
-        align-self: center;
-        position: unset;
-      }
+
 
       .company-string {
         grid-column: company;
@@ -410,35 +445,35 @@ c-guest-block {
         display: none;
       }
 
-      .cookie-string {
-        position: unset;
-        grid-column: 2;
-        grid-row: 1;
-        align-self: center;
-      }
+      // .cookie-string {
+      //   position: unset;
+      //   grid-column: 2;
+      //   grid-row: 1;
+      //   align-self: center;
+      // }
 
-      .name {
-        grid-column: 3;
-        position: unset;
-        grid-row: 1;
-        padding: 2px 7px;
-      }
+      // .name {
+      //   grid-column: 3;
+      //   position: unset;
+      //   grid-row: 1;
+      //   padding: 2px 7px;
+      // }
 
       .btn-delete {
         left: auto;
         right: 2px;
       }
 
-      .btn-gear {
-        position: unset;
-        grid-column: 1;
-        grid-row: 1;
-        margin: 2px 5px;
-        justify-content: center;
-        align-items: center;
-        display: grid;
-        align-self: center;
-      }
+      // .btn-gear {
+      //   position: unset;
+      //   grid-column: 1;
+      //   grid-row: 1;
+      //   margin: 2px 5px;
+      //   justify-content: center;
+      //   align-items: center;
+      //   display: grid;
+      //   align-self: center;
+      // }
 
       .btn-info-circle {
         display: none;
