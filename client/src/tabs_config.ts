@@ -20,14 +20,15 @@ export const projects_configs: ProjectConfig[] = [
       if (guest.projectId === project?.id) {
         const company = project?.companys.MeditationTashkent;
         if (company?.id === guest.instagram?.comp_name) {
-          const i = company?.adsets["CM-contact-with-interests-05_05_26"];
-          if (guest.instagram?.adset_name === i?.id) {
-            return true;
-          }
-          const ii = company?.adsets["CM-contact-05_05_26"];
-          if (guest.instagram?.adset_name === ii?.id) {
-            return true;
-          }
+          return true;
+          // const i = company?.adsets["CM-contact-with-interests-05_05_26"];
+          // if (guest.instagram?.adset_name === i?.id) {
+          //   return true;
+          // }
+          // const ii = company?.adsets["CM-contact-05_05_26"];
+          // if (guest.instagram?.adset_name === ii?.id) {
+          //   return true;
+          // }
         }
       }
       return false;
@@ -65,13 +66,14 @@ export const projects_configs: ProjectConfig[] = [
       if (guest.projectId === project?.id) {
         const company = project?.companys.MasterMind;
         if (company?.id === guest.instagram?.comp_name) {
-          const i =
-            company?.adsets[
-              "26-05-04-mastermaind-contact-with-interests-newPixel"
-            ];
-          if (guest.instagram?.adset_name === i?.id) {
-            return true;
-          }
+          return true;
+          // const i =
+          //   company?.adsets[
+          //     "26-05-04-mastermaind-contact-with-interests-newPixel"
+          //   ];
+          // if (guest.instagram?.adset_name === i?.id) {
+          //   return true;
+          // }
         }
       }
       return false;

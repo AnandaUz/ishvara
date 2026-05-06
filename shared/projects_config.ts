@@ -66,7 +66,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 1,
             ads: {
-              "v-meditation-0": { name: "v-meditation-0", id: 1 },
+              "v-meditation": { name: "v", id: 1 },
             },
           },
           "CM-contact-05_05_26": {
@@ -75,7 +75,25 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 2,
             ads: {
-              "v-meditation-0": { name: "v-meditation-0", id: 1 },
+              "v-meditation": { name: "v", id: 1 },
+            },
+          },
+          "CM-contact-with-interests": {
+            name: "новый пиксель/с интересами/просмотр контента",
+            createdAt: "05.05.2026",
+            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            id: 3,
+            ads: {
+              "v-meditation": { name: "v", id: 1 },
+            },
+          },
+          "CM-contact": {
+            name: "новый пиксель/без интересов/просмотр контента",
+            createdAt: "05.05.2026",
+            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            id: 4,
+            ads: {
+              "v-meditation": { name: "v", id: 1 },
             },
           },
         },
