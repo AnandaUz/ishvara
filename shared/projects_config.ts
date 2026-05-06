@@ -53,6 +53,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
           },
         },
       },
+
       MeditationTashkent: {
         name: "Медитации в Ташкенте",
         id: 2,
@@ -67,6 +68,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             id: 1,
             ads: {
               "v-meditation": { name: "v", id: 1 },
+              "v-meditation-0": { name: "v-meditation-0", id: 2 },
             },
           },
           "CM-contact-05_05_26": {
@@ -76,6 +78,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             id: 2,
             ads: {
               "v-meditation": { name: "v", id: 1 },
+              "v-meditation-0": { name: "v-meditation-0", id: 2 },
             },
           },
           "CM-contact-with-interests": {
@@ -85,6 +88,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             id: 3,
             ads: {
               "v-meditation": { name: "v", id: 1 },
+              "v-meditation-0": { name: "v-meditation-0", id: 2 },
             },
           },
           "CM-contact": {
@@ -94,6 +98,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             id: 4,
             ads: {
               "v-meditation": { name: "v", id: 1 },
+              "v-meditation-0": { name: "v-meditation-0", id: 2 },
             },
           },
         },
