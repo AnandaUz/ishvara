@@ -46,6 +46,9 @@ export class CGuestBlock extends HTMLElement {
       user_data: {},
       event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     };
+    if (userData._id) {
+      data.user_data.external_id = userData._id.toString();
+    }
 
     if (userData.ip) {
       data.user_data.client_ip_address = userData.ip;

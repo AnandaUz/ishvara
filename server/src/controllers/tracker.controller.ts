@@ -104,12 +104,14 @@ export const start = async (req: Request, res: Response) => {
       paramsString = urlParamsString;
     }
 
+    let oldEvents: IGuest["events"] | undefined = undefined;
     if (oldGuest) {
       if (
         instagram?.adset_name &&
         oldGuest?.instagram?.adset_name !== instagram.adset_name
       ) {
         isNew = true;
+        oldEvents = oldGuest.events;
       }
     } else {
       isNew = true;
@@ -126,6 +128,7 @@ export const start = async (req: Request, res: Response) => {
         ...(ip && { ip }),
         ...(instagram && { instagram }),
         ...(paramsString && { paramsString }),
+        ...(oldEvents && { events: oldEvents }),
       };
       const guest = await Guest.create(guestData);
       res.status(200).json({ _id: guest._id });

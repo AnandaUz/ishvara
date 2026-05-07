@@ -14,6 +14,7 @@ export interface IPixelEventData {
     ln?: string;
     ct?: string;
     country?: string;
+    external_id?: string;
   };
   event_id?: string;
   custom_data?: {
