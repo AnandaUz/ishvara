@@ -94,7 +94,7 @@ export const projects_configs: ProjectConfig[] = [
   {
     name: "Всё",
     id: "all",
-    filterFunc: (guest: IGuest) => {
+    filterFunc: (_guest: IGuest) => {
       return true;
     },
   },

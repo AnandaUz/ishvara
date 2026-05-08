@@ -90,7 +90,7 @@ c-guest-block {
 
   .body {
     display: grid;
-    grid-template-columns: [start]auto auto auto auto [name] auto [user-name] 1fr [company] auto[end];
+    grid-template-columns: [start]auto auto auto auto [name] auto [user-name] 1fr [anchor] auto [company] auto[end];
     column-gap: 3px;
     position: relative;
     z-index: 1;
@@ -100,6 +100,11 @@ c-guest-block {
     overflow: hidden;
     min-height: 30px;
     padding: 2px;
+  }
+
+  .btn-anchor {
+    grid-column: anchor;
+    grid-row: 1;
   }
 
   .btn-edit {
@@ -418,7 +423,7 @@ c-guest-block {
       min-height: unset;
       height: unset;
 
-      grid-template-columns: [start] auto auto auto auto [name] auto [user-name] 1fr [company] auto;
+      grid-template-columns: [start] auto auto auto auto [name] auto [user-name] 1fr [anchor] auto [company] auto;
 
 
 

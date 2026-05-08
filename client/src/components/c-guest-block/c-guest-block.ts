@@ -252,6 +252,13 @@ export class CGuestBlock extends HTMLElement {
       e.stopPropagation(); // чтобы не закрылся сразу
       this.owner.menu!.toggle(btn_gear, this);
     });
+    const btn_anchor = body.querySelector(".btn-anchor")! as HTMLButtonElement;
+    btn_anchor.addEventListener("click", async (e: MouseEvent) => {
+      e.stopPropagation(); // чтобы не закрылся сразу
+      await navigator.clipboard.writeText(
+        `https://esho.uz/location?g=${this.data._id}`,
+      );
+    });
 
     const notesString = this.querySelector(".notes-string") as HTMLDivElement;
     let oldNotes: string | undefined;
