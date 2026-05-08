@@ -50,14 +50,14 @@ export function applyHandlers(bot: Telegraf) {
 
 И я рад поделиться с вами гайдом "Трансформация без саботажа", вы сможете почитать его пока я вам отвечаю.
 
-<a href="https://esho.uz/guide?g=${userID}">Ссылка на гайд</a>`;
+https://esho.uz/guide?g=${userID}`;
     }
     if (payload === "meditation") {
       clientMsg = `✅ Я благодарю вас за регистрацию на коллективную медитацию! 
 В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы завершим регистрацию.
 
 Детали нашей встречи можно найти по ссылке:
-<a href="https://esho.uz/location?g=${userID}">Детали встречи</a>`;
+https://esho.uz/location?g=${userID}`;
     }
 
     const username = ctx.from.username;
