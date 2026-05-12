@@ -68,7 +68,6 @@ export const start = async (req: Request, res: Response) => {
       if (mainKey) {
         switch (mainKey) {
           case "almati00-v0": {
-            paramsString = urlParamsString;
             instagram = {
               comp_name: 1,
               adset_name: 2,
@@ -77,7 +76,6 @@ export const start = async (req: Request, res: Response) => {
             break;
           }
           case "almati00-v1": {
-            paramsString = urlParamsString;
             instagram = {
               comp_name: 1,
               adset_name: 2,
@@ -146,7 +144,7 @@ export const start = async (req: Request, res: Response) => {
       const guestData = {
         createdAt,
         projectId,
-        referrer,
+        // referrer,
         userAgentString,
         ...(oldGuest?._id && { oldId: oldGuest._id.toString() }),
         ...(ip && { ip }),

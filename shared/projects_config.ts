@@ -52,7 +52,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             },
           },
           "26.05.12-ПMM-PView-Almata": {
-            name: "Алмата - просмотр страницы",
+            name: "Алмата - PView",
             createdAt: "12.05.26",
             summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
             id: 2,
