@@ -9,12 +9,14 @@ export interface IBigProjectConfig {
       summary?: string;
       companyPageURL: string;
       pixel?: string;
+      tgbotName: string;
       adsets: {
         [key: string]: {
           name: string;
           createdAt: string;
           summary?: string;
           id: number;
+
           ads: {
             [key: string]: {
               name: string;
@@ -38,6 +40,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
         pixel: "masterMind",
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
+        tgbotName: "mastermind",
         adsets: {
           "26-05-04-mastermaind-contact-with-interests-newPixel": {
             name: "ПММ новый пиксель",
@@ -70,6 +73,7 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
         pixel: "masterMind",
         summary: "Коллективные медитации",
         companyPageURL: "https://esho.uz/meditation",
+        tgbotName: "meditation",
         adsets: {
           "CM-contact-with-interests-05_05_26": {
             name: "новый пиксель/с интересами/просмотр контента",
@@ -116,3 +120,31 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
     },
   },
 } as const;
+export const getBigProjectById = (
+  id: number,
+): IBigProjectConfig | undefined => {
+  return Object.values(bigProjects).find((project) => project.id === id);
+};
+export const getBProjectCompanyById = (
+  projectId: number,
+  companyId: number,
+): IBigProjectConfig["companys"][0] | undefined => {
+  const project = getBigProjectById(projectId);
+  if (!project) return undefined;
+  return Object.values(project.companys).find(
+    (company) => company.id === companyId,
+  );
+};
+export const getBProjectCompanyAdsetById = (
+  projectId: number,
+  companyId: number,
+  adsetId: number,
+): IBigProjectConfig["companys"][0]["adsets"][0] | undefined => {
+  const project = getBigProjectById(projectId);
+  if (!project) return undefined;
+  const company = Object.values(project.companys).find(
+    (company) => company.id === companyId,
+  );
+  if (!company) return undefined;
+  return Object.values(company.adsets).find((adset) => adset.id === adsetId);
+};

@@ -38,7 +38,7 @@ export const start = async (req: Request, res: Response) => {
   try {
     const {
       _id,
-      referrer,
+      // referrer,
       createdAt,
       urlParamsString,
       projectId,

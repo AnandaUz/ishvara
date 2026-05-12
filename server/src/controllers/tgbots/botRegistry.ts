@@ -10,6 +10,6 @@ for (const config of botConfigs) {
     continue;
   }
   const bot = new Telegraf(config.token);
-  applyHandlers(bot);
+  applyHandlers(bot, config.mode);
   botRegistry.set(config.mode, bot);
 }

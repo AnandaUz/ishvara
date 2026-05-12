@@ -31,5 +31,6 @@ export interface IGuest {
   notes?: string;
   chat?: {
     id: number;
+    tgbotName: string;
   } | null;
 }

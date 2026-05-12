@@ -4,7 +4,7 @@ import { updateGuest } from "../guests.controller.js";
 import { IGuest } from "../../../../shared/types/IGuest.js";
 import chats from "../chats/chats.controller.js";
 
-export function applyHandlers(bot: Telegraf) {
+export function applyHandlers(bot: Telegraf, tgbotName: string) {
   bot.start(async (ctx) => {
     if (!ctx.from) return;
 
@@ -73,7 +73,7 @@ BaseID: ${userID} `;
     await ctx.reply(clientMsg);
 
     if (userID) {
-      await chats.createNewChatFor(userID);
+      await chats.createNewChatFor(userID, tgbotName);
       try {
         const guestData: IGuest = {
           tg: {
@@ -91,7 +91,7 @@ BaseID: ${userID} `;
   });
 
   bot.on("message", async (ctx) => {
-    await chats.onNewMessage(ctx);
+    await chats.onNewMessage(ctx, tgbotName);
 
     // // возможно следует удалить позже
     // if (!ctx.from || !ctx.message) return;

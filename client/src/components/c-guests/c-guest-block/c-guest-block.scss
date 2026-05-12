@@ -105,12 +105,12 @@ c-guest-block {
 
   .btn-anchor {
     grid-column: anchor;
-    grid-row: 1;
+    grid-row: 1/3;
   }
 
   .btn-edit {
     grid-column: 2;
-    grid-row: 1/2;
+    grid-row: 1/3;
   }
 
   .notes-string {
@@ -136,7 +136,7 @@ c-guest-block {
 
   .tg-user-name {
     grid-column: user-name;
-    grid-row: 1;
+    grid-row: 1/3;
     font-size: 13px;
     align-self: center;
     position: unset;
@@ -144,7 +144,7 @@ c-guest-block {
 
   .cookie-string {
     grid-column: 4;
-    grid-row: 1/2;
+    grid-row: 1/3;
 
     align-self: start;
     padding: 2px;
@@ -176,12 +176,12 @@ c-guest-block {
 
   .btn-info-circle {
     grid-column: 3;
-    grid-row: 1/2;
+    grid-row: 1/3;
   }
 
   .btn-delete {
     grid-column: end-1;
-    grid-row: 1/2;
+    grid-row: 1/3;
     // position: absolute;
     // right: 1px;
     // bottom: 1px;
@@ -189,12 +189,12 @@ c-guest-block {
 
   .btn-gear {
     grid-column: 1;
-    grid-row: 1/2;
+    grid-row: 1/3;
   }
 
   .btn-chat {
     grid-column: 1;
-    grid-row: 1/2;
+    grid-row: 1/3;
   }
 
   .name {
@@ -214,7 +214,7 @@ c-guest-block {
 
   .company-string {
     grid-column: company;
-    grid-row: 1/2;
+    grid-row: 1/3;
     font-size: 11px;
     color: #5ab372;
     display: flex;

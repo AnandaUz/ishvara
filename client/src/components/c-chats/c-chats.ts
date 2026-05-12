@@ -3,6 +3,7 @@ import template from "./c-chats.html?raw";
 import type { IGuest } from "../../../../shared/types/IGuest";
 import { api } from "@/services/api";
 import { MessageDirection, type IMessage } from "@shared/types/IMessage";
+import { getBProjectCompanyById } from "@shared/projects_config";
 export let chat: CChats;
 export class CChats extends HTMLElement {
   userNameEl!: HTMLDivElement;
@@ -25,11 +26,22 @@ export class CChats extends HTMLElement {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         const text = input.textContent?.trim();
+        let chatData = this.guest.chat;
         let chatId = Number(this.guest.chat?.id);
         if (!chatId) {
-          chatId = await api.chats.createNewChatFor(this.guest._id!.toString());
-          this.guest.chat = { id: chatId };
+          const projectId = this.guest.projectId!;
+          const companyId = Number(this.guest.instagram?.comp_name!);
+          const tgbotName =
+            getBProjectCompanyById(projectId, companyId)?.tgbotName || "";
+          chatData = await api.chats.createNewChatFor(
+            this.guest._id!.toString(),
+            tgbotName,
+          );
+          if (chatData) this.guest.chat = chatData;
         }
+
+        chatId = Number(this.guest.chat?.id);
+
         if (text && chatId) {
           api.chats.sendMessage(chatId, text);
           input.textContent = "";

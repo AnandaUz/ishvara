@@ -6,8 +6,9 @@ router.get("/messages/:chatId", chats.getMessages);
 router.post("/message/:chatId", chats.sendMessage);
 router.post("/create/:guestId", async (req, res) => {
   const { guestId } = req.params;
-  const newChatId = await chats.createNewChatFor(guestId);
-  res.json({ newChatId });
+  const { tgbotName } = req.body;
+  const newChatData = await chats.createNewChatFor(guestId, tgbotName);
+  res.json({ newChatData });
 });
 
 export default router;

@@ -80,15 +80,16 @@ const chats = {
       },
     );
   },
-  createNewChatFor: async (guestId: string) => {
+  createNewChatFor: async (guestId: string, tgbotName: string) => {
     const res = await fetch(
       import.meta.env.VITE_API_URL + "/api/chats/create/" + guestId,
       {
         method: "POST",
+        body: JSON.stringify({ tgbotName }),
       },
     );
     const data = await res.json();
-    return data.newChatId;
+    return data;
   },
 };
 

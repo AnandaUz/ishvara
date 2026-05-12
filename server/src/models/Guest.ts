@@ -35,6 +35,7 @@ const GuestSchema = new Schema<IGuestDocument>({
   notes: { type: String },
   chat: {
     id: { type: Number },
+    tgbotName: { type: String },
   },
 });
 
