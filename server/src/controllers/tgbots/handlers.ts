@@ -2,6 +2,7 @@ import { Telegraf } from "telegraf";
 import { sendMessageTo_mainAdmin } from "../tgbot_admin.controller.js";
 import { updateGuest } from "../guests.controller.js";
 import { IGuest } from "../../../../shared/types/IGuest.js";
+import chats from "../chats/chats.controller.js";
 
 export function applyHandlers(bot: Telegraf) {
   bot.start(async (ctx) => {
@@ -72,6 +73,7 @@ BaseID: ${userID} `;
     await ctx.reply(clientMsg);
 
     if (userID) {
+      await chats.createNewChatFor(userID);
       try {
         const guestData: IGuest = {
           tg: {
@@ -89,12 +91,15 @@ BaseID: ${userID} `;
   });
 
   bot.on("message", async (ctx) => {
-    if (!ctx.from || !ctx.message) return;
+    await chats.onNewMessage(ctx);
 
-    const msg = ctx.message as any;
-    const clientId = ctx.from.id;
-    const text = msg.text || "[не текст]";
+    // // возможно следует удалить позже
+    // if (!ctx.from || !ctx.message) return;
 
-    await sendMessageTo_mainAdmin(`/reply <code>${clientId}</code>\n\n${text}`);
+    // const msg = ctx.message as any;
+    // const clientId = ctx.from.id;
+    // const text = msg.text || "[не текст]";
+
+    // await sendMessageTo_mainAdmin(`/reply <code>${clientId}</code>\n\n${text}`);
   });
 }

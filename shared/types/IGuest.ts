@@ -29,4 +29,7 @@ export interface IGuest {
   events?: [number | string, number | string][]; // [[время, код], ...]
   tags?: number[];
   notes?: string;
+  chat?: {
+    id: number;
+  } | null;
 }

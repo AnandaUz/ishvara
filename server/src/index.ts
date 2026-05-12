@@ -11,6 +11,7 @@ import { connectDB } from "../../_base/server/db.js";
 import trackerRouter from "./routers/tracker.routers.js";
 import guestsRouter from "./routers/guests.routers.js";
 import { botRegistry } from "./controllers/tgbots/botRegistry.js";
+import chatsRouter from "./routers/chats.routers.js";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(express.json());
 
 app.use("/api/tracker", trackerRouter);
 app.use("/api/guests", guestsRouter);
+app.use("/api/chats", chatsRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

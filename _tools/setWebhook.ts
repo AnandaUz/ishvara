@@ -1,7 +1,7 @@
 import "../_base/server/config";
 import { setWebhook2, Links } from "../_base/_tools/setWebhook.js";
 
-const ngrokUrl = "6745-92-253-192-234";
+const ngrokUrl = "b02c-92-253-194-231";
 
 const apiUrl = "/tgbots_user_webhook";
 
@@ -50,6 +50,6 @@ const links: Links = {
   //     apiURL: apiUrl,
   //   },
 };
-// setWebhook2("подключить клиент MEET DEV к NGROK", links);
-setWebhook2("подключить клиент MEET PROD к API", links);
-setWebhook2("подключить клиент MEDITATION PROD к API", links);
+setWebhook2("подключить клиент MEET DEV к NGROK", links);
+// setWebhook2("подключить клиент MEET PROD к API", links);
+// setWebhook2("подключить клиент MEDITATION PROD к API", links);

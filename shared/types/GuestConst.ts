@@ -62,14 +62,17 @@ export const META_EVENTS_LEVEL = {
   InitiateCheckout: {
     code: 3,
     title: "Нажал на кнопку регистрации, отвечает на вопросы",
+    value: 3,
   },
   Contact: {
     code: 2,
     title: "Проявил интерес к странице (посмотрел видео)",
+    value: 1,
   },
   ViewContent: {
     code: 1,
     title: "Живой и вовлечённый",
+    value: 0.1,
   },
 } as const satisfies Record<string, IMetaEventLevel>;
 

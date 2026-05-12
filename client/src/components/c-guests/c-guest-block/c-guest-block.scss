@@ -1,11 +1,12 @@
 c-guest-block {
-  background: rgb(250, 250, 254);
+  background: rgb(255 255 255 / 80%);
   border-radius: 5px;
-
   position: relative;
   overflow: hidden;
   transition: background 0.2s;
   display: none;
+  border: 1.5px solid #004d6942;
+  border-top: none;
 
   &[visible] {
     display: block;
@@ -179,12 +180,19 @@ c-guest-block {
   }
 
   .btn-delete {
-    position: absolute;
-    right: 1px;
-    bottom: 1px;
+    grid-column: end-1;
+    grid-row: 1/2;
+    // position: absolute;
+    // right: 1px;
+    // bottom: 1px;
   }
 
   .btn-gear {
+    grid-column: 1;
+    grid-row: 1/2;
+  }
+
+  .btn-chat {
     grid-column: 1;
     grid-row: 1/2;
   }
@@ -402,8 +410,6 @@ c-guest-block {
   }
 
   .tg-user-name {
-    position: absolute;
-    right: 193px;
     font-size: 13px;
 
     a {
@@ -463,11 +469,6 @@ c-guest-block {
       //   grid-row: 1;
       //   padding: 2px 7px;
       // }
-
-      .btn-delete {
-        left: auto;
-        right: 2px;
-      }
 
       // .btn-gear {
       //   position: unset;

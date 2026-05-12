@@ -51,6 +51,16 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
               "video-1": { name: "video-1", id: 2 },
             },
           },
+          "26.05.12-ПMM-PView-Almata": {
+            name: "Алмата - просмотр страницы",
+            createdAt: "12.05.26",
+            summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
+            id: 2,
+            ads: {
+              "video-0": { name: "video-0", id: 1 },
+              "video-1": { name: "video-1", id: 2 },
+            },
+          },
         },
       },
 

@@ -1,0 +1,12 @@
+.page-main {
+     display: grid;
+     grid-template-columns: 1fr auto;
+
+     c-guests-main {
+          grid-column: 1;
+     }
+
+     c-chats {
+          grid-column: 2;
+     }
+}

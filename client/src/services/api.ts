@@ -1,7 +1,16 @@
 import type { IGuest } from "@shared/types/IGuest";
+import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
 
 const guest = {
+  load: async () => {
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + "/api/guests/get",
+    );
+    const data = await response.json();
+    return data;
+  },
+
   delete: async (id: string) => {
     return fetch(import.meta.env.VITE_API_URL + "/api/guests/delete", {
       method: "DELETE",
@@ -52,6 +61,38 @@ const guest = {
   },
 };
 
+const chats = {
+  getMessages: async (chatId: number): Promise<IMessage[]> => {
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + "/api/chats/messages/" + chatId,
+    );
+    return response.json();
+  },
+  sendMessage: async (chatId: number, text: string) => {
+    return fetch(
+      import.meta.env.VITE_API_URL + "/api/chats/message/" + chatId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      },
+    );
+  },
+  createNewChatFor: async (guestId: string) => {
+    const res = await fetch(
+      import.meta.env.VITE_API_URL + "/api/chats/create/" + guestId,
+      {
+        method: "POST",
+      },
+    );
+    const data = await res.json();
+    return data.newChatId;
+  },
+};
+
 export const api = {
   guest,
+  chats,
 };

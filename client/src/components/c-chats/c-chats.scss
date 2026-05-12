@@ -1,0 +1,45 @@
+c-chats {
+     width: 400px;
+     margin: 3px;
+
+     .messages-bl {
+          border-radius: 7px;
+          border: 1px solid rgba(90, 148, 181, 0.3215686275);
+          background: rgba(235, 253, 255, 0.4901960784);
+          overflow: auto;
+          min-height: 200px;
+     }
+
+     .user-name {
+          padding: 3px 10px;
+          font-size: 14px;
+          font-weight: bold;
+          color: rgba(0, 134, 158, 0.4941176471);
+          background: #ffffffc2;
+          border-radius: 6px;
+     }
+
+     .input-div {
+          padding: 6px;
+          border-radius: 5px;
+          border: 1px solid rgba(90, 148, 181, 0.3215686275);
+          background: rgba(255, 255, 255, 0.7607843137);
+     }
+
+     .message {
+          padding: 4px 8px;
+          margin-bottom: 6px;
+          border-radius: 8px;
+          background: #fff;
+
+     }
+
+     .message.in {
+          background: rgba(144, 215, 244, 0.2588235294);
+     }
+
+     .message.out {
+          background: rgba(135, 217, 165, 0.368627451);
+
+     }
+}

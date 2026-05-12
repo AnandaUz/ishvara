@@ -15,6 +15,7 @@ import type { IPixelEventData } from "@shared/types/Is";
 
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
 import { DESC_EVENTS, store } from "@/features/store";
+import { chat } from "@/components/c-chats/c-chats";
 
 export class CGuestBlock extends HTMLElement {
   data: IGuest;
@@ -259,6 +260,11 @@ export class CGuestBlock extends HTMLElement {
         `https://esho.uz/location?g=${this.data._id}`,
       );
     });
+    // const btn_chat = body.querySelector(".btn-chat")! as HTMLButtonElement;
+    // btn_chat.addEventListener("click", async (e: MouseEvent) => {
+    //   e.stopPropagation(); // чтобы не закрылся сразу
+    //   if (chat) chat.initForGuest(this.data);
+    // });
 
     const notesString = this.querySelector(".notes-string") as HTMLDivElement;
     let oldNotes: string | undefined;
@@ -401,6 +407,10 @@ export class CGuestBlock extends HTMLElement {
   constructor(data: IGuest, owner: CGuestsMain) {
     super();
     //
+
+    this.addEventListener("click", async (_e: MouseEvent) => {
+      chat.initForGuest(this.data);
+    });
 
     const project = Object.values(bigProjects).find(
       (project) => project.id === data.projectId,

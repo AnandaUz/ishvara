@@ -3,68 +3,86 @@ c-guests-main {
     display: flex;
     flex-direction: column;
     gap: 1px;
-    background-color: #0154859f;
 
     border-radius: 5px;
     padding: 2px;
   }
+
   .menu-group {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
+
   .md-btn {
     width: 100%;
     height: 20px;
     border-radius: 4px;
     padding: 2px 6px;
+
     .desc {
       font-size: 12px;
       color: #000b;
       padding: 0 0 0 10px;
     }
+
     &:hover {
       font-weight: bold;
     }
+
     &:disabled,
     &[disabled] {
       pointer-events: none;
       background: none;
     }
   }
-  .day-line {
-    width: 100%;
-    height: 16px;
 
+  .day-line {
     display: flex;
     align-items: center;
     color: #fff;
     font-size: 12px;
     padding: 0 0 0 10px;
+
+    &>div {
+      background-color: rgba(1, 84, 133, 0.6235294118);
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+
+
+
     .day-name {
       font-size: 11px;
       color: rgb(135 220 225);
       padding: 0 0 0 6px;
     }
   }
+
   .level-1 {
     background: var(--color-level-0);
   }
+
   .level-2 {
     background: var(--color-level-1);
   }
+
   .level-3 {
     background: var(--color-level-2);
   }
+
   .level-4 {
     background: var(--color-level-3);
   }
+
   .level-5 {
     background: var(--color-level-4);
   }
+
   .level-6 {
     background: var(--color-level-5);
   }
+
   .level-7 {
     background: var(--color-level-6);
   }

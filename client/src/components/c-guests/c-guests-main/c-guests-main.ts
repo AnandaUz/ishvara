@@ -3,7 +3,7 @@ import template from "./c-guests-main.html?raw";
 import type { IGuest } from "@shared/types/IGuest";
 import { DESC_EVENTS, store } from "@/features/store";
 import { projectsManager } from "@/features/projectsManager";
-import { CGuestBlock } from "../../c-guest-block/c-guest-block";
+import { CGuestBlock } from "../c-guest-block/c-guest-block";
 import { CPopup } from "../../c-popup/c-popup";
 import { CGuestCard } from "../c-guest-card/c-guest-card";
 import "../c-guests-filters-bl/c-guests-filters-bl";
@@ -142,7 +142,7 @@ export class CGuestsMain extends HTMLElement {
         day = gDay;
         const dayLineEl = document.createElement("div");
         dayLineEl.classList.add("day-line");
-        dayLineEl.innerHTML = `<span>${gDay}.${gMonth + 1}</span><span class="day-name">${dayName}</span>`;
+        dayLineEl.innerHTML = `<div><span>${gDay}.${gMonth + 1}</span><span class="day-name">${dayName}</span></div>`;
         this.guests_list_block!.appendChild(dayLineEl);
       }
       const guestBlock = new CGuestBlock(guest, this);

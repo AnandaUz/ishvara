@@ -1,6 +1,7 @@
 import { projects_configs, type ProjectConfig } from "@/tabs_config";
 import { DESC_EVENTS, store } from "./store";
 import type { IGuest } from "@shared/types/IGuest";
+import { api } from "@/services/api";
 
 class TProject {
   config: ProjectConfig;
@@ -41,16 +42,9 @@ class ProjectsManager {
   getProject() {
     return localStorage.getItem("project") || projects_configs[0]!.id;
   }
-  async loadGuests() {
-    const response = await fetch(
-      import.meta.env.VITE_API_URL + "/api/guests/get",
-    );
-    const data = await response.json();
-    this.guests = data;
-  }
 
   async init() {
-    await this.loadGuests();
+    this.guests = await api.guest.load();
     this.setProject(localStorage.getItem("project") || projects_configs[0]!.id);
   }
 }

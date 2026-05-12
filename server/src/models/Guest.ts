@@ -33,6 +33,9 @@ const GuestSchema = new Schema<IGuestDocument>({
   events: { type: [[Schema.Types.Mixed]] },
   tags: { type: [Number] },
   notes: { type: String },
+  chat: {
+    id: { type: Number },
+  },
 });
 
 GuestSchema.index({ "instagram.comp_name": 1 });

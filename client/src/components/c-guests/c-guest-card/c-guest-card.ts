@@ -2,7 +2,7 @@ import { api } from "@/services/api";
 import "./c-guest-card.scss";
 import type { IGuest } from "@shared/types/IGuest";
 import type { CModal } from "@components/c-modal/c-modal";
-import type { CGuestBlock } from "@/components/c-guest-block/c-guest-block";
+import type { CGuestBlock } from "@/components/c-guests/c-guest-block/c-guest-block";
 import template from "./c-guest-card.html?raw";
 import { projects_configs } from "@/tabs_config";
 
