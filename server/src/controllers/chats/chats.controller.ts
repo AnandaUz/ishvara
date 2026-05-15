@@ -28,18 +28,20 @@ const chats = {
     const bot = botRegistry.get("mastermind")!;
     const sent = await bot.telegram.sendMessage(guest.tg.id, text);
 
-    const message = await Message.create({
-      chatId,
-      text,
-      direction: MessageDirection.OUT,
-      tgMessageId: sent.message_id,
-      createdAt: new Date(),
-      read: true,
-    });
-
-    sendToAdmin({ type: "new_message", message });
-
-    res.json({ ok: true });
+    try {
+      const message = await Message.create({
+        chatId,
+        text,
+        direction: MessageDirection.OUT,
+        tgMessageId: sent.message_id,
+        createdAt: new Date(),
+        read: true,
+      });
+      sendToAdmin({ type: "new_message", message });
+      res.json({ message });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to send message" });
+    }
   },
 
   createNewChatFor: async function (
@@ -86,7 +88,7 @@ const chats = {
 
     if (!guest?.chat?.id) return;
 
-    console.log(ctx.message.text, "  ", !guest?.chat?.id);
+    console.log(ctx.message.text, "  ", guest?.chat?.id);
 
     await Message.create({
       chatId: guest.chat.id,

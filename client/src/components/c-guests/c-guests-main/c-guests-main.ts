@@ -130,6 +130,9 @@ export class CGuestsMain extends HTMLElement {
     this.guests_list_block!.innerHTML = "";
     let month = 0;
     let day = 0;
+    let statisticDay: number[] = [];
+    // const statisticMonth:number[] = []
+    let dayLineEl: HTMLDivElement | null = null;
     projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
       const d = new Date(guest.lastChange || guest.createdAt!);
       const gMonth = d.getMonth();
@@ -137,14 +140,41 @@ export class CGuestsMain extends HTMLElement {
       const gWeekDay = d.getDay();
       const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
       const dayName = daysName[gWeekDay];
+
       if (gMonth !== month || gDay !== day) {
+        if (dayLineEl) {
+          for (let i = 0; i < statisticDay.length; i++) {
+            const div = document.createElement("div");
+            div.classList.add("count-col");
+            if (i > 0) div.classList.add(`l-${i - 1}`);
+            const r = statisticDay[i] || 0;
+            if (r > 0) {
+              div.innerHTML = `${r} `;
+            } else {
+              div.classList.add("empty");
+            }
+            dayLineEl?.appendChild(div);
+          }
+        }
+        statisticDay = [];
+
         month = gMonth;
         day = gDay;
-        const dayLineEl = document.createElement("div");
+        dayLineEl = document.createElement("div");
         dayLineEl.classList.add("day-line");
-        dayLineEl.innerHTML = `<div><span>${gDay}.${gMonth + 1}</span><span class="day-name">${dayName}</span></div>`;
+        dayLineEl.innerHTML = `<div class="bl-0"><span>${gDay}.${gMonth + 1}</span><span class="day-name">${dayName}</span></div>`;
         this.guests_list_block!.appendChild(dayLineEl);
       }
+
+      if (guest.tags?.length! > 0) {
+        const i = guest.tags?.length! || 1;
+        if (statisticDay[i] === undefined) statisticDay[i] = 0;
+        statisticDay[i]++;
+      } else {
+        if (statisticDay[0] === undefined) statisticDay[0] = 0;
+        statisticDay[0]++;
+      }
+
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
     });

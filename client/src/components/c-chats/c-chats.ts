@@ -4,6 +4,7 @@ import type { IGuest } from "../../../../shared/types/IGuest";
 import { api } from "@/services/api";
 import { MessageDirection, type IMessage } from "@shared/types/IMessage";
 import { getBProjectCompanyById } from "@shared/projects_config";
+import { getTimeStr } from "@/services/tools";
 export let chat: CChats;
 export class CChats extends HTMLElement {
   userNameEl!: HTMLDivElement;
@@ -43,11 +44,31 @@ export class CChats extends HTMLElement {
         chatId = Number(this.guest.chat?.id);
 
         if (text && chatId) {
-          api.chats.sendMessage(chatId, text);
-          input.textContent = "";
+          try {
+            const message = await api.chats.sendMessage(chatId, text);
+            if (message) {
+              this.addMessageToChat(message);
+              input.textContent = "";
+            }
+          } catch (error) {
+            console.error(error);
+          }
         }
       }
     });
+  }
+  addMessageToChat(message: IMessage) {
+    const messageEl = document.createElement("div");
+    messageEl.classList.add(
+      "message",
+      message.direction === MessageDirection.IN ? "in" : "out",
+    );
+    messageEl.innerHTML = `
+    <div class="body">
+    <div class="time">${getTimeStr(new Date(message.createdAt))}</div>
+    <div class="text">${message.text}</div>
+    </div>`;
+    this.messageEl.appendChild(messageEl);
   }
   async initForGuest(guest: IGuest) {
     if (!guest) return;
@@ -62,13 +83,7 @@ export class CChats extends HTMLElement {
     const messages = await api.chats.getMessages(chatId);
 
     messages.forEach((message: IMessage) => {
-      const messageEl = document.createElement("div");
-      messageEl.classList.add(
-        "message",
-        message.direction === MessageDirection.IN ? "in" : "out",
-      );
-      messageEl.textContent = message.text;
-      this.messageEl.appendChild(messageEl);
+      this.addMessageToChat(message);
     });
   }
 }

@@ -1,7 +1,10 @@
 import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
-import { bigProjects } from "@shared/projects_config";
+import {
+  bigProjects,
+  getBProjectCompanyAdsetById,
+} from "@shared/projects_config";
 
 import { cleanName, getTimeStr, hashSHA256 } from "@/services/tools";
 import { api } from "@/services/api";
@@ -55,8 +58,20 @@ export class CGuestBlock extends HTMLElement {
       data.user_data.client_ip_address = userData.ip;
     }
 
-    data.user_data.ct = await hashSHA256("tashkent"); // хешируется, lowercase
-    data.user_data.country = await hashSHA256("uz"); // код страны, тоже хешируется
+    const b_adset = getBProjectCompanyAdsetById(
+      Number(userData.projectId || 0),
+      Number(userData.instagram?.comp_name || 0),
+      Number(userData.instagram?.adset_name || 0),
+    );
+
+    const city = b_adset?.city;
+    const country = b_adset?.country;
+    if (city) {
+      data.user_data.ct = await hashSHA256(city); // хешируется, lowercase
+    }
+    if (country) {
+      data.user_data.country = await hashSHA256(country); // код страны, тоже хешируется
+    }
 
     if (userData.tg && userData.tg.first_name) {
       data.user_data.fn = await hashSHA256(cleanName(userData.tg.first_name));
@@ -69,6 +84,7 @@ export class CGuestBlock extends HTMLElement {
       data.custom_data = {
         currency: "USD",
         value: eventObj.value,
+        content_name: b_adset?.name || "",
       };
     }
     if (userData?.instagram?.fbp) data.user_data.fbp = userData.instagram.fbp;
@@ -179,16 +195,31 @@ export class CGuestBlock extends HTMLElement {
     {
       const isFbc = this.data.instagram?.fbc;
       const isFbp = this.data.instagram?.fbp;
+      let fbc_fbpString = `
+      <span class="${isFbp ? "ok" : ""}"></span>
+        <span class="${isFbc ? "ok" : ""}"></span>`;
+
       const isOldGuest = this.data.oldId
         ? `<span class='old-guest'></span>`
         : "";
+
+      let isBotMark = "";
+      if (this.data.userAgentString && isBot(this.data.userAgentString)) {
+        isBotMark = `<span class='is-bot'></span>`;
+        fbc_fbpString = "";
+        this.classList.add("empty");
+      }
+
       setBlock(
         ".cookie-string",
         `
         ${isOldGuest}
-        <span class="${isFbp ? "ok" : ""}"></span>
-        <span class="${isFbc ? "ok" : ""}"></span>`,
+        ${fbc_fbpString}
+        ${isBotMark}`,
       );
+      if (!isFbc && !isFbp && isOldGuest === "") {
+        this.classList.add("empty");
+      }
     }
 
     // const d_createdAt = this.data.createdAt
@@ -310,7 +341,7 @@ export class CGuestBlock extends HTMLElement {
     const timeLineBlock = this.timeLineBlock;
 
     let t = 0;
-    const k = 40; // 20 пикселей на секунду
+    const k = 35; // 20 пикселей на секунду
 
     let currentDate: string = "";
     for (let i = 0; i < this.data.events!.length; i++) {
@@ -379,22 +410,27 @@ export class CGuestBlock extends HTMLElement {
 
         eventElement.style.width = Math.max(xx * k, 7) + "px";
 
-        if (event[1] === "goalBtnClick") {
-          event[1] = EVENT_CODE.goalBtnClick.code;
+        const event_code = event[1];
+        if (typeof event_code === "string") {
+          if (event_code === "goalBtnClick") {
+            event[1] = EVENT_CODE.goalBtnClick.code;
+          }
         }
 
-        switch (event[1]) {
+        switch (event_code) {
           case EVENT_CODE.outPage!.code:
             eventElement.innerHTML = `<span></span><i class='time'>${time.toFixed(1)}</i>`;
             eventElement.className += " " + EVENT_CODE.outPage!.class!;
             break;
           default:
-            const eventItem = EVENT_BY_CODE[event[1]];
+            const eventItem = EVENT_BY_CODE[event_code];
             if (eventItem && eventItem.class) {
               eventElement.className += " " + eventItem.class;
+              eventElement.innerHTML = `<span></span>`;
             } else {
+              eventElement.innerHTML = `<span class="goal-event"><b>${event_code}</b></span>`;
             }
-            eventElement.innerHTML = `<span></span>`;
+
             break;
         }
       }
@@ -463,3 +499,15 @@ export class CGuestBlock extends HTMLElement {
 }
 
 customElements.define("c-guest-block", CGuestBlock);
+
+function isBot(userAgent: string): boolean {
+  return (
+    userAgent.includes("meta-externalads") ||
+    userAgent.includes("facebookexternalhit") ||
+    userAgent.includes("HeadlessChrome") ||
+    userAgent.includes("Googlebot") ||
+    userAgent.includes("bot") ||
+    userAgent.includes("crawler") ||
+    userAgent.includes("spider")
+  );
+}

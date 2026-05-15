@@ -16,7 +16,8 @@ export interface IBigProjectConfig {
           createdAt: string;
           summary?: string;
           id: number;
-
+          city?: string;
+          country?: string;
           ads: {
             [key: string]: {
               name: string;
@@ -45,6 +46,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
           "26-05-04-mastermaind-contact-with-interests-newPixel": {
             name: "ПММ новый пиксель",
             createdAt: "03.05.2026",
+            city: "tashkent",
+            country: "uz",
             summary: `решил попробовать обновить пиксель, так как есть ощущение что он обучен на неверных данных
     данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ
     `,
@@ -59,6 +62,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             createdAt: "12.05.26",
             summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
             id: 2,
+            city: "almaty",
+            country: "kz",
             ads: {
               "video-0": { name: "video-0", id: 1 },
               "video-1": { name: "video-1", id: 2 },
@@ -80,6 +85,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 1,
+            city: "tashkent",
+            country: "uz",
             ads: {
               "v-meditation": { name: "v", id: 1 },
               "v-meditation-0": { name: "v-meditation-0", id: 2 },
@@ -90,6 +97,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 2,
+            city: "tashkent",
+            country: "uz",
             ads: {
               "v-meditation": { name: "v", id: 1 },
               "v-meditation-0": { name: "v-meditation-0", id: 2 },
@@ -100,6 +109,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             createdAt: "05.05.2026",
             summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 3,
+            city: "tashkent",
+            country: "uz",
             ads: {
               "v-meditation": { name: "v", id: 1 },
               "v-meditation-0": { name: "v-meditation-0", id: 2 },
@@ -110,6 +121,8 @@ export const bigProjects: Record<string, IBigProjectConfig> = {
             createdAt: "05.05.2026",
             summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             id: 4,
+            city: "tashkent",
+            country: "uz",
             ads: {
               "v-meditation": { name: "v", id: 1 },
               "v-meditation-0": { name: "v-meditation-0", id: 2 },

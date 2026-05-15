@@ -43,11 +43,59 @@ c-guests-main {
     color: #fff;
     font-size: 12px;
     padding: 0 0 0 10px;
+    gap: 2px;
 
-    &>div {
+
+
+    .count-col {
+      font-size: 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.11);
+      padding: 2px 0px;
+      color: #0e355f;
+      background: #fff;
+      width: 20px;
+      text-align: center;
+
+      &.empty {
+        opacity: 0.8;
+      }
+
+      &.l-0 {
+        background: var(--color-level-0);
+      }
+
+      &.l-1 {
+        background: var(--color-level-1);
+      }
+
+      &.l-2 {
+        background: var(--color-level-2);
+      }
+
+      &.l-3 {
+        background: var(--color-level-3);
+      }
+
+      &.l-4 {
+        background: var(--color-level-4);
+      }
+
+      &.l-5 {
+        background: var(--color-level-5);
+      }
+
+      &.l-6 {
+        background: var(--color-level-6);
+      }
+    }
+
+    .bl-0 {
+      width: 65px;
       background-color: rgba(1, 84, 133, 0.6235294118);
       padding: 5px 10px;
       border-radius: 6px;
+      margin: 0 10px 0 0;
     }
 
 

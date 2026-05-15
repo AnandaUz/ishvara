@@ -10,7 +10,6 @@ const guest = {
     const data = await response.json();
     return data;
   },
-
   delete: async (id: string) => {
     return fetch(import.meta.env.VITE_API_URL + "/api/guests/delete", {
       method: "DELETE",
@@ -68,8 +67,8 @@ const chats = {
     );
     return response.json();
   },
-  sendMessage: async (chatId: number, text: string) => {
-    return fetch(
+  sendMessage: async (chatId: number, text: string): Promise<IMessage> => {
+    const response = await fetch(
       import.meta.env.VITE_API_URL + "/api/chats/message/" + chatId,
       {
         method: "POST",
@@ -79,12 +78,17 @@ const chats = {
         body: JSON.stringify({ text }),
       },
     );
+    const res = await response.json();
+    return res.message as IMessage;
   },
   createNewChatFor: async (guestId: string, tgbotName: string) => {
     const res = await fetch(
       import.meta.env.VITE_API_URL + "/api/chats/create/" + guestId,
       {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ tgbotName }),
       },
     );

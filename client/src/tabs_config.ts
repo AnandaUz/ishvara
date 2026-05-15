@@ -85,7 +85,7 @@ export const projects_configs: ProjectConfig[] = [
     filterFunc: (guest: IGuest) => {
       if (guest.companyId === "other") return true;
       for (const project of projects_configs) {
-        if (project.id === "other") continue;
+        if (project.id === "other" || project.id === "all") continue;
         if (project.filterFunc(guest)) return false;
       }
       return true;
