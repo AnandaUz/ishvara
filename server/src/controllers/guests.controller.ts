@@ -5,8 +5,17 @@ import mongoose from "mongoose";
 import { pixels_configs } from "../pixels_configs.js";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
 
-export async function getGuests(_req: Request, res: Response) {
+export async function getGuests(req: Request, res: Response) {
+  const projectId = req.query.projectId as string | undefined;
+
+  const match: Record<string, any> = {};
+
+  if (projectId) {
+    match.projectId = projectId;
+  }
+
   const guests = await Guest.aggregate([
+    { $match: match },
     {
       $addFields: {
         sortField: { $ifNull: ["$lastChange", "$createdAt"] },

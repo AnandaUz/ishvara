@@ -3,9 +3,11 @@ import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
 
 const guest = {
-  load: async () => {
+  load: async (projectId: number) => {
     const response = await fetch(
-      import.meta.env.VITE_API_URL + "/api/guests/get",
+      import.meta.env.VITE_API_URL +
+        "/api/guests/get" +
+        (projectId ? "?projectId=" + projectId : ""),
     );
     const data = await response.json();
     return data;

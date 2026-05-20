@@ -2,7 +2,8 @@ export interface IBigProjectConfig {
   name: string;
   id: number;
   summary?: string;
-  companys: {
+  isOff?: boolean;
+  companys?: {
     [key: string]: {
       name: string;
       id: number;
@@ -30,6 +31,14 @@ export interface IBigProjectConfig {
   };
 }
 export const bigProjects: Record<string, IBigProjectConfig> = {
+  world_travel: {
+    name: "World Travel",
+    id: 200,
+  },
+  meditation: {
+    name: "Медитация",
+    id: 300,
+  },
   mastermind_paid: {
     name: "Сайт esho.uz",
     id: 100,

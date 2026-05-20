@@ -1,42 +1,41 @@
-import { projects_configs, type ProjectConfig } from "@/tabs_config";
+import { projects_configs } from "@/tabs_config";
 import { DESC_EVENTS, store } from "./store";
 import type { IGuest } from "@shared/types/IGuest";
 import { api } from "@/services/api";
+import { bigProjects, type IBigProjectConfig } from "@shared/projects_config";
 
 class TProject {
-  config: ProjectConfig;
-  //  private _guests: IGuest[] = [];
-  private owner: ProjectsManager;
+  config: IBigProjectConfig;
+  guests: IGuest[] = [];
 
-  constructor(config: ProjectConfig, owner: ProjectsManager) {
-    this.config = config;
-    this.owner = owner;
+  constructor(idName: string) {
+    if (bigProjects[idName]) {
+      this.config = bigProjects[idName]!;
+    } else {
+      throw new Error(`Project ${idName} not found`);
+    }
   }
-  get guests(): IGuest[] {
-    const guests = this.owner.guests.filter((guest: IGuest) => {
-      return this.config.filterFunc(guest);
-    });
-    return guests;
+  async initGuests() {
+    this.guests = await api.guest.load(this.config.id);
   }
 }
 
 class ProjectsManager {
   activeProject: TProject | null = null;
-  projects: TProject[] = [];
-  guests: IGuest[] = [];
-  constructor() {
-    this.projects = projects_configs.map(
-      (config) => new TProject(config, this),
-    );
-  }
+  projects: Map<string, TProject> = new Map();
+  constructor() {}
 
-  setProject(id: string) {
-    localStorage.setItem("project", id);
-    this.activeProject = this.projects.find(
-      (project) => project.config.id === id,
-    )!;
-
-    store.emit(DESC_EVENTS.project.Changed, id);
+  async setProject(idName: string) {
+    let newProject: TProject;
+    if (this.projects.has(idName)) {
+      newProject = this.projects.get(idName)!;
+    } else {
+      newProject = new TProject(idName);
+      this.projects.set(idName, newProject);
+      await newProject.initGuests();
+    }
+    this.activeProject = newProject;
+    store.emit(DESC_EVENTS.project.Changed, idName);
   }
 
   getProject() {
@@ -44,8 +43,8 @@ class ProjectsManager {
   }
 
   async init() {
-    this.guests = await api.guest.load();
-    this.setProject(localStorage.getItem("project") || projects_configs[0]!.id);
+    //
+    // this.setProject(localStorage.getItem("project") || projects_configs[0]!.id);
   }
 }
 
