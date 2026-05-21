@@ -3,7 +3,10 @@
   "outputDirectory": "client/dist",
   "installCommand": "npm install --no-audit",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
@@ -14,6 +17,19 @@
           "value": "inline"
         }
       ]
+    },
+    {
+      "source": "/tracker.js",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
     }
   ]
-}  
+}
