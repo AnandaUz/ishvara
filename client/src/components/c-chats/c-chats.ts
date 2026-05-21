@@ -3,7 +3,7 @@ import template from "./c-chats.html?raw";
 import type { IGuest } from "../../../../shared/types/IGuest";
 import { api } from "@/services/api";
 import { MessageDirection, type IMessage } from "@shared/types/IMessage";
-import { getBProjectCompanyById } from "@shared/projects_config";
+import { bigProjectsGet } from "@shared/projects_config";
 import { getTimeStr } from "@/services/tools";
 export let chat: CChats;
 export class CChats extends HTMLElement {
@@ -32,8 +32,7 @@ export class CChats extends HTMLElement {
         if (!chatId) {
           const projectId = this.guest.projectId!;
           const companyId = Number(this.guest.instagram?.comp_name!);
-          const tgbotName =
-            getBProjectCompanyById(projectId, companyId)?.tgbotName || "";
+          const tgbotName = bigProjectsGet.companyById(projectId, companyId)?.tgbotName || "";
           chatData = await api.chats.createNewChatFor(
             this.guest._id!.toString(),
             tgbotName,

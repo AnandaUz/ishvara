@@ -1,5 +1,5 @@
 import type { IGuest } from "@shared/types/IGuest";
-import { bigProjects } from "@shared/projects_config";
+import { bigProjectsGet } from "@shared/projects_config";
 
 export interface ProjectConfig {
   name: string;

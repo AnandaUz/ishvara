@@ -1,7 +1,7 @@
 import "./c-tabs.scss";
 
 export interface ITab {
-  id: string;
+  id: string | number;
   name: string;
   isOff: boolean;
 }
@@ -9,7 +9,7 @@ export interface ITab {
 export class CTabs extends HTMLElement {
   tabs: HTMLDivElement[] = [];
   dataString: string = "";
-  funcChangeEvent: ((id: string) => void) | null = null;
+  funcChangeEvent: ((id: string | number) => void) | null = null;
 
   init(data: ITab[]) {
     this.tabs = [];
@@ -25,7 +25,7 @@ export class CTabs extends HTMLElement {
         if (project.isOff) tab.classList.add("off");
 
         this.appendChild(tab);
-        tab.id = project.id;
+        tab.id = `tab_${project.id}`;
 
         tab.addEventListener("click", () => {
           this.setActive(project.id);
@@ -33,22 +33,22 @@ export class CTabs extends HTMLElement {
         this.tabs.push(tab);
       });
 
-    const s = localStorage.getItem(this.dataString) || "all";
-    this.setActive(s);
+    const s = localStorage.getItem(this.dataString);
+    if (s) this.setActive(Number(s));
   }
 
-  setActive(id: string) {
+  setActive(id: string | number) {
     this.tabs.forEach((tab) => tab.classList.remove("active"));
-    const tab = this.querySelector(`#${id}`);
+    const tab = this.querySelector(`#tab_${id}`);
     if (tab) {
       tab.classList.add("active");
-      localStorage.setItem(this.dataString, id);
+      localStorage.setItem(this.dataString, id.toString());
       if (this.funcChangeEvent) {
         this.funcChangeEvent(id);
       }
     }
   }
-  addEventChange(func: (id: string) => void) {
+  addEventChange(func: (id: string | number) => void) {
     this.funcChangeEvent = func;
   }
 }

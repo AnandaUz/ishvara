@@ -7,7 +7,7 @@ import "@/components/c-chats/c-chats";
 import "./home.scss";
 import "@components/c-tabs/c-tabs";
 import type { CTabs, ITab } from "@components/c-tabs/c-tabs";
-import { bigProjects } from "@shared/projects_config";
+import { bigProjectsGet, bigProjects } from "@shared/projects_config";
 // import { DESC_EVENTS, store } from "@/features/store";
 import { projects_configs } from "@/tabs_config";
 
@@ -24,20 +24,16 @@ export const homePage: Page = () => {
         ".company-tabs-block",
       ) as HTMLElement;
 
-      const data = Object.keys(bigProjects).map((key) => {
-        const proj = bigProjects[key];
-        if (!proj) return null;
-        return {
-          id: key,
-          name: proj.name,
-          isOff: proj.isOff,
-        };
-      });
+      const data = bigProjects.map((proj) => ({
+        id: proj.id,
+        name: proj.name,
+        isOff: proj.isOff,
+      } as ITab));
 
       projectsTabs.addEventChange((id) => {
         // store.emit(DESC_EVENTS.project.Changed, id);
 
-        const project = bigProjects[id];
+        const project = bigProjectsGet.projectById(Number(id));
         if (!project) return;
 
         if (project.companys) {

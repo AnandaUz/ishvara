@@ -1,172 +1,158 @@
-export interface IBigProjectConfig {
-  name: string;
+export interface IAd {
   id: number;
+  name: string;
+}
+
+export interface IAdSet {
+  id: number;
+  name: string;
+  nameInInst?: string;
+  createdAt: string;
+  summary?: string;
+  city?: string;
+  country?: string;
+  ads: IAd[];
+}
+
+export interface ICompany {
+  id: number;
+  name: string;
+  summary?: string;
+  companyPageURL: string;
+  pixel?: string;
+  tgbotName: string;
+  adsets: IAdSet[];
+}
+
+export interface IBigProjectConfig {
+  id: number;
+  name: string;
   summary?: string;
   isOff?: boolean;
-  companys?: {
-    [key: string]: {
-      name: string;
-      id: number;
-      summary?: string;
-      companyPageURL: string;
-      pixel?: string;
-      tgbotName: string;
-      adsets: {
-        [key: string]: {
-          name: string;
-          createdAt: string;
-          summary?: string;
-          id: number;
-          city?: string;
-          country?: string;
-          ads: {
-            [key: string]: {
-              name: string;
-              id: number;
-            };
-          };
-        };
-      };
-    };
-  };
+  companys?: ICompany[]
 }
-export const bigProjects: Record<string, IBigProjectConfig> = {
-  world_travel: {
+export const bigProjects: IBigProjectConfig[] = [
+  {
+    id: 5,
     name: "World Travel",
-    id: 200,
   },
-  meditation: {
+  {
+    id: 10,
     name: "Медитация",
-    id: 300,
   },
-  mastermind_paid: {
-    name: "Сайт esho.uz",
+  {
     id: 100,
-    summary: "сейчас этои ПММ и КМ",
-    companys: {
-      MasterMind: {
+    name: "Esho.uz",
+    summary: "сейчас этои ПММ",
+    companys: [
+      {
         name: "MasterMind",
         id: 1,
         pixel: "masterMind",
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
         tgbotName: "mastermind",
-        adsets: {
-          "26-05-04-mastermaind-contact-with-interests-newPixel": {
-            name: "ПММ новый пиксель",
+        adsets: [
+          {
+            id: 1,
+            name: "26-05-04-mastermaind-contact-with-interests-newPixel",
             createdAt: "03.05.2026",
             city: "tashkent",
             country: "uz",
             summary: `решил попробовать обновить пиксель, так как есть ощущение что он обучен на неверных данных
-    данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ
-    `,
-            id: 1,
-            ads: {
-              "video-0": { name: "video-0", id: 1 },
-              "video-1": { name: "video-1", id: 2 },
-            },
+    данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ`,
+            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
           },
-          "26.05.12-ПMM-PView-Almata": {
-            name: "Алмата - PView",
+          {
+            id: 2,
+            name: "26.05.12-ПMM-PView-Almata",
             createdAt: "12.05.26",
             summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
-            id: 2,
             city: "almaty",
             country: "kz",
-            ads: {
-              "video-0": { name: "video-0", id: 1 },
-              "video-1": { name: "video-1", id: 2 },
-            },
+            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
           },
-        },
+        ],
       },
-
-      MeditationTashkent: {
-        name: "Медитации в Ташкенте",
+      {
         id: 2,
+        name: "Медитации в Ташкенте",
         pixel: "masterMind",
         summary: "Коллективные медитации",
         companyPageURL: "https://esho.uz/meditation",
         tgbotName: "meditation",
-        adsets: {
-          "CM-contact-with-interests-05_05_26": {
-            name: "новый пиксель/с интересами/просмотр контента",
-            createdAt: "05.05.2026",
-            summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+        adsets: [
+          {
             id: 1,
-            city: "tashkent",
-            country: "uz",
-            ads: {
-              "v-meditation": { name: "v", id: 1 },
-              "v-meditation-0": { name: "v-meditation-0", id: 2 },
-            },
-          },
-          "CM-contact-05_05_26": {
-            name: "новый пиксель/без интересов/просмотр контента",
+            name: "новый пиксель/с интересами/просмотр контента",
+            nameInInst: "CM-contact-with-interests-05_05_26",
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            city: "tashkent",
+            country: "uz",
+            ads: [{ name: "v-meditation-0", id: 2 }]
+          },
+          {
             id: 2,
-            city: "tashkent",
-            country: "uz",
-            ads: {
-              "v-meditation": { name: "v", id: 1 },
-              "v-meditation-0": { name: "v-meditation-0", id: 2 },
-            },
-          },
-          "CM-contact-with-interests": {
-            name: "новый пиксель/с интересами/просмотр контента",
-            createdAt: "05.05.2026",
-            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
-            id: 3,
-            city: "tashkent",
-            country: "uz",
-            ads: {
-              "v-meditation": { name: "v", id: 1 },
-              "v-meditation-0": { name: "v-meditation-0", id: 2 },
-            },
-          },
-          "CM-contact": {
             name: "новый пиксель/без интересов/просмотр контента",
+            nameInInst: "CM-contact-05_05_26",
             createdAt: "05.05.2026",
-            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
-            id: 4,
+            summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             city: "tashkent",
             country: "uz",
-            ads: {
-              "v-meditation": { name: "v", id: 1 },
-              "v-meditation-0": { name: "v-meditation-0", id: 2 },
-            },
+            ads: [{ name: "v-meditation-0", id: 2 }],
           },
-        },
+          {
+            id: 3,
+            name: "новый пиксель/с интересами/просмотр контента",
+            nameInInst: "CM-contact-with-interests-05_05_26",
+            createdAt: "05.05.2026",
+            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            city: "tashkent",
+            country: "uz",
+            ads: [{ name: "v-meditation-0", id: 2 }],
+          },
+          {
+            id: 4,
+            name: "новый пиксель/без интересов/просмотр контента",
+            nameInInst: "CM-contact-05_05_26",
+            createdAt: "05.05.2026",
+            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
+            city: "tashkent",
+            country: "uz",
+            ads: [{ name: "v-meditation-0", id: 2 }],
+          },
+        ],
       },
-    },
+    ],
   },
-} as const;
-export const getBigProjectById = (
-  id: number,
-): IBigProjectConfig | undefined => {
-  return Object.values(bigProjects).find((project) => project.id === id);
-};
-export const getBProjectCompanyById = (
-  projectId: number,
-  companyId: number,
-): IBigProjectConfig["companys"][0] | undefined => {
-  const project = getBigProjectById(projectId);
-  if (!project) return undefined;
-  return Object.values(project.companys).find(
-    (company) => company.id === companyId,
-  );
-};
-export const getBProjectCompanyAdsetById = (
-  projectId: number,
-  companyId: number,
-  adsetId: number,
-): IBigProjectConfig["companys"][0]["adsets"][0] | undefined => {
-  const project = getBigProjectById(projectId);
-  if (!project) return undefined;
-  const company = Object.values(project.companys).find(
-    (company) => company.id === companyId,
-  );
-  if (!company) return undefined;
-  return Object.values(company.adsets).find((adset) => adset.id === adsetId);
-};
+] as const;
+
+export const bigProjectsGet = {
+  projectById: (
+    id: number
+  ): IBigProjectConfig | undefined => {
+    return bigProjects.find(p => p.id === id);
+  },
+  companyById: (
+    projectId: number,
+    companyId: number
+  ): ICompany | undefined => {
+    return bigProjectsGet.projectById(projectId)?.companys?.find(c => c.id === companyId);
+  },
+  adsetById: (
+    projectId: number,
+    companyId: number,
+    adsetId: number
+  ): IAdSet | undefined => {
+    return bigProjectsGet.companyById(projectId, companyId)?.adsets.find(a => a.id === adsetId);
+  },
+  adById: (
+    projectId: number,
+    companyId: number,
+    adsetId: number,
+    adId: number
+  ): IAd | undefined => {
+    return bigProjectsGet.adsetById(projectId, companyId, adsetId)?.ads.find(a => a.id === adId);
+  },
+} as const

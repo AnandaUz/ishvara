@@ -11,9 +11,8 @@ export async function getGuests(req: Request, res: Response) {
   const match: Record<string, any> = {};
 
   if (projectId) {
-    match.projectId = projectId;
+    match.projectId = Number(projectId);
   }
-
   const guests = await Guest.aggregate([
     { $match: match },
     {

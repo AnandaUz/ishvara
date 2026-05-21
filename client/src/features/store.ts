@@ -12,10 +12,10 @@ export const DESC_EVENTS = {
 } as const;
 
 export type DeskEvents = {
-  [DESC_EVENTS.project.Changed]: string;
+  [DESC_EVENTS.project.Changed]: number;
   [DESC_EVENTS.guests.Filter.LevelChanged]: number;
 };
 
-export class Store extends EventEmitter<DeskEvents> {}
+export class Store extends EventEmitter<DeskEvents> { }
 
 export const store = new Store();

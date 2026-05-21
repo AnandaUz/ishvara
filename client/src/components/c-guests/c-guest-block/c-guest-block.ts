@@ -1,10 +1,7 @@
 import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
-import {
-  bigProjects,
-  getBProjectCompanyAdsetById,
-} from "@shared/projects_config";
+import { bigProjectsGet } from "@shared/projects_config";
 
 import { cleanName, getTimeStr, hashSHA256 } from "@/services/tools";
 import { api } from "@/services/api";
@@ -58,7 +55,7 @@ export class CGuestBlock extends HTMLElement {
       data.user_data.client_ip_address = userData.ip;
     }
 
-    const b_adset = getBProjectCompanyAdsetById(
+    const b_adset = bigProjectsGet.adsetById(
       Number(userData.projectId || 0),
       Number(userData.instagram?.comp_name || 0),
       Number(userData.instagram?.adset_name || 0),
@@ -448,30 +445,30 @@ export class CGuestBlock extends HTMLElement {
       chat.initForGuest(this.data);
     });
 
-    const project = Object.values(bigProjects).find(
-      (project) => project.id === data.projectId,
-    );
-    if (project) {
-      // this.projectConfig = project;
-      const comp_name = data.instagram?.comp_name! || "";
-      const adset_name = data.instagram?.adset_name! || "";
-      const ad_name = data.instagram?.ad_name! || "";
-      if (comp_name) {
-        this.companyConfig = Object.values(project.companys).find(
-          (c) => c.id === comp_name || c.name === comp_name,
-        );
-      }
-      if (adset_name && this.companyConfig) {
-        this.adsetConfig = Object.values(this.companyConfig.adsets).find(
-          (a: any) => a.id === adset_name || a.name === adset_name,
-        );
-      }
-      if (ad_name && this.adsetConfig) {
-        this.adConfig = Object.values(this.adsetConfig.ads).find(
-          (a: any) => a.id === ad_name || a.name === ad_name,
-        );
-      }
-    }
+    // const project = Object.values(bigProjects).find(
+    //   (project) => project.id === data.projectId,
+    // );
+    // if (project) {
+    //   // this.projectConfig = project;
+    //   const comp_name = data.instagram?.comp_name! || "";
+    //   const adset_name = data.instagram?.adset_name! || "";
+    //   const ad_name = data.instagram?.ad_name! || "";
+    //   if (comp_name) {
+    //     this.companyConfig = Object.values(project.companys).find(
+    //       (c) => c.id === comp_name || c.name === comp_name,
+    //     );
+    //   }
+    //   if (adset_name && this.companyConfig) {
+    //     this.adsetConfig = Object.values(this.companyConfig.adsets).find(
+    //       (a: any) => a.id === adset_name || a.name === adset_name,
+    //     );
+    //   }
+    //   if (ad_name && this.adsetConfig) {
+    //     this.adConfig = Object.values(this.adsetConfig.ads).find(
+    //       (a: any) => a.id === ad_name || a.name === ad_name,
+    //     );
+    //   }
+    // }
 
     this.data = data;
     this.owner = owner;
@@ -495,7 +492,7 @@ export class CGuestBlock extends HTMLElement {
       }
     });
   }
-  async connectedCallback() {}
+  async connectedCallback() { }
 }
 
 customElements.define("c-guest-block", CGuestBlock);

@@ -12,7 +12,8 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build:client": "npm run build -w client",
     "build:server": "npm run build -w server",
-    "deploy": "tsx ./deploy_project.ts"
+    "deploy": "tsx ./deploy_project.ts",
+    "build:tracker": "vite build --config client/vite.tracker.config.ts"
   },
   "workspaces": [
     "client",
