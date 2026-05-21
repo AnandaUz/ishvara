@@ -135,14 +135,12 @@ class Guest {
                createdAt: new Date(),
                userAgentString: navigator.userAgent,
                urlParamsString: window.location.search.slice(1),
-               projectId: (window as any).projectID,
+               projectId: (window as any).trackerProjectID,
           };
-
           if (document.referrer) {
                const url = new URL(document.referrer);
                data.referrer = url.pathname;
           }
-
           try {
                const response = await fetch(API_URL + "/start", {
                     method: "POST",
