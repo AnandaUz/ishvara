@@ -4,7 +4,7 @@ import type { IGuest } from "@shared/types/IGuest";
 import type { CModal } from "@components/c-modal/c-modal";
 import type { CGuestBlock } from "@/components/c-guests/c-guest-block/c-guest-block";
 import template from "./c-guest-card.html?raw";
-import { projects_configs } from "@/tabs_config";
+// import { projects_configs } from "@/tabs_config";
 
 export class CGuestCard extends HTMLElement {
   private _id: string = "";
@@ -89,30 +89,30 @@ export class CGuestCard extends HTMLElement {
       },
     );
 
-    const company = this.querySelector(".company") as HTMLSelectElement;
-    let lastOption: HTMLOptionElement | null = null;
-    projects_configs.forEach((project) => {
-      if (project.isOff) return;
-      const option = document.createElement("option");
-      option.value = project.id;
-      option.textContent = project.name;
-      company.appendChild(option);
+    // const company = this.querySelector(".company") as HTMLSelectElement;
+    // let lastOption: HTMLOptionElement | null = null;
+    // projects_configs.forEach((project) => {
+    //   if (project.isOff) return;
+    //   const option = document.createElement("option");
+    //   option.value = project.id;
+    //   option.textContent = project.name;
+    //   company.appendChild(option);
 
-      if (this.guest.companyId === project.id) {
-        option.selected = true;
-      }
-      lastOption = option;
-    });
-    if (!this.guest.companyId) {
-      lastOption!.selected = true;
-      this.guest.companyId = lastOption!.value;
-    }
-    company.addEventListener("change", (e) => {
-      this.guest.companyId = (e.target as HTMLSelectElement).value;
+    //   if (this.guest.companyId === project.id) {
+    //     option.selected = true;
+    //   }
+    //   lastOption = option;
+    // });
+    // if (!this.guest.companyId) {
+    //   lastOption!.selected = true;
+    //   this.guest.companyId = lastOption!.value;
+    // }
+    // company.addEventListener("change", (e) => {
+    //   this.guest.companyId = (e.target as HTMLSelectElement).value;
 
-      let i = 0;
-      i++;
-    });
+    //   let i = 0;
+    //   i++;
+    // });
 
     initTextBlock("ip", () => guest.ip || "");
     initTextBlock("user-agent-string", () => guest.userAgentString || "");

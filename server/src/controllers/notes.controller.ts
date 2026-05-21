@@ -1,4 +1,4 @@
-import { INotes } from "../../../shared/types/INotes.js";
+// import { INotes } from "../../../shared/types/INotes.js";
 import Notes from "../models/Notes.js";
 import { Request, Response } from "express";
 

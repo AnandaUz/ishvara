@@ -1,13 +1,15 @@
 import { connectDB } from '../../../_base/server/db.js';
-import { User } from '../models/User.js';
+import Guest from '../models/Guest.js';
+// import { User } from '../models/User.js';
 import mongoose from 'mongoose';
 
+/*
 async function check() {
     try {
         await connectDB();
         const db = mongoose.connection.db;
         if (!db) throw new Error('DB is not connected');
-        
+
         const collections = await db.listCollections().toArray();
         console.log('Available collections:', collections.map(c => c.name));
 
@@ -29,5 +31,19 @@ async function check() {
         await mongoose.disconnect();
     }
 }
-
-check();
+*/
+async function updateGuestsProjectId() {
+    try {
+        await connectDB();
+        const result = await Guest.updateMany(
+            { projectId: { $exists: false } },
+            { $set: { projectId: 100 } }
+        );
+        console.log(`Updated ${result.modifiedCount} guests without projectId`);
+    } catch (err) {
+        console.error('Error:', err);
+    } finally {
+        await mongoose.disconnect();
+    }
+}
+updateGuestsProjectId();

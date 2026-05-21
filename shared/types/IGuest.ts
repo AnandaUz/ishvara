@@ -8,9 +8,11 @@ export interface IGuest {
   userAgentString?: string;
   phone?: string;
   projectId?: number;
-  ip?: string;
+  companyId?: number;
+  adsetId?: number;
+  adId?: number;
   oldId?: string;
-  companyId?: string; //для совместимости
+  ip?: string;
 
   tg?: {
     id?: string;

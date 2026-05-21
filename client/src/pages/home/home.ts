@@ -9,7 +9,7 @@ import "@components/c-tabs/c-tabs";
 import type { CTabs, ITab } from "@components/c-tabs/c-tabs";
 import { bigProjectsGet, bigProjects } from "@shared/projects_config";
 // import { DESC_EVENTS, store } from "@/features/store";
-import { projects_configs } from "@/tabs_config";
+// import { projects_configs } from "@/tabs_config";
 
 export const homePage: Page = () => {
   return {
@@ -37,14 +37,29 @@ export const homePage: Page = () => {
         if (!project) return;
 
         if (project.companys) {
-          const d: ITab[] = projects_configs.map((conf) => {
-            return {
-              id: conf.id,
-              name: conf.name,
-              isOff: conf.isOff,
-            } as ITab;
+
+          let c: ITab[] = [];
+          project.companys.forEach((company) => {
+
+            company.adsets?.forEach((adset) => {
+              c.push({
+                id: adset.id,
+                name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
+                isOff: adset.isOff,
+              } as ITab);
+            });
           });
-          companyTabs.init(d);
+          companyTabs.name = 'pr' + project.id;
+          companyTabs.init(c);
+
+          // const d: ITab[] = projects_configs.map((conf) => {
+          //   return {
+          //     id: conf.id,
+          //     name: conf.name,
+          //     isOff: conf.isOff,
+          //   } as ITab;
+          // });
+          // companyTabs.init(d);
           companyTabs_block.style.display = "block";
         } else {
           companyTabs_block.style.display = "none";

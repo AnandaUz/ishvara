@@ -41,6 +41,7 @@ interface IInitData {
      urlParamsString?: string;
      referrer?: string;
      projectId?: string;
+     name?: string;
 }
 class Guest {
      private _id: string | null = null;
@@ -137,6 +138,10 @@ class Guest {
                urlParamsString: window.location.search.slice(1),
                projectId: (window as any).trackerProjectID,
           };
+          const name = urlParams.get("name");
+          if (name) {
+               data.name = name;
+          }
           if (document.referrer) {
                const url = new URL(document.referrer);
                data.referrer = url.pathname;

@@ -13,8 +13,11 @@ const GuestSchema = new Schema<IGuestDocument>({
   userAgentString: { type: String },
   phone: { type: String },
   projectId: { type: Number },
-  oldId: { type: String, required: false },
   companyId: { type: String },
+  adsetId: { type: Number },
+  adId: { type: Number },
+  oldId: { type: String, required: false },
+
   ip: { type: String, required: false },
   tg: {
     id: { type: String },
@@ -31,7 +34,7 @@ const GuestSchema = new Schema<IGuestDocument>({
   },
   paramsString: { type: String },
   events: { type: [[Schema.Types.Mixed]] },
-  tags: { type: [Number] },
+  tags: { type: [Number], default: undefined },
   notes: { type: String },
   chat: {
     id: { type: Number },

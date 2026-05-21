@@ -10,6 +10,7 @@ export class CTabs extends HTMLElement {
   tabs: HTMLDivElement[] = [];
   dataString: string = "";
   funcChangeEvent: ((id: string | number) => void) | null = null;
+  name: string = "";
 
   init(data: ITab[]) {
     this.tabs = [];
@@ -20,7 +21,7 @@ export class CTabs extends HTMLElement {
       .sort((a, b) => (a.isOff ? 1 : 0) - (b.isOff ? 1 : 0))
       .forEach((project) => {
         const tab = document.createElement("div");
-        tab.textContent = project.name;
+        tab.innerHTML = project.name;
         tab.classList.add("tab");
         if (project.isOff) tab.classList.add("off");
 
@@ -33,7 +34,7 @@ export class CTabs extends HTMLElement {
         this.tabs.push(tab);
       });
 
-    const s = localStorage.getItem(this.dataString);
+    const s = localStorage.getItem(this.name + this.dataString);
     if (s) this.setActive(Number(s));
   }
 
@@ -42,7 +43,7 @@ export class CTabs extends HTMLElement {
     const tab = this.querySelector(`#tab_${id}`);
     if (tab) {
       tab.classList.add("active");
-      localStorage.setItem(this.dataString, id.toString());
+      localStorage.setItem(this.name + this.dataString, id.toString());
       if (this.funcChangeEvent) {
         this.funcChangeEvent(id);
       }

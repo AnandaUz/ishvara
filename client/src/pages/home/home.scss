@@ -1,6 +1,6 @@
 .page-main {
      display: grid;
-     grid-template-columns: 1fr 410px;
+     // grid-template-columns: 1fr 410px;
 
      c-guests-main {
           grid-column: 1;
@@ -21,4 +21,20 @@
      background-color: rgba(76, 97, 128, 0.664);
      border-bottom: 2px solid #566785;
      margin-bottom: 6px;
+
+     .company-name {
+          float: right;
+          font-size: 12px;
+          width: 100%;
+          text-align: right;
+
+          span {
+               text-align: right;
+               background: rgba(255, 255, 255, 0.3333333333);
+               padding: 0 2px;
+               border-radius: 4px;
+          }
+     }
+
+     .adset-name {}
 }

@@ -11,17 +11,18 @@ export interface IAdSet {
   summary?: string;
   city?: string;
   country?: string;
-  ads: IAd[];
+  ads?: IAd[];
+  isOff?: boolean;
 }
 
 export interface ICompany {
   id: number;
   name: string;
   summary?: string;
-  companyPageURL: string;
+  companyPageURL?: string;
   pixel?: string;
-  tgbotName: string;
-  adsets: IAdSet[];
+  tgbotName?: string;
+  adsets?: IAdSet[];
 }
 
 export interface IBigProjectConfig {
@@ -39,41 +40,7 @@ export const bigProjects: IBigProjectConfig[] = [
   {
     id: 10,
     name: "Медитация",
-  },
-  {
-    id: 100,
-    name: "Esho.uz",
-    summary: "сейчас этои ПММ",
     companys: [
-      {
-        name: "MasterMind",
-        id: 1,
-        pixel: "masterMind",
-        summary: "Платный МастерМайнд",
-        companyPageURL: "https://esho.uz/meet",
-        tgbotName: "mastermind",
-        adsets: [
-          {
-            id: 1,
-            name: "26-05-04-mastermaind-contact-with-interests-newPixel",
-            createdAt: "03.05.2026",
-            city: "tashkent",
-            country: "uz",
-            summary: `решил попробовать обновить пиксель, так как есть ощущение что он обучен на неверных данных
-    данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ`,
-            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
-          },
-          {
-            id: 2,
-            name: "26.05.12-ПMM-PView-Almata",
-            createdAt: "12.05.26",
-            summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
-            city: "almaty",
-            country: "kz",
-            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
-          },
-        ],
-      },
       {
         id: 2,
         name: "Медитации в Ташкенте",
@@ -124,6 +91,51 @@ export const bigProjects: IBigProjectConfig[] = [
           },
         ],
       },
+    ]
+  },
+  {
+    id: 100,
+    name: "Esho.uz",
+    summary: "сейчас это ПММ",
+    companys: [
+      {
+        name: "MasterMind",
+        id: 1,
+        pixel: "masterMind",
+        summary: "Платный МастерМайнд",
+        companyPageURL: "https://esho.uz/meet",
+        tgbotName: "mastermind",
+        adsets: [
+          {
+            id: 1,
+            name: "просмотр контента",
+            nameInInst: "26-05-04-mastermaind-contact-with-interests-newPixel",
+            createdAt: "03.05.2026",
+            city: "tashkent",
+            country: "uz",
+            summary: `решил попробовать обновить пиксель, так как есть ощущение что он обучен на неверных данных
+    данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ`,
+            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+          },
+          {
+            id: 2,
+            name: "PView Алматы",
+            nameInInst: "26.05.12-ПMM-PView-Almata",
+            createdAt: "12.05.26",
+            summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
+            city: "almaty",
+            country: "kz",
+            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+          },
+        ],
+      },
+      {
+        name: 'ТГ портал',
+        id: 3,
+        summary: "",
+        tgbotName: "mastermind",
+      }
+
     ],
   },
 ] as const;
@@ -145,7 +157,7 @@ export const bigProjectsGet = {
     companyId: number,
     adsetId: number
   ): IAdSet | undefined => {
-    return bigProjectsGet.companyById(projectId, companyId)?.adsets.find(a => a.id === adsetId);
+    return bigProjectsGet?.companyById(projectId, companyId)?.adsets?.find(a => a.id === adsetId);
   },
   adById: (
     projectId: number,
@@ -153,6 +165,6 @@ export const bigProjectsGet = {
     adsetId: number,
     adId: number
   ): IAd | undefined => {
-    return bigProjectsGet.adsetById(projectId, companyId, adsetId)?.ads.find(a => a.id === adId);
+    return bigProjectsGet?.adsetById(projectId, companyId, adsetId)?.ads?.find(a => a.id === adId);
   },
 } as const

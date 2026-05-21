@@ -4,8 +4,8 @@ import Guest from "../models/Guest.js";
 import mongoose from "mongoose";
 // import { guestObj } from "./guests.controller.js";
 // import { GUEST_TAGS } from "../../../shared/types/GuestConst.js";
-import { bigProjects } from "../../../shared/projects_config.js";
-import { IBigProjectConfig } from "../../../shared/projects_config.js";
+// import { bigProjects } from "../../../shared/projects_config.js";
+// import { IBigProjectConfig } from "../../../shared/projects_config.js";
 import { IGuest } from "../../../shared/types/IGuest.js";
 
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
@@ -85,40 +85,40 @@ export const start = async (req: Request, res: Response) => {
           }
         }
       } else {
-        const comp_name = urlParams.get("comp_name");
-        const adset_name = urlParams.get("adset_name");
-        const ad_name = urlParams.get("ad_name");
+        // const comp_name = urlParams.get("comp_name");
+        // const adset_name = urlParams.get("adset_name");
+        // const ad_name = urlParams.get("ad_name");
 
-        const project: IBigProjectConfig | undefined = Object.values(
-          bigProjects,
-        ).find((p) => p.id === projectId);
+        // const project: IBigProjectConfig | undefined = Object.values(
+        //   bigProjects,
+        // ).find((p) => p.id === projectId);
 
-        if (comp_name) {
-          const company = project?.companys[comp_name];
+        // if (comp_name) {
+        //   // const company = project?.companys[comp_name];
 
-          if (!company) {
-            f = true;
-          } else {
-            instagram = { comp_name: company!.id };
-            if (adset_name) {
-              const adset = company?.adsets[adset_name];
+        //   // if (!company) {
+        //   //   f = true;
+        //   // } else {
+        //   //   instagram = { comp_name: company!.id };
+        //   //   if (adset_name) {
+        //   //     const adset = company?.adsets[adset_name];
 
-              if (!adset) {
-                f = true;
-              } else {
-                instagram.adset_name = adset!.id;
-                if (ad_name) {
-                  const ad = adset?.ads[ad_name];
-                  if (!ad) {
-                    f = true;
-                  } else {
-                    instagram.ad_name = ad!.id;
-                  }
-                }
-              }
-            }
-          }
-        }
+        //   //     if (!adset) {
+        //   //       f = true;
+        //   //     } else {
+        //   //       instagram.adset_name = adset!.id;
+        //   //       if (ad_name) {
+        //   //         const ad = adset?.ads[ad_name];
+        //   //         if (!ad) {
+        //   //           f = true;
+        //   //         } else {
+        //   //           instagram.ad_name = ad!.id;
+        //   //         }
+        //   //       }
+        //   //     }
+        //   //   }
+        //   // }
+        // }
       }
     }
 
