@@ -23,17 +23,17 @@ class ProjectTabs extends HTMLElement {
         tab.id = project.id;
 
         tab.addEventListener("click", () => {
-          projectsManager.setProject(project.id);
+          projectsManager.setProject(Number(project.id));
         });
         this.tabs.push(tab);
       });
 
-    store.on(DESC_EVENTS.project.Changed, (id: string) => {
+    store.on(DESC_EVENTS.project.Changed, (id: number) => {
       this.setProject(id);
     });
   }
 
-  setProject(id: string) {
+  setProject(id: number) {
     this.tabs.forEach((tab) => tab.classList.remove("active"));
     const tab = this.querySelector(`#${id}`);
     if (tab) {
@@ -43,6 +43,6 @@ class ProjectTabs extends HTMLElement {
 }
 
 export class CProjectTabs extends ProjectTabs {
-  async connectedCallback() {}
+  async connectedCallback() { }
 }
 customElements.define("c-project-tabs", CProjectTabs);

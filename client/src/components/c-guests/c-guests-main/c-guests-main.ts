@@ -33,7 +33,7 @@ export class CGuestsMain extends HTMLElement {
   }
   constructor() {
     super();
-    store.on(DESC_EVENTS.project.Changed, (_id: string) => {
+    store.on(DESC_EVENTS.project.Changed, (_id: number) => {
       h1!.textContent = projectsManager.activeProject!.config.name;
     });
     store.on(DESC_EVENTS.guests.Filter.LevelChanged, (level: number) => {

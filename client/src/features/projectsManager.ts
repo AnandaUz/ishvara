@@ -1,4 +1,4 @@
-import { projects_configs } from "@/tabs_config";
+// import { projects_configs } from "@/tabs_config";
 import { DESC_EVENTS, store } from "./store";
 import type { IGuest } from "@shared/types/IGuest";
 import { api } from "@/services/api";
