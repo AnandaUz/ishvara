@@ -23,6 +23,7 @@ export interface ICompany {
   pixel?: string;
   tgbotName?: string;
   adsets?: IAdSet[];
+  isOff?: boolean;
 }
 
 export interface IBigProjectConfig {
@@ -43,7 +44,7 @@ export const bigProjects: IBigProjectConfig[] = [
     companys: [
       {
         id: 2,
-        name: "Медитации в Ташкенте",
+        name: "КМ",
         pixel: "masterMind",
         summary: "Коллективные медитации",
         companyPageURL: "https://esho.uz/meditation",
@@ -51,44 +52,14 @@ export const bigProjects: IBigProjectConfig[] = [
         adsets: [
           {
             id: 1,
-            name: "новый пиксель/с интересами/просмотр контента",
+            name: "с интересами + просмотр контента",
             nameInInst: "CM-contact-with-interests-05_05_26",
             createdAt: "05.05.2026",
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             city: "tashkent",
             country: "uz",
             ads: [{ name: "v-meditation-0", id: 2 }]
-          },
-          {
-            id: 2,
-            name: "новый пиксель/без интересов/просмотр контента",
-            nameInInst: "CM-contact-05_05_26",
-            createdAt: "05.05.2026",
-            summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
-            city: "tashkent",
-            country: "uz",
-            ads: [{ name: "v-meditation-0", id: 2 }],
-          },
-          {
-            id: 3,
-            name: "новый пиксель/с интересами/просмотр контента",
-            nameInInst: "CM-contact-with-interests-05_05_26",
-            createdAt: "05.05.2026",
-            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
-            city: "tashkent",
-            country: "uz",
-            ads: [{ name: "v-meditation-0", id: 2 }],
-          },
-          {
-            id: 4,
-            name: "новый пиксель/без интересов/просмотр контента",
-            nameInInst: "CM-contact-05_05_26",
-            createdAt: "05.05.2026",
-            summary: `+ решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
-            city: "tashkent",
-            country: "uz",
-            ads: [{ name: "v-meditation-0", id: 2 }],
-          },
+          }
         ],
       },
     ]
@@ -127,6 +98,17 @@ export const bigProjects: IBigProjectConfig[] = [
             country: "kz",
             ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
           },
+          {
+            id: 3,
+            name: "начало + интересы",
+            nameInInst: "",
+            createdAt: "05.26",
+            summary: `начальные запуски`,
+            city: "tashkent",
+            country: "uz",
+            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+          },
+
         ],
       },
       {

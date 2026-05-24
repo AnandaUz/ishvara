@@ -6,7 +6,19 @@ import { bigProjectsGet, type IBigProjectConfig } from "@shared/projects_config"
 
 class TProject {
   config: IBigProjectConfig;
-  guests: IGuest[] = [];
+  private _guests: IGuest[] = [];
+  public filterFunc: ((guest: IGuest) => boolean) | null = null;
+
+  get guests() {
+    if (this.filterFunc) {
+      return this._guests.filter(this.filterFunc);
+    }
+    return this._guests;
+  }
+  set guests(value) {
+    this._guests = value;
+    // store.emit(DESC_EVENTS.guests.Changed, this.config.id);
+  }
 
   constructor(id: number) {
     const c = bigProjectsGet.projectById(id)
@@ -27,7 +39,7 @@ class ProjectsManager {
   projects: Map<number, TProject> = new Map();
   constructor() { }
 
-  async setProject(id: number) {
+  async setProject(id: number, filterFunc: ((guest: IGuest) => boolean) | null = null) {
     let newProject: TProject;
     if (this.projects.has(id)) {
       newProject = this.projects.get(id)!;
@@ -35,6 +47,9 @@ class ProjectsManager {
       newProject = new TProject(id);
       this.projects.set(id, newProject);
       await newProject.initGuests();
+    }
+    if (filterFunc) {
+      newProject.filterFunc = filterFunc;
     }
     this.activeProject = newProject;
     store.emit(DESC_EVENTS.project.Changed, id);

@@ -11,6 +11,11 @@ import { bigProjectsGet, bigProjects } from "@shared/projects_config";
 // import { DESC_EVENTS, store } from "@/features/store";
 // import { projects_configs } from "@/tabs_config";
 
+interface ITabData {
+  companyId?: number;
+  adsetId?: number;
+}
+
 export const homePage: Page = () => {
   return {
     html: html,
@@ -28,9 +33,11 @@ export const homePage: Page = () => {
         id: proj.id,
         name: proj.name,
         isOff: proj.isOff,
+        data: proj.id
       } as ITab));
 
-      projectsTabs.addEventChange((id) => {
+      projectsTabs.addEventChange((tabData) => {
+        const id = tabData?.data;
         // store.emit(DESC_EVENTS.project.Changed, id);
 
         const project = bigProjectsGet.projectById(Number(id));
@@ -39,18 +46,77 @@ export const homePage: Page = () => {
         if (project.companys) {
 
           let c: ITab[] = [];
+
+          c.push({
+            id: project.id + '_ALL',
+            name: `всё`,
+            data: {
+              companyId: -1,
+            } as ITabData
+          } as ITab);
+          c.push({
+            id: project.id + '_else',
+            name: `прочее`,
+            data: {
+              companyId: -2,
+            } as ITabData
+          } as ITab);
+
           project.companys.forEach((company) => {
 
-            company.adsets?.forEach((adset) => {
+            if (company.adsets) {
+              company.adsets.forEach((adset) => {
+                c.push({
+                  id: adset.id + '_' + company.id,
+                  name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
+                  isOff: adset.isOff,
+                  data: {
+                    companyId: company.id,
+                    adsetId: adset.id,
+                  } as ITabData
+                } as ITab);
+              });
+            } else {
               c.push({
-                id: adset.id,
-                name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
-                isOff: adset.isOff,
+                id: company.id,
+                name: company.name,
+                isOff: company.isOff,
               } as ITab);
-            });
-          });
+            }
+
+
+          })
           companyTabs.name = 'pr' + project.id;
+
+          companyTabs.addEventChange((tabData) => {
+
+            const companyId = tabData?.data?.companyId;
+
+
+
+            const adsetId = tabData?.data?.adsetId;
+            projectsManager.setProject(project.id, (guest) => {
+              // console.log(guest.instagram);
+
+              if (companyId == -1) return true;
+
+              const comp = guest.companyId
+              if (comp && comp == companyId) {
+
+                if (guest.adsetId == adsetId)
+                  return true;
+
+                // const inst: string | number | undefined = guest.instagram?.adset;
+                // if (!inst) return false;
+
+                // if (inst === id) return true;
+              }
+              return false;
+            });
+          })
           companyTabs.init(c);
+
+
 
           // const d: ITab[] = projects_configs.map((conf) => {
           //   return {
@@ -63,9 +129,10 @@ export const homePage: Page = () => {
           companyTabs_block.style.display = "block";
         } else {
           companyTabs_block.style.display = "none";
+          projectsManager.setProject(project.id);
         }
 
-        projectsManager.setProject(project.id);
+        // 
       });
 
       projectsTabs.init(data as ITab[]);

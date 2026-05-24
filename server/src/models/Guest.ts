@@ -13,9 +13,10 @@ const GuestSchema = new Schema<IGuestDocument>({
   userAgentString: { type: String },
   phone: { type: String },
   projectId: { type: Number },
-  companyId: { type: String },
+  companyId: { type: Number || String },
   adsetId: { type: Number },
   adId: { type: Number },
+  level: { type: Number },
   oldId: { type: String, required: false },
 
   ip: { type: String, required: false },
@@ -28,7 +29,7 @@ const GuestSchema = new Schema<IGuestDocument>({
   instagram: {
     fbp: { type: String },
     fbc: { type: String },
-    comp_name: { type: Number || String },
+    comp_name: { type: Schema.Types.Mixed },// { type: Number || String },
     adset_name: { type: Number || String },
     ad_name: { type: Number || String },
   },
@@ -42,6 +43,6 @@ const GuestSchema = new Schema<IGuestDocument>({
   },
 });
 
-GuestSchema.index({ "instagram.comp_name": 1 });
+GuestSchema.index({ "projectId": 1 });
 
 export default mongoose.model<IGuestDocument>("Guests", GuestSchema);
