@@ -85,9 +85,9 @@ class Guest {
     //---------------------
     this.setBaseEvents();
 
-    window.addEventListener("pagerendered", () => {
-      this.onInPage();
-    });
+    // window.addEventListener("pagerendered", () => {
+    //   this.onInPage();
+    // });
   }
   onInPage() {
     if (this.isFirstInPage) {

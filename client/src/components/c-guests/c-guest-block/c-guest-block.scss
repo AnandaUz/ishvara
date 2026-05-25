@@ -490,6 +490,10 @@ c-guest-block {
           display: inline-block;
           color: #000;
           right: auto;
+          width: 560px;
+          text-align: left;
+          z-index: 1000;
+          background: #fff;
         }
 
         .time {

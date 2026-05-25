@@ -62,9 +62,6 @@ var Tracker = (function(exports) {
         this.onInPage();
       });
       this.setBaseEvents();
-      window.addEventListener("pagerendered", () => {
-        this.onInPage();
-      });
     }
     onInPage() {
       if (this.isFirstInPage) {
