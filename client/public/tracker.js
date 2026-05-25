@@ -1,1 +1,181 @@
-var Tracker=(function(l){"use strict";const c="https://ishvara-api-7097239392.europe-west1.run.app/api/tracker",h="guestID";function u(a){const e=document.cookie.match(new RegExp("(^| )"+a+"=([^;]+)"));return e&&e[2]?e[2]:""}const n={scroll0:{code:1},scroll1:{code:2},scroll2:{code:3},scroll3:{code:4},scroll4:{code:5},scroll5:{code:6},inPage:{code:8,title:"Вход на страницу"},outPage:{code:9,title:"Выход со страницы"},goalBtnClick:{code:10,title:"Клик по кнопке цели"},showPage:{code:11,title:"Показ страницы",class:"show-page"},goalBtnGaude:{code:12,title:"Открыли гайд"}};class f{_id=null;isFirstInPage=!0;startTime=new Date;events=[];scrollLever=0;constructor(){if(!n){console.error("EVENT_CODE is not defined");return}setInterval(()=>this.flush(),3e3),document.addEventListener("visibilitychange",()=>{document.visibilityState==="hidden"&&(this.track(n.outPage.code),this.flush(new Date)),document.visibilityState==="visible"&&(this.startTime=new Date,this.track(n.showPage.code))}),this.setBaseEvents(),window.addEventListener("pagerendered",()=>{this.isFirstInPage?this.isFirstInPage=!1:this.track(n.outPage.code),this.track(n.inPage.code)})}setBaseEvents(){window.addEventListener("scroll",()=>{let i=Math.round(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight)*100);if(i=Math.ceil(i*6/100),i!==this.scrollLever){this.scrollLever=i;const o=`scroll${i}`;n[o]&&this.track(n[o].code)}});let e=0;const t=setInterval(()=>{e++;const i=typeof window.fbq=="function",o=u("_fbp"),s=u("_fbc");if(o||s){const r={};o&&(r.fbp=o),s&&(r.fbc=s),i&&(r.pixel="true"),this._id&&(navigator.sendBeacon(c+"/save-cookies",new Blob([JSON.stringify({_id:this._id,result:r})],{type:"application/json"})),clearInterval(t))}e>10&&clearInterval(t)},1e3)}async init(){const e=new URLSearchParams(window.location.search);let t=e.get("g");t||(t=localStorage.getItem(h)),this._id=t;const i={_id:this._id||void 0,createdAt:new Date,userAgentString:navigator.userAgent,urlParamsString:window.location.search.slice(1),projectId:window.trackerProjectID},o=e.get("name");if(o&&(i.name=o),document.referrer){const s=new URL(document.referrer);i.referrer=s.pathname}try{const s=await fetch(c+"/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(i)});if(!s.ok)throw new Error("Failed to init session");const r=await s.json();if(r._id)return localStorage.setItem(h,r._id),this._id=r._id,this.flush(),r._id}catch(s){return console.error("Session init error:",s),null}}track(e){const t=Math.round((Date.now()-this.startTime.getTime())/100)/10;if(e===n.inPage.code){this.events.push(["t"+new Date().getTime(),window.location.pathname]);return}this.events.push([t,e])}flushForData(e,t){this._id&&navigator.sendBeacon(c+e,new Blob([JSON.stringify({_id:this._id,data:t})],{type:"application/json"}))}flush(e=null){if(this.events.length===0||!this._id)return;const t=[...this.events];this.events=[],navigator.sendBeacon(c+"/push-events",new Blob([JSON.stringify({_id:this._id,events:t,lastChange:e})],{type:"application/json"}))}}const d=new f;return d.init(),window.guest=d,window.guestTrack=a=>{if(typeof a=="string"){const e=n[a];e&&(a=e.code)}d.track(a)},l.EVENT_CODE=n,Object.defineProperty(l,Symbol.toStringTag,{value:"Module"}),l})({});
+var Tracker = (function(exports) {
+  "use strict";
+  const API_URL = "https://ishvara-api-7097239392.europe-west1.run.app/api/tracker";
+  const STORAGE_ID = "guestID";
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match && match[2] ? match[2] : "";
+  }
+  const EVENT_CODE = {
+    scroll0: { code: 1 },
+    scroll1: { code: 2 },
+    scroll2: { code: 3 },
+    scroll3: { code: 4 },
+    scroll4: { code: 5 },
+    scroll5: { code: 6 },
+    inPage: { code: 8 },
+    //Вход на страницу
+    outPage: { code: 9 },
+    //Выход со страницы
+    goalBtnClick: { code: 10 },
+    //Клик по кнопке цели
+    showPage: { code: 11 },
+    //Показ страницы
+    goalBtnGaude: { code: 12 }
+    //Открыли гайд
+  };
+  class Guest {
+    _id = null;
+    isFirstInPage = true;
+    startTime = /* @__PURE__ */ new Date();
+    events = [];
+    scrollLever = 0;
+    constructor() {
+      if (!EVENT_CODE) {
+        console.error("EVENT_CODE is not defined");
+        return;
+      }
+      setInterval(() => this.flush(), 3e3);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          this.track(EVENT_CODE.outPage.code);
+          this.flush(/* @__PURE__ */ new Date());
+        }
+        if (document.visibilityState === "visible") {
+          this.startTime = /* @__PURE__ */ new Date();
+          this.track(EVENT_CODE.showPage.code);
+        }
+      });
+      this.setBaseEvents();
+      window.addEventListener("pagerendered", () => {
+        if (this.isFirstInPage) {
+          this.isFirstInPage = false;
+        } else {
+          this.track(EVENT_CODE.outPage.code);
+        }
+        this.track(EVENT_CODE.inPage.code);
+      });
+    }
+    setBaseEvents() {
+      window.addEventListener("scroll", () => {
+        let i = Math.round(
+          window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100
+        );
+        i = Math.ceil(i * 6 / 100);
+        if (i !== this.scrollLever) {
+          this.scrollLever = i;
+          const key = `scroll${i}`;
+          if (EVENT_CODE[key]) this.track(EVENT_CODE[key].code);
+        }
+      });
+      let count = 0;
+      const checkFbq = setInterval(() => {
+        count++;
+        const isPixel = typeof window.fbq == "function";
+        const fbp = getCookie("_fbp");
+        const fbc = getCookie("_fbc");
+        if (fbp || fbc) {
+          const result = {};
+          if (fbp) result.fbp = fbp;
+          if (fbc) result.fbc = fbc;
+          if (isPixel) result.pixel = "true";
+          if (this._id) {
+            navigator.sendBeacon(
+              API_URL + "/save-cookies",
+              new Blob([JSON.stringify({ _id: this._id, result })], {
+                type: "application/json"
+              })
+            );
+            clearInterval(checkFbq);
+          }
+        }
+        if (count > 10) {
+          clearInterval(checkFbq);
+        }
+      }, 1e3);
+    }
+    async init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let guestID = urlParams.get("g");
+      if (!guestID) guestID = localStorage.getItem(STORAGE_ID);
+      this._id = guestID;
+      const data = {
+        _id: this._id || void 0,
+        createdAt: /* @__PURE__ */ new Date(),
+        userAgentString: navigator.userAgent,
+        urlParamsString: window.location.search.slice(1),
+        projectId: window.trackerProjectID
+      };
+      const name = urlParams.get("name");
+      if (name) {
+        data.name = name;
+      }
+      if (document.referrer) {
+        const url = new URL(document.referrer);
+        data.referrer = url.pathname;
+      }
+      try {
+        const response = await fetch(API_URL + "/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error("Failed to init session");
+        const newData = await response.json();
+        if (newData._id) {
+          localStorage.setItem(STORAGE_ID, newData._id);
+          this._id = newData._id;
+          this.flush();
+          return newData._id;
+        }
+      } catch (err) {
+        console.error("Session init error:", err);
+        return null;
+      }
+    }
+    track(code) {
+      const sec = Math.round((Date.now() - this.startTime.getTime()) / 100) / 10;
+      if (code === EVENT_CODE.inPage.code) {
+        this.events.push(["t" + (/* @__PURE__ */ new Date()).getTime(), window.location.pathname]);
+        return;
+      }
+      this.events.push([sec, code]);
+    }
+    flushForData(url, data) {
+      if (!this._id) return;
+      navigator.sendBeacon(
+        API_URL + url,
+        new Blob([JSON.stringify({ _id: this._id, data })], {
+          type: "application/json"
+        })
+      );
+    }
+    // отправляем накопленное и чистим
+    flush(lastChange = null) {
+      if (this.events.length === 0) return;
+      if (!this._id) return;
+      const payload = [...this.events];
+      this.events = [];
+      navigator.sendBeacon(
+        API_URL + "/push-events",
+        new Blob(
+          [JSON.stringify({ _id: this._id, events: payload, lastChange })],
+          { type: "application/json" }
+        )
+      );
+    }
+  }
+  const guest = new Guest();
+  guest.init();
+  window.guest = guest;
+  window.guestTrack = (code) => {
+    if (typeof code === "string") {
+      const i = EVENT_CODE[code];
+      if (i) code = i.code;
+    }
+    guest.track(code);
+  };
+  exports.EVENT_CODE = EVENT_CODE;
+  Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+  return exports;
+})({});
