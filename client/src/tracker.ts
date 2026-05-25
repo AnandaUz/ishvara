@@ -73,6 +73,15 @@ class Guest {
     } else {
       this.onInPage();
     }
+    const originalPushState = history.pushState.bind(history);
+    history.pushState = (...args) => {
+      originalPushState(...args);
+      this.onInPage(); // новая страница
+    };
+
+    window.addEventListener("popstate", () => {
+      this.onInPage(); // кнопки назад/вперёд
+    });
     //---------------------
     this.setBaseEvents();
 

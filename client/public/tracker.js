@@ -53,6 +53,14 @@ var Tracker = (function(exports) {
       } else {
         this.onInPage();
       }
+      const originalPushState = history.pushState.bind(history);
+      history.pushState = (...args) => {
+        originalPushState(...args);
+        this.onInPage();
+      };
+      window.addEventListener("popstate", () => {
+        this.onInPage();
+      });
       this.setBaseEvents();
       window.addEventListener("pagerendered", () => {
         this.onInPage();
