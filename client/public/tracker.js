@@ -27,7 +27,6 @@ var Tracker = (function(exports) {
   class Guest {
     _id = null;
     isFirstInPage = true;
-    isInit = false;
     startTime = /* @__PURE__ */ new Date();
     events = [];
     scrollLever = 0;
@@ -37,34 +36,35 @@ var Tracker = (function(exports) {
         return;
       }
       setInterval(() => this.flush(), 3e3);
-      if (document.visibilityState === "visible") {
-        this.isInit = true;
-        this.startTime = /* @__PURE__ */ new Date();
-        this.track(EVENT_CODE.showPage.code);
-      }
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "hidden") {
           this.track(EVENT_CODE.outPage.code);
           this.flush(/* @__PURE__ */ new Date());
-          this.isInit = false;
         }
         if (document.visibilityState === "visible") {
-          if (!this.isInit) {
-            this.isInit = true;
-            this.startTime = /* @__PURE__ */ new Date();
-            this.track(EVENT_CODE.showPage.code);
-          }
+          this.startTime = /* @__PURE__ */ new Date();
+          this.track(EVENT_CODE.showPage.code);
         }
       });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => {
+          this.onInPage();
+        });
+      } else {
+        this.onInPage();
+      }
       this.setBaseEvents();
       window.addEventListener("pagerendered", () => {
-        if (this.isFirstInPage) {
-          this.isFirstInPage = false;
-        } else {
-          this.track(EVENT_CODE.outPage.code);
-        }
-        this.track(EVENT_CODE.inPage.code);
+        this.onInPage();
       });
+    }
+    onInPage() {
+      if (this.isFirstInPage) {
+        this.isFirstInPage = false;
+      } else {
+        this.track(EVENT_CODE.outPage.code);
+      }
+      this.track(EVENT_CODE.inPage.code);
     }
     setBaseEvents() {
       window.addEventListener("scroll", () => {
