@@ -18,6 +18,6 @@ export default defineConfig({
     },
     outDir: resolve(__dirname, "public"),
     emptyOutDir: false,
-    minify: false,
+    minify: true,
   },
 });
