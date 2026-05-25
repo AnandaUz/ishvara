@@ -16,6 +16,7 @@ import type { IPixelEventData } from "@shared/types/Is";
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
 import { DESC_EVENTS, store } from "@/features/store";
 import { chat } from "@/components/c-chats/c-chats";
+import { projectsManager } from "@/features/projectsManager";
 
 export class CGuestBlock extends HTMLElement {
   data: IGuest;
@@ -28,77 +29,83 @@ export class CGuestBlock extends HTMLElement {
   private companyConfig?: any;
   private adsetConfig?: any;
   private adConfig?: any;
-  async sendMetaEvent(tag: number) {
-    if (this.levelBehavior === tag) return true;
+  async sendLevel_and_MetaEvent(level: number) {
+    if (this.data.level === level) return true;
 
-    // const activeProject = projectsManager.activeProject;
+    this.data.level = level;
+
+    const activeProject = projectsManager.activeProject;
     // if (!activeProject?.config.companyPageURL) return false;
+    const config = activeProject?.config;
+    const pixel = config?.pixel;
+    // const companyPageURL = config?.companyPageURL;
 
-    const eventName = META_EVENT_LEVEL_BY_CODE[tag]!;
-    const eventTime = Math.floor(Date.now() / 1000); //this.data.lastChange;
-    const eventObj = META_EVENT_BY_CODE[tag]!;
+    let res = null;
+    if (pixel) {
+      const eventName = META_EVENT_LEVEL_BY_CODE[level]!;
+      const eventTime = Math.floor(Date.now() / 1000); //this.data.lastChange;
+      const eventObj = META_EVENT_BY_CODE[level]!;
 
-    const userData = this.data;
-    const data: IPixelEventData = {
-      event_name: eventName,
-      event_time: eventTime,
-      event_source_url: this.companyConfig.companyPageURL,
-      action_source: "website",
-      user_data: {},
-      event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    };
-    if (userData._id) {
-      data.user_data.external_id = userData._id.toString();
-    }
-
-    if (userData.ip) {
-      data.user_data.client_ip_address = userData.ip;
-    }
-
-    const b_adset = bigProjectsGet.adsetById(
-      Number(userData.projectId || 0),
-      Number(userData.instagram?.comp_name || 0),
-      Number(userData.instagram?.adset_name || 0),
-    );
-
-    const city = b_adset?.city;
-    const country = b_adset?.country;
-    if (city) {
-      data.user_data.ct = await hashSHA256(city); // хешируется, lowercase
-    }
-    if (country) {
-      data.user_data.country = await hashSHA256(country); // код страны, тоже хешируется
-    }
-
-    if (userData.tg && userData.tg.first_name) {
-      data.user_data.fn = await hashSHA256(cleanName(userData.tg.first_name));
-    }
-    if (userData.tg && userData.tg.last_name) {
-      data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
-    }
-
-    if (eventObj && "value" in eventObj && eventObj.value) {
-      data.custom_data = {
-        currency: "USD",
-        value: eventObj.value,
-        content_name: b_adset?.name || "",
+      const userData = this.data;
+      const data: IPixelEventData = {
+        event_name: eventName,
+        event_time: eventTime,
+        event_source_url: this.companyConfig.companyPageURL,
+        action_source: "website",
+        user_data: {},
+        event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       };
+      if (userData._id) {
+        data.user_data.external_id = userData._id.toString();
+      }
+
+      if (userData.ip) {
+        data.user_data.client_ip_address = userData.ip;
+      }
+
+      const b_adset = bigProjectsGet.adsetById(
+        Number(userData.projectId || 0),
+        Number(userData.instagram?.comp_name || 0),
+        Number(userData.instagram?.adset_name || 0),
+      );
+
+      const city = b_adset?.city;
+      const country = b_adset?.country;
+      if (city) {
+        data.user_data.ct = await hashSHA256(city); // хешируется, lowercase
+      }
+      if (country) {
+        data.user_data.country = await hashSHA256(country); // код страны, тоже хешируется
+      }
+
+      if (userData.tg && userData.tg.first_name) {
+        data.user_data.fn = await hashSHA256(cleanName(userData.tg.first_name));
+      }
+      if (userData.tg && userData.tg.last_name) {
+        data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
+      }
+
+      if (eventObj && "value" in eventObj && eventObj.value) {
+        data.custom_data = {
+          currency: "USD",
+          value: eventObj.value,
+          content_name: b_adset?.name || "",
+        };
+      }
+      if (userData?.instagram?.fbp) data.user_data.fbp = userData.instagram.fbp;
+      if (userData?.instagram?.fbc) data.user_data.fbc = userData.instagram.fbc;
+
+      if (userData?.userAgentString)
+        data.user_data.client_user_agent = userData.userAgentString;
+
+      const pixelData = this.companyConfig.pixel;
+
+      res = await api.guest.sendMetaEvent([data], pixelData);
     }
-    if (userData?.instagram?.fbp) data.user_data.fbp = userData.instagram.fbp;
-    if (userData?.instagram?.fbc) data.user_data.fbc = userData.instagram.fbc;
 
-    if (userData?.userAgentString)
-      data.user_data.client_user_agent = userData.userAgentString;
-
-    const pixelData = this.companyConfig.pixel;
-
-    const res = await api.guest.sendMetaEvent([data], pixelData);
-
-    if (res.ok) {
-      const res2 = await api.guest.addTag(this.data._id || "dfdf", tag);
+    if ((pixel && res && res.ok) || !pixel) {
+      const res2 = await api.guest.patchOne(this.data._id || "dfdf", this.data);
       if (res2.ok) {
-        if (!this.data.tags) this.data.tags = [];
-        this.data.tags.push(tag);
         // this._levelBehavior = tag;
         this.render();
         return true;
@@ -106,39 +113,13 @@ export class CGuestBlock extends HTMLElement {
     }
     return false;
   }
-  get levelBehavior() {
-    let t = 0;
-    for (let i = 1; i < 8; i++) {
-      if (this.data.tags?.includes(i)) {
-        t = i;
-      }
-    }
-    return t;
-  }
+
   set_eventLevel() {
     const bg = this.querySelector(".bg") as HTMLDivElement;
     const data = this.data;
 
-    if (data.tags?.includes(1)) {
-      bg.classList.add("l1");
-    }
-    if (data.tags?.includes(2)) {
-      bg.classList.add("l2");
-    }
-    if (data.tags?.includes(3)) {
-      bg.classList.add("l3");
-    }
-    if (data.tags?.includes(4)) {
-      bg.classList.add("l4");
-    }
-    if (data.tags?.includes(5)) {
-      bg.classList.add("l5");
-    }
-    if (data.tags?.includes(6)) {
-      bg.classList.add("l6");
-    }
-    if (data.tags?.includes(7)) {
-      bg.classList.add("l7");
+    for (let i = 1; i <= (data.level || 0); i++) {
+      bg.classList.add(`l${i}`);
     }
   }
   render_eventLevel() {
@@ -370,7 +351,19 @@ export class CGuestBlock extends HTMLElement {
           const blBR = document.createElement("br");
           timeLineBlock.appendChild(blBR);
         }
-        eventElement.innerHTML = `<span></span><span class='page-name'>${event![1]}</span>`;
+
+        const segments = event![1].toString().split("/").filter(Boolean);
+        const eventName = segments
+          .map((segment, i) => {
+            let cls = `s${i + 1}`;
+
+            if (i === segments.length - 1) cls = "ss";
+
+            return `<b class="${cls}">${segment}</b>`;
+          })
+          .join("");
+
+        eventElement.innerHTML = `<span></span><span class='page-name'>${eventName}</span>`;
         if (newStarTime) {
           const d = `${newStarTime.getDate().toString().padStart(2, "0")}.${(newStarTime.getMonth() + 1).toString().padStart(2, "0")}`;
 
@@ -474,7 +467,7 @@ export class CGuestBlock extends HTMLElement {
     this.owner = owner;
 
     store.on(DESC_EVENTS.guests.Filter.LevelChanged, () => {
-      if (this.owner.filters.eventLevel > this.levelBehavior) {
+      if (this.owner.filters.eventLevel > (this.data.level || 0)) {
         this.removeAttribute("visible");
       } else {
         this.setAttribute("visible", "");
@@ -492,7 +485,7 @@ export class CGuestBlock extends HTMLElement {
       }
     });
   }
-  async connectedCallback() { }
+  async connectedCallback() {}
 }
 
 customElements.define("c-guest-block", CGuestBlock);

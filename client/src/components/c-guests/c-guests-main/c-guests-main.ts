@@ -98,16 +98,15 @@ export class CGuestsMain extends HTMLElement {
       div.appendChild(btn);
       btn.addEventListener("click", async () => {
         const guest = this.menu!.targetElement as CGuestBlock;
-        if (guest.levelBehavior === element[0].code) return;
-        if (await guest.sendMetaEvent(element[0].code)) {
+        if (guest.data.level === element[0].code) return;
+        if (await guest.sendLevel_and_MetaEvent(element[0].code)) {
           resetBtnStatus(element[0].code + 1);
-          this.modalMenu?.close();
+          this.menu?.close();
         }
       });
     }
     this.menu.onOpen = (owner: CGuestBlock) => {
-      const level = owner.levelBehavior;
-
+      const level = owner.data.level || 0;
       resetBtnStatus(level + 1);
     };
 
@@ -166,8 +165,8 @@ export class CGuestsMain extends HTMLElement {
         this.guests_list_block!.appendChild(dayLineEl);
       }
 
-      if (guest.tags?.length! > 0) {
-        const i = guest.tags?.length! || 1;
+      if (guest.level && guest.level > 0) {
+        const i = guest.level;
         if (statisticDay[i] === undefined) statisticDay[i] = 0;
         statisticDay[i]++;
       } else {

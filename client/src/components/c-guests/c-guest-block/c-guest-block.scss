@@ -490,10 +490,29 @@ c-guest-block {
           display: inline-block;
           color: #000;
           right: auto;
-          width: 560px;
+          width: 760px;
           text-align: left;
-          z-index: 1000;
-          background: #fff;
+        }
+
+        .page-name {
+          b {
+            display: inline-block;
+            z-index: 1000;
+            background: #e3b8e0;
+            padding: 0 2px;
+            font-size: 11px;
+            border-radius: 5px;
+            margin-right: 2px;
+
+            &.s2 {
+              background: #c1d3fd;
+            }
+
+            &.ss {
+              background: #f9e6de;
+              font-weight: normal;
+            }
+          }
         }
 
         .time {

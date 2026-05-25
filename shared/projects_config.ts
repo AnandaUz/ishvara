@@ -31,7 +31,8 @@ export interface IBigProjectConfig {
   name: string;
   summary?: string;
   isOff?: boolean;
-  companys?: ICompany[]
+  companys?: ICompany[];
+  pixel?: string;
 }
 export const bigProjects: IBigProjectConfig[] = [
   {
@@ -58,11 +59,11 @@ export const bigProjects: IBigProjectConfig[] = [
             summary: `решил попробовать обновить пиксель, и сразу же на КМ тоже решил эксперементировать`,
             city: "tashkent",
             country: "uz",
-            ads: [{ name: "v-meditation-0", id: 2 }]
-          }
+            ads: [{ name: "v-meditation-0", id: 2 }],
+          },
         ],
       },
-    ]
+    ],
   },
   {
     id: 100,
@@ -86,7 +87,10 @@ export const bigProjects: IBigProjectConfig[] = [
             country: "uz",
             summary: `решил попробовать обновить пиксель, так как есть ощущение что он обучен на неверных данных
     данные раньше собирались по нажатию на кнопку, и там было много мёртвых душ`,
-            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+            ads: [
+              { id: 1, name: "video-0" },
+              { id: 2, name: "video-1" },
+            ],
           },
           {
             id: 2,
@@ -96,7 +100,10 @@ export const bigProjects: IBigProjectConfig[] = [
             summary: `запускаю на Алмату, хочется посмотреть как там люди хотят худеть`,
             city: "almaty",
             country: "kz",
-            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+            ads: [
+              { id: 1, name: "video-0" },
+              { id: 2, name: "video-1" },
+            ],
           },
           {
             id: 3,
@@ -106,47 +113,49 @@ export const bigProjects: IBigProjectConfig[] = [
             summary: `начальные запуски`,
             city: "tashkent",
             country: "uz",
-            ads: [{ id: 1, name: "video-0" }, { id: 2, name: "video-1" }],
+            ads: [
+              { id: 1, name: "video-0" },
+              { id: 2, name: "video-1" },
+            ],
           },
-
         ],
       },
       {
-        name: 'ТГ портал',
+        name: "ТГ портал",
         id: 3,
         summary: "",
         tgbotName: "mastermind",
-      }
-
+      },
     ],
   },
 ] as const;
 
 export const bigProjectsGet = {
-  projectById: (
-    id: number
-  ): IBigProjectConfig | undefined => {
-    return bigProjects.find(p => p.id === id);
+  projectById: (id: number): IBigProjectConfig | undefined => {
+    return bigProjects.find((p) => p.id === id);
   },
-  companyById: (
-    projectId: number,
-    companyId: number
-  ): ICompany | undefined => {
-    return bigProjectsGet.projectById(projectId)?.companys?.find(c => c.id === companyId);
+  companyById: (projectId: number, companyId: number): ICompany | undefined => {
+    return bigProjectsGet
+      .projectById(projectId)
+      ?.companys?.find((c) => c.id === companyId);
   },
   adsetById: (
     projectId: number,
     companyId: number,
-    adsetId: number
+    adsetId: number,
   ): IAdSet | undefined => {
-    return bigProjectsGet?.companyById(projectId, companyId)?.adsets?.find(a => a.id === adsetId);
+    return bigProjectsGet
+      ?.companyById(projectId, companyId)
+      ?.adsets?.find((a) => a.id === adsetId);
   },
   adById: (
     projectId: number,
     companyId: number,
     adsetId: number,
-    adId: number
+    adId: number,
   ): IAd | undefined => {
-    return bigProjectsGet?.adsetById(projectId, companyId, adsetId)?.ads?.find(a => a.id === adId);
+    return bigProjectsGet
+      ?.adsetById(projectId, companyId, adsetId)
+      ?.ads?.find((a) => a.id === adId);
   },
-} as const
+} as const;
