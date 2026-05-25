@@ -38,9 +38,11 @@ interface IInitData {
   projectId?: string;
   name?: string;
 }
+
 class Guest {
   private _id: string | null = null;
   private isFirstInPage = true;
+  private isInit = false;
 
   startTime: Date = new Date();
   events: TEventItem[] = [];
@@ -53,14 +55,24 @@ class Guest {
     }
     setInterval(() => this.flush(), 3_000);
 
+    if (document.visibilityState === "visible") {
+      this.isInit = true;
+      this.startTime = new Date();
+      this.track(EVENT_CODE.showPage.code);
+    }
+
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         this.track(EVENT_CODE.outPage.code);
         this.flush(new Date());
+        this.isInit = false;
       }
       if (document.visibilityState === "visible") {
-        this.startTime = new Date();
-        this.track(EVENT_CODE.showPage.code);
+        if (!this.isInit) {
+          this.isInit = true;
+          this.startTime = new Date();
+          this.track(EVENT_CODE.showPage.code);
+        }
       }
     });
     this.setBaseEvents();

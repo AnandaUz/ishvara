@@ -27,6 +27,7 @@ var Tracker = (function(exports) {
   class Guest {
     _id = null;
     isFirstInPage = true;
+    isInit = false;
     startTime = /* @__PURE__ */ new Date();
     events = [];
     scrollLever = 0;
@@ -36,14 +37,23 @@ var Tracker = (function(exports) {
         return;
       }
       setInterval(() => this.flush(), 3e3);
+      if (document.visibilityState === "visible") {
+        this.isInit = true;
+        this.startTime = /* @__PURE__ */ new Date();
+        this.track(EVENT_CODE.showPage.code);
+      }
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "hidden") {
           this.track(EVENT_CODE.outPage.code);
           this.flush(/* @__PURE__ */ new Date());
+          this.isInit = false;
         }
         if (document.visibilityState === "visible") {
-          this.startTime = /* @__PURE__ */ new Date();
-          this.track(EVENT_CODE.showPage.code);
+          if (!this.isInit) {
+            this.isInit = true;
+            this.startTime = /* @__PURE__ */ new Date();
+            this.track(EVENT_CODE.showPage.code);
+          }
         }
       });
       this.setBaseEvents();
