@@ -319,7 +319,7 @@ export class CGuestBlock extends HTMLElement {
     const timeLineBlock = this.timeLineBlock;
 
     let t = 0;
-    const k = 35; // 20 пикселей на секунду
+    const k = 30; // 20 пикселей на секунду
 
     let currentDate: string = "";
     for (let i = 0; i < this.data.events!.length; i++) {
