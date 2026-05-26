@@ -1,5 +1,6 @@
-import { DESC_EVENTS, store } from "@/features/store";
+import { EVENTS } from "@/features/store";
 import "./c-guests-filters-bl.scss";
+import { core } from "@/features/core";
 
 // import template from "./c-guest-block.html?raw";
 
@@ -44,7 +45,7 @@ export class CguestsFiltersBl extends HTMLElement {
         btn.classList.remove("active");
       }
     });
-    store.emit(DESC_EVENTS.guests.Filter.LevelChanged, level);
+    core.store.emit(EVENTS.guests.Filter.LevelChanged, level);
   }
 
   setFilter() {}

@@ -1,0 +1,44 @@
+.cb-wrap {
+     display: inline-flex;
+     align-items: center;
+     gap: 10px;
+     cursor: pointer;
+     user-select: none;
+}
+
+.cb-track {
+     --w: 10px;
+     --p: 2px;
+     position: relative;
+     --t: calc(var(--w) + var(--p) * 2);
+     --ww: calc(var(--w) * 2 + var(--p) * 3);
+     width: var(--ww);
+     height: var(--t);
+     border-radius: calc(var(--t)/2);
+     background: #39b96759;
+     transition: background 0.25s;
+     flex-shrink: 0;
+
+     .cb-wrap.checked & {
+          background: #1d9e75;
+     }
+}
+
+.cb-thumb {
+     position: absolute;
+     top: var(--p);
+     left: var(--p);
+     width: var(--w);
+     height: var(--w);
+     border-radius: 50%;
+     background: white;
+     transition: transform 0.25s cubic-bezier(.4, 0, .2, 1);
+
+     .cb-wrap.checked & {
+          transform: translateX(calc(var(--ww) - var(--w) - var(--p)*2));
+     }
+}
+
+.cb-label {
+     font-size: 14px;
+}

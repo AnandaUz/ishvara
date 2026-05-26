@@ -1,12 +1,14 @@
 import "./c-guests-main.scss";
 import template from "./c-guests-main.html?raw";
 import type { IGuest } from "@shared/types/IGuest";
-import { DESC_EVENTS, store } from "@/features/store";
+import { EVENTS } from "@/features/store";
 import { projectsManager } from "@/features/projectsManager";
 import { CGuestBlock } from "../c-guest-block/c-guest-block";
 import { CPopup } from "../../c-popup/c-popup";
 import { CGuestCard } from "../c-guest-card/c-guest-card";
 import "../c-guests-filters-bl/c-guests-filters-bl";
+import "@components/elements/c-checkBox/c-checkBox";
+import { CCheckBox } from "@components/elements/c-checkBox/c-checkBox";
 // import { api } from "@/services/api";
 import {
   META_EVENTS_LEVEL,
@@ -14,6 +16,7 @@ import {
 } from "@shared/types/GuestConst";
 import { api } from "@/services/api";
 import { CModal } from "../../c-modal/c-modal";
+import { core } from "@/features/core";
 
 export class CGuestsMain extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
@@ -33,10 +36,10 @@ export class CGuestsMain extends HTMLElement {
   }
   constructor() {
     super();
-    store.on(DESC_EVENTS.project.Changed, (_id: number) => {
+    core.store.on(EVENTS.project.Changed, (_id: number) => {
       h1!.textContent = projectsManager.activeProject!.config.name;
     });
-    store.on(DESC_EVENTS.guests.Filter.LevelChanged, (level: number) => {
+    core.store.on(EVENTS.guests.Filter.LevelChanged, (level: number) => {
       this.filters.eventLevel = level;
       if (level === 0) this.filters.timeLine_visible = true;
       else this.filters.timeLine_visible = false;
@@ -48,7 +51,7 @@ export class CGuestsMain extends HTMLElement {
 
     this.guests_list_block = this.querySelector(".guests-list");
 
-    store.on(DESC_EVENTS.project.Changed, () => {
+    core.store.on(EVENTS.project.Changed, () => {
       this.render();
     });
 
@@ -123,6 +126,15 @@ export class CGuestsMain extends HTMLElement {
         guest.querySelector(".events-bl")!.innerHTML = "";
       }
     });
+
+    const options_showTimeLine = document.querySelector(
+      ".options-showTimeLine",
+    ) as CCheckBox;
+    if (options_showTimeLine)
+      options_showTimeLine.onChange((checked) => {
+        core.options.isShowTimeLine = checked;
+        core.store.emit(EVENTS.options.Changed, { isShowTimeLine: checked });
+      });
   }
 
   render() {
@@ -177,7 +189,7 @@ export class CGuestsMain extends HTMLElement {
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
     });
-    store.emit(DESC_EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
+    core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
   }
 }
 

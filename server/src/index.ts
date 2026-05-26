@@ -43,16 +43,6 @@ app.use("/api/chats", chatsRouter);
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);
 
-// app.post('/api/telegram/webhook', async (req, res) => {
-//   try {
-//     await bot.handleUpdate(req.body, res);
-//   } catch (err) {
-//     console.error('Webhook error:', err);
-//     res.status(200).send('ok');
-//   }
-// });
-// app.use('/api/telegram', telegramRoutes);
-
 // маршрут для Telegram webhook
 app.post("/tgbots_user_webhook", (req, res) => {
   const mode = req.query.mode as string;

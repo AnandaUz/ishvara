@@ -1,7 +1,8 @@
+import { EVENTS } from "@/features/store";
 import "./c-project-tabs.scss";
 // import template from "./c-project-tabs.html?raw";
 import { projects_configs } from "@/tabs_config";
-import { DESC_EVENTS, store } from "@features/store";
+import { core } from "@features/core";
 import { projectsManager } from "@features/projectsManager";
 
 class ProjectTabs extends HTMLElement {
@@ -28,7 +29,7 @@ class ProjectTabs extends HTMLElement {
         this.tabs.push(tab);
       });
 
-    store.on(DESC_EVENTS.project.Changed, (id: number) => {
+    core.store.on(EVENTS.project.Changed, (id: number) => {
       this.setProject(id);
     });
   }
@@ -43,6 +44,6 @@ class ProjectTabs extends HTMLElement {
 }
 
 export class CProjectTabs extends ProjectTabs {
-  async connectedCallback() { }
+  async connectedCallback() {}
 }
 customElements.define("c-project-tabs", CProjectTabs);

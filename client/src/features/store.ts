@@ -1,6 +1,6 @@
 import { EventEmitter } from "@base/client/features/event-emitter";
 
-export const DESC_EVENTS = {
+export const EVENTS = {
   project: {
     Changed: "project:changed",
   },
@@ -9,13 +9,15 @@ export const DESC_EVENTS = {
       LevelChanged: "guests:filter:level:changed",
     },
   },
+  options: {
+    Changed: "options:changed",
+  },
 } as const;
 
 export type DeskEvents = {
-  [DESC_EVENTS.project.Changed]: number;
-  [DESC_EVENTS.guests.Filter.LevelChanged]: number;
+  [EVENTS.project.Changed]: number;
+  [EVENTS.guests.Filter.LevelChanged]: number;
+  [EVENTS.options.Changed]: any;
 };
 
-export class Store extends EventEmitter<DeskEvents> { }
-
-export const store = new Store();
+export class Store extends EventEmitter<DeskEvents> {}

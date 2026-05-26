@@ -14,9 +14,10 @@ import {
 import type { IPixelEventData } from "@shared/types/Is";
 
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
-import { DESC_EVENTS, store } from "@/features/store";
+import { EVENTS } from "@/features/store";
 import { chat } from "@/components/c-chats/c-chats";
 import { projectsManager } from "@/features/projectsManager";
+import { core } from "@/features/core";
 
 export class CGuestBlock extends HTMLElement {
   data: IGuest;
@@ -29,6 +30,8 @@ export class CGuestBlock extends HTMLElement {
   private companyConfig?: any;
   private adsetConfig?: any;
   private adConfig?: any;
+  private isVisible: boolean = false;
+
   async sendLevel_and_MetaEvent(level: number) {
     if (this.data.level === level) return true;
 
@@ -316,6 +319,9 @@ export class CGuestBlock extends HTMLElement {
     });
   }
   render_timeLine() {
+    const d = core.options.isShowTimeLine;
+    if (!d) return;
+
     const timeLineBlock = this.timeLineBlock;
 
     let t = 0;
@@ -434,6 +440,11 @@ export class CGuestBlock extends HTMLElement {
     super();
     //
 
+    core.store.on(EVENTS.options.Changed, () => {
+      if (!this.isVisible) return;
+      this.render();
+    });
+
     this.addEventListener("click", async (_e: MouseEvent) => {
       chat.initForGuest(this.data);
     });
@@ -466,11 +477,13 @@ export class CGuestBlock extends HTMLElement {
     this.data = data;
     this.owner = owner;
 
-    store.on(DESC_EVENTS.guests.Filter.LevelChanged, () => {
+    core.store.on(EVENTS.guests.Filter.LevelChanged, () => {
       if (this.owner.filters.eventLevel > (this.data.level || 0)) {
         this.removeAttribute("visible");
+        this.isVisible = false;
       } else {
         this.setAttribute("visible", "");
+        this.isVisible = true;
         if (!this.isRender) {
           this.render();
           this.isRender = true;
