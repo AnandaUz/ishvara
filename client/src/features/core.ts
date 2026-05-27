@@ -10,6 +10,7 @@ class Core {
   options = {
     isShowTimeLine: true,
   };
+
   store = new Store();
   constructor() {
     this.store.on(EVENTS.options.Changed, () => {});

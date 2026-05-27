@@ -79,6 +79,9 @@ export const homePage: Page = () => {
               id: company.id,
               name: company.name,
               isOff: company.isOff,
+              data: {
+                companyId: company.id,
+              } as ITabData,
             } as ITab);
             // }
           });
@@ -95,8 +98,8 @@ export const homePage: Page = () => {
 
               const comp = guest.companyId;
               if (comp && comp == companyId) {
-                if (guest.adsetId == adsetId) return true;
-
+                // if (guest.adsetId == adsetId) return true;
+                return true;
                 // const inst: string | number | undefined = guest.instagram?.adset;
                 // if (!inst) return false;
 

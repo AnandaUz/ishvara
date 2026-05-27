@@ -28,8 +28,7 @@ export class CGuestBlock extends HTMLElement {
   private timeLineBlock!: HTMLDivElement;
   // private projectConfig?: any;
   private companyConfig?: any;
-  private adsetConfig?: any;
-  private adConfig?: any;
+
   private isVisible: boolean = false;
 
   async sendLevel_and_MetaEvent(level: number) {

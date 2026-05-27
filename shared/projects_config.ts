@@ -59,14 +59,14 @@ export const bigProjects: IBigProjectConfig[] = [
           {
             id: 1,
             name: "с интересами",
-            nameInInst: "27.05.26-CM-contact-with-interests",
+            nameInInst: "CM - 27.05.26 - contact -- with interests",
             createdAt: "27.05.2026",
             ads: [{ name: "v-meditation-0", id: 1 }],
           },
           {
             id: 2,
             name: "без интересов",
-            nameInInst: "CM-contact-27_05_26",
+            nameInInst: "CM - 27.05.26 - contact",
             createdAt: "27.05.2026",
             ads: [{ name: "v-meditation-0", id: 1 }],
           },
