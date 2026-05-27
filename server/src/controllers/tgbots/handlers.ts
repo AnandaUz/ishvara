@@ -58,7 +58,7 @@ https://esho.uz/guide?g=${userID}`;
 В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы завершим регистрацию.
 
 Детали нашей встречи можно найти по ссылке:
-https://esho.uz/location?g=${userID}`;
+https://m.esho.uz/location?g=${userID}`;
     }
 
     const username = ctx.from.username;

@@ -156,22 +156,28 @@ export class CGuestBlock extends HTMLElement {
       return el;
     };
 
-    if (this.data.instagram?.comp_name) {
-      if (typeof this.data.projectId === "number") {
-        if (this.data.instagram?.comp_name) {
-          setBlock(
-            ".company-string",
-            `<span class='ad-name'>${this.adsetConfig?.name || "🔆"}</span>
-            <span class='ad-name'>${this.adConfig?.name || "🔆"}</span>`,
-          );
-        }
-      } else {
-        setBlock(
-          ".company-string",
-          `<span class='adset-name'>${this.data.instagram?.adset_name}</span><span class='ad-name'>${this.data.instagram?.ad_name}</span>`,
-        );
-      }
+    if (typeof this.data.companyId === "number") {
+      setBlock(
+        ".company-string",
+        `<span class='company-name'>${this.data.companyId}</span>
+        <span class='adset-name'>${this.data.adsetId || ""}</span>
+        <span class='ad-name'>${this.data.adId || ""}</span>`,
+      );
     }
+
+    // if (this.data.instagram?.comp_name) {
+    //   if (typeof this.data.projectId === "number") {
+    //     if (this.data.instagram?.comp_name) {
+    //       setBlock(
+    //         ".company-string",
+    //         `<span class='ad-name'>${this.adsetConfig?.name || "🔆"}</span>
+    //         <span class='ad-name'>${this.adConfig?.name || "🔆"}</span>`,
+    //       );
+    //     }
+    //   } else {
+
+    //   }
+    // }
 
     {
       const isFbc = this.data.instagram?.fbc;
@@ -269,7 +275,7 @@ export class CGuestBlock extends HTMLElement {
     btn_anchor.addEventListener("click", async (e: MouseEvent) => {
       e.stopPropagation(); // чтобы не закрылся сразу
       await navigator.clipboard.writeText(
-        `https://esho.uz/location?g=${this.data._id}`,
+        `https://m.esho.uz/location?g=${this.data._id}`,
       );
     });
     // const btn_chat = body.querySelector(".btn-chat")! as HTMLButtonElement;
