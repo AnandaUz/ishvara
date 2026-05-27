@@ -24,6 +24,8 @@ export interface ICompany {
   tgbotName?: string;
   adsets?: IAdSet[];
   isOff?: boolean;
+  city?: string;
+  country?: string;
 }
 
 export interface IBigProjectConfig {
@@ -32,6 +34,7 @@ export interface IBigProjectConfig {
   summary?: string;
   isOff?: boolean;
   companys?: ICompany[];
+  tgbotName?: string;
   pixel?: string;
 }
 export const bigProjects: IBigProjectConfig[] = [
@@ -42,14 +45,39 @@ export const bigProjects: IBigProjectConfig[] = [
   {
     id: 10,
     name: "Медитация",
+    tgbotName: "meditation",
+    pixel: "masterMind",
     companys: [
       {
+        id: 3,
+        name: "27.05.26 - contact",
+        summary: "contact",
+        companyPageURL: "https://m.esho.uz",
+        city: "tashkent",
+        country: "uz",
+        adsets: [
+          {
+            id: 1,
+            name: "с интересами",
+            nameInInst: "27.05.26-CM-contact-with-interests",
+            createdAt: "27.05.2026",
+            ads: [{ name: "v-meditation-0", id: 1 }],
+          },
+          {
+            id: 2,
+            name: "без интересов",
+            nameInInst: "CM-contact-27_05_26",
+            createdAt: "27.05.2026",
+            ads: [{ name: "v-meditation-0", id: 1 }],
+          },
+        ],
+      },
+      {
         id: 2,
-        name: "КМ",
-        pixel: "masterMind",
+        name: "что было до",
         summary: "Коллективные медитации",
-        companyPageURL: "https://esho.uz/meditation",
-        tgbotName: "meditation",
+        companyPageURL: "https://m.esho.uz",
+
         adsets: [
           {
             id: 1,
@@ -69,14 +97,16 @@ export const bigProjects: IBigProjectConfig[] = [
     id: 100,
     name: "Esho.uz",
     summary: "сейчас это ПММ",
+    tgbotName: "mastermind",
+    pixel: "masterMind",
     companys: [
       {
         name: "MasterMind",
         id: 1,
-        pixel: "masterMind",
+
         summary: "Платный МастерМайнд",
         companyPageURL: "https://esho.uz/meet",
-        tgbotName: "mastermind",
+
         adsets: [
           {
             id: 1,

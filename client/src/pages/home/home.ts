@@ -62,25 +62,25 @@ export const homePage: Page = () => {
           } as ITab);
 
           project.companys.forEach((company) => {
-            if (company.adsets) {
-              company.adsets.forEach((adset) => {
-                c.push({
-                  id: adset.id + "_" + company.id,
-                  name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
-                  isOff: adset.isOff,
-                  data: {
-                    companyId: company.id,
-                    adsetId: adset.id,
-                  } as ITabData,
-                } as ITab);
-              });
-            } else {
-              c.push({
-                id: company.id,
-                name: company.name,
-                isOff: company.isOff,
-              } as ITab);
-            }
+            // if (company.adsets) {
+            //   company.adsets.forEach((adset) => {
+            //     c.push({
+            //       id: adset.id + "_" + company.id,
+            //       name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
+            //       isOff: adset.isOff,
+            //       data: {
+            //         companyId: company.id,
+            //         adsetId: adset.id,
+            //       } as ITabData,
+            //     } as ITab);
+            //   });
+            // } else {
+            c.push({
+              id: company.id,
+              name: company.name,
+              isOff: company.isOff,
+            } as ITab);
+            // }
           });
           companyTabs.name = "pr" + project.id;
 

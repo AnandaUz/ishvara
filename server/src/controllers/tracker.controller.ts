@@ -18,11 +18,11 @@ function checkOrigin(origin: string | undefined) {
   const allowedOrigin = process.env.CLIENT_URL?.split(",") || [];
   return allowedOrigin.includes(origin);
 }
-interface IInstagram {
-  comp_name?: number;
-  adset_name?: number;
-  ad_name?: number;
-}
+// interface IInstagram {
+//   comp_name?: number;
+//   adset_name?: number;
+//   ad_name?: number;
+// }
 export const start = async (req: Request, res: Response) => {
   const origin = req.headers.origin;
 
@@ -52,66 +52,27 @@ export const start = async (req: Request, res: Response) => {
       isNew = true;
     }
 
-    let instagram: IInstagram | undefined = undefined;
+    // let instagram: IInstagram | undefined = undefined;
     let paramsString: string | undefined = undefined;
 
     let f = false;
 
+    let companyId: number | undefined = undefined;
+    let adsetId: number | undefined = undefined;
+    let adId: number | undefined = undefined;
+
     if (urlParamsString) {
       const urlParams = new URLSearchParams(urlParamsString);
 
-      const mainKey = urlParams.get("main_key");
-      if (mainKey) {
-        switch (mainKey) {
-          case "almati00-v0": {
-            instagram = {
-              comp_name: 1,
-              adset_name: 2,
-              ad_name: 1,
-            };
-            break;
-          }
-          case "almati00-v1": {
-            instagram = {
-              comp_name: 1,
-              adset_name: 2,
-              ad_name: 2,
-            };
-            break;
-          }
-        }
-      } else {
-        // const comp_name = urlParams.get("comp_name");
-        // const adset_name = urlParams.get("adset_name");
-        // const ad_name = urlParams.get("ad_name");
-        // const project: IBigProjectConfig | undefined = Object.values(
-        //   bigProjects,
-        // ).find((p) => p.id === projectId);
-        // if (comp_name) {
-        //   // const company = project?.companys[comp_name];
-        //   // if (!company) {
-        //   //   f = true;
-        //   // } else {
-        //   //   instagram = { comp_name: company!.id };
-        //   //   if (adset_name) {
-        //   //     const adset = company?.adsets[adset_name];
-        //   //     if (!adset) {
-        //   //       f = true;
-        //   //     } else {
-        //   //       instagram.adset_name = adset!.id;
-        //   //       if (ad_name) {
-        //   //         const ad = adset?.ads[ad_name];
-        //   //         if (!ad) {
-        //   //           f = true;
-        //   //         } else {
-        //   //           instagram.ad_name = ad!.id;
-        //   //         }
-        //   //       }
-        //   //     }
-        //   //   }
-        //   // }
-        // }
-      }
+      const mainKey = urlParams.get("k");
+      //k=3-1-1
+      const fMainKey = mainKey?.split("-");
+      const c = fMainKey?.[0];
+      if (c) companyId = Number(c);
+      const a = fMainKey?.[1];
+      if (a) adsetId = Number(a);
+      const b = fMainKey?.[2];
+      if (b) adId = Number(b);
     }
 
     if (f) {
@@ -120,10 +81,7 @@ export const start = async (req: Request, res: Response) => {
 
     let oldEvents: IGuest["events"] | undefined = undefined;
     if (oldGuest) {
-      if (
-        instagram?.adset_name &&
-        oldGuest?.instagram?.adset_name !== instagram.adset_name
-      ) {
+      if (companyId && companyId !== oldGuest.companyId) {
         isNew = true;
         oldEvents = oldGuest.events;
       }
@@ -133,14 +91,17 @@ export const start = async (req: Request, res: Response) => {
 
     if (isNew) {
       const ip = getClientIp(req);
-      const guestData = {
+      const guestData: IGuest = {
         createdAt,
         projectId,
+        ...(companyId !== undefined && { companyId }),
+        ...(adsetId !== undefined && { adsetId }),
+        ...(adId !== undefined && { adId }),
         // referrer,
         userAgentString,
         ...(oldGuest?._id && { oldId: oldGuest._id.toString() }),
         ...(ip && { ip }),
-        ...(instagram && { instagram }),
+        // ...(instagram && { instagram }),
         ...(paramsString && { paramsString }),
         ...(oldEvents && { events: oldEvents }),
       };
