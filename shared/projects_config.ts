@@ -1,6 +1,7 @@
 export interface IAd {
   id: number;
   name: string;
+  viewText?: string;
 }
 
 export interface IAdSet {
@@ -13,6 +14,7 @@ export interface IAdSet {
   country?: string;
   ads?: IAd[];
   isOff?: boolean;
+  viewText?: string;
 }
 
 export interface ICompany {
@@ -26,6 +28,7 @@ export interface ICompany {
   isOff?: boolean;
   city?: string;
   country?: string;
+  viewText?: string;
 }
 
 export interface IBigProjectConfig {
@@ -36,6 +39,8 @@ export interface IBigProjectConfig {
   companys?: ICompany[];
   tgbotName?: string;
   pixel?: string;
+  city?: string;
+  country?: string;
 }
 export const bigProjects: IBigProjectConfig[] = [
   {
@@ -47,28 +52,31 @@ export const bigProjects: IBigProjectConfig[] = [
     name: "Медитация",
     tgbotName: "meditation",
     pixel: "masterMind",
+    city: "tashkent",
+    country: "uz",
     companys: [
       {
         id: 3,
         name: "27.05.26 - contact",
         summary: "contact",
         companyPageURL: "https://m.esho.uz",
-        city: "tashkent",
-        country: "uz",
+        viewText: "🚀",
         adsets: [
           {
             id: 1,
             name: "с интересами",
             nameInInst: "CM - 27.05.26 - contact -- with interests",
             createdAt: "27.05.2026",
-            ads: [{ name: "v-meditation-0", id: 1 }],
+            viewText: "🔹",
+            ads: [{ name: "v", id: 1 }],
           },
           {
             id: 2,
             name: "без интересов",
             nameInInst: "CM - 27.05.26 - contact",
             createdAt: "27.05.2026",
-            ads: [{ name: "v-meditation-0", id: 1 }],
+            viewText: "🔸",
+            ads: [{ name: "v", id: 1 }],
           },
         ],
       },

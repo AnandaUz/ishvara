@@ -90,7 +90,7 @@ export const homePage: Page = () => {
           companyTabs.addEventChange((tabData) => {
             const companyId = tabData?.data?.companyId;
 
-            const adsetId = tabData?.data?.adsetId;
+            // const adsetId = tabData?.data?.adsetId;
             projectsManager.setProject(project.id, (guest) => {
               // console.log(guest.instagram);
 

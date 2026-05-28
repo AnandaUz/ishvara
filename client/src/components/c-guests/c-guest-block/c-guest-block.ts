@@ -15,7 +15,7 @@ import type { IPixelEventData } from "@shared/types/Is";
 
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
 import { EVENTS } from "@/features/store";
-import { chat } from "@/components/c-chats/c-chats";
+// import { chat } from "@/components/c-chats/c-chats";
 import { projectsManager } from "@/features/projectsManager";
 import { core } from "@/features/core";
 
@@ -26,9 +26,10 @@ export class CGuestBlock extends HTMLElement {
   private isRender: boolean = false;
   private body!: HTMLDivElement;
   private timeLineBlock!: HTMLDivElement;
-  // private projectConfig?: any;
+  private projectConfig?: any;
   private companyConfig?: any;
-
+  private adsetConfig?: any;
+  private adConfig?: any;
   private isVisible: boolean = false;
 
   async sendLevel_and_MetaEvent(level: number) {
@@ -65,14 +66,8 @@ export class CGuestBlock extends HTMLElement {
         data.user_data.client_ip_address = userData.ip;
       }
 
-      const b_adset = bigProjectsGet.adsetById(
-        Number(userData.projectId || 0),
-        Number(userData.instagram?.comp_name || 0),
-        Number(userData.instagram?.adset_name || 0),
-      );
-
-      const city = b_adset?.city;
-      const country = b_adset?.country;
+      const city = this.adsetConfig?.city || this.projectConfig?.city;
+      const country = this.adsetConfig?.country || this.projectConfig?.country;
       if (city) {
         data.user_data.ct = await hashSHA256(city); // хешируется, lowercase
       }
@@ -91,7 +86,7 @@ export class CGuestBlock extends HTMLElement {
         data.custom_data = {
           currency: "USD",
           value: eventObj.value,
-          content_name: b_adset?.name || "",
+          content_name: this.companyConfig?.name || "",
         };
       }
       if (userData?.instagram?.fbp) data.user_data.fbp = userData.instagram.fbp;
@@ -100,7 +95,7 @@ export class CGuestBlock extends HTMLElement {
       if (userData?.userAgentString)
         data.user_data.client_user_agent = userData.userAgentString;
 
-      const pixelData = this.companyConfig.pixel;
+      const pixelData = this.companyConfig.pixel || this.projectConfig.pixel;
 
       res = await api.guest.sendMetaEvent([data], pixelData);
     }
@@ -158,9 +153,9 @@ export class CGuestBlock extends HTMLElement {
     if (typeof this.data.companyId === "number") {
       setBlock(
         ".company-string",
-        `<span class='company-name'>${this.data.companyId}</span>
-        <span class='adset-name'>${this.data.adsetId || ""}</span>
-        <span class='ad-name'>${this.data.adId || ""}</span>`,
+        `<span class='company-name'>${this.companyConfig?.viewText || ""}</span>
+        <span class='adset-name'>${this.adsetConfig?.viewText || ""}</span>
+        <span class='ad-name'>${this.adConfig?.viewText || ""}</span>`,
       );
     }
 
@@ -451,8 +446,25 @@ export class CGuestBlock extends HTMLElement {
     });
 
     this.addEventListener("click", async (_e: MouseEvent) => {
-      chat.initForGuest(this.data);
+      // chat.initForGuest(this.data);
     });
+
+    this.projectConfig = bigProjectsGet.projectById(data.projectId!);
+    this.companyConfig = bigProjectsGet.companyById(
+      data.projectId!,
+      data.companyId!,
+    );
+    this.adsetConfig = bigProjectsGet.adsetById(
+      data.projectId!,
+      data.companyId!,
+      data.adsetId!,
+    );
+    this.adConfig = bigProjectsGet.adById(
+      data.projectId!,
+      data.companyId!,
+      data.adsetId!,
+      data.adId!,
+    );
 
     // const project = Object.values(bigProjects).find(
     //   (project) => project.id === data.projectId,
