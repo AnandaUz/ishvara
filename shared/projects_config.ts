@@ -84,8 +84,6 @@ export const bigProjects: IBigProjectConfig[] = [
         id: 2,
         name: "что было до",
         summary: "Коллективные медитации",
-        companyPageURL: "https://m.esho.uz",
-
         adsets: [
           {
             id: 1,

@@ -140,4 +140,15 @@ c-guests-main {
 .options-block {
   display: flex;
   gap: 10px;
+  justify-content: space-between;
+
+  .left-panel {
+    display: flex;
+    gap: 10px;
+  }
+
+  .right-panel {
+    display: flex;
+    gap: 10px;
+  }
 }

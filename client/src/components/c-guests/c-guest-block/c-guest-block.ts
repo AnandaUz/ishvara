@@ -31,6 +31,10 @@ export class CGuestBlock extends HTMLElement {
   private adsetConfig?: any;
   private adConfig?: any;
   private isVisible: boolean = false;
+  flags = {
+    isScrolled: false,
+    isTour: false,
+  };
 
   async sendLevel_and_MetaEvent(level: number) {
     if (this.data.level === level) return true;
@@ -358,8 +362,9 @@ export class CGuestBlock extends HTMLElement {
           timeLineBlock.appendChild(blBR);
         }
 
-        const segments = event![1].toString().split("/").filter(Boolean);
-        const eventName = segments
+        let segments = event![1].toString().split("/").filter(Boolean);
+        if (segments.length == 0) segments = ["🏠"];
+        let eventName = segments
           .map((segment, i) => {
             let cls = `s${i + 1}`;
 
@@ -368,6 +373,10 @@ export class CGuestBlock extends HTMLElement {
             return `<b class="${cls}">${segment}</b>`;
           })
           .join("");
+
+        if (segments.length === 1) {
+          if (segments[0] == "tours") this.flags.isTour = true;
+        }
 
         eventElement.innerHTML = `<span></span><span class='page-name'>${eventName}</span>`;
         if (newStarTime) {
@@ -413,9 +422,12 @@ export class CGuestBlock extends HTMLElement {
           }
         }
 
+        if (Number(event_code) > 0 && Number(event_code) < 8)
+          this.flags.isScrolled = true;
+
         switch (event_code) {
           case EVENT_CODE.outPage!.code:
-            eventElement.innerHTML = `<span></span><i class='time'>${time.toFixed(1)}</i>`;
+            eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
             eventElement.className += " " + EVENT_CODE.outPage!.class!;
             break;
           default:

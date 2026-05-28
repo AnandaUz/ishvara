@@ -16,6 +16,14 @@ c-guest-block {
     background: rgb(213, 227, 233);
   }
 
+  &.test1 {
+    background: #ffe9cc;
+  }
+
+  &.test2 {
+    background: #89a4ff;
+  }
+
 
 
   .bg {
@@ -297,6 +305,7 @@ c-guest-block {
 
     border-radius: 5px;
     padding: 0px 154px 0 154px;
+    line-height: 24px;
 
     .event {
       display: inline-block;
@@ -306,6 +315,7 @@ c-guest-block {
       height: 3px;
       position: relative;
       margin: 0 0 0 2px;
+      line-height: 11px;
 
       &.page-in {
         margin: 0 0 0 -10px;
@@ -330,7 +340,7 @@ c-guest-block {
         display: block;
         width: var(--w);
         height: var(--w);
-        border-radius: 50%;
+        border-radius: 4px;
         background: #00b702;
         position: absolute;
         right: -7px;
@@ -565,9 +575,9 @@ c-guest-block {
         padding: 5px 27px 0 0;
       }
 
-      .time-line-block {
-        // display: none;
-      }
+      // .time-line-block {
+      //   // display: none;
+      // }
 
       .create-time {
         display: none;

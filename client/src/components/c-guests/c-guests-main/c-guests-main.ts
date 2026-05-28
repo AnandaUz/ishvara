@@ -9,6 +9,7 @@ import { CGuestCard } from "../c-guest-card/c-guest-card";
 import "../c-guests-filters-bl/c-guests-filters-bl";
 import "@components/elements/c-checkBox/c-checkBox";
 import { CCheckBox } from "@components/elements/c-checkBox/c-checkBox";
+import "@/components/c-menu-for-wt/c-menu-for-WT";
 // import { api } from "@/services/api";
 import {
   META_EVENTS_LEVEL,
@@ -23,6 +24,9 @@ export class CGuestsMain extends HTMLElement {
   menu: CPopup | null = null;
   modalMenu: CModal | null = null;
   guestForm: CGuestCard | null = null;
+
+  guestsNotes: CGuestBlock[] = [];
+
   filters = {
     eventLevel: 0,
     timeLine_visible: true,
@@ -36,6 +40,7 @@ export class CGuestsMain extends HTMLElement {
   }
   constructor() {
     super();
+    core.cGuestMain = this;
     core.store.on(EVENTS.project.Changed, (_id: number) => {
       h1!.textContent = projectsManager.activeProject!.config.name;
     });
@@ -138,7 +143,9 @@ export class CGuestsMain extends HTMLElement {
   }
 
   render() {
-    this.guests_list_block!.innerHTML = "";
+    this.guests_list_block?.replaceChildren();
+    this.guestsNotes = [];
+
     let month = 0;
     let day = 0;
     let statisticDay: number[] = [];
@@ -188,6 +195,7 @@ export class CGuestsMain extends HTMLElement {
 
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
+      this.guestsNotes.push(guestBlock);
     });
     core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
   }
