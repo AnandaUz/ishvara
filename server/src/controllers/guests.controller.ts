@@ -55,7 +55,6 @@ export async function sendMetaEvent(req: Request, res: Response) {
       res.status(400).json({ error: "data is required" });
       return;
     }
-
     // console.log(data, PIXEL_ID, PIXEL_TOKEN);
     // res.status(400).json({ error: "data is required" });
     // return;
