@@ -58,6 +58,12 @@ c-guests-main {
       text-align: center;
       padding: 2px 3px;
 
+      &.total {
+        background: none;
+        border: none;
+        color: #414141;
+      }
+
       &.empty {
         opacity: 0.8;
       }
@@ -92,7 +98,7 @@ c-guests-main {
     }
 
     .bl-0 {
-      width: 65px;
+      width: 70px;
       background-color: rgba(1, 84, 133, 0.6235294118);
       padding: 5px 10px;
       border-radius: 6px;

@@ -151,6 +151,7 @@ export class CGuestsMain extends HTMLElement {
     let statisticDay: number[] = [];
     // const statisticMonth:number[] = []
     let dayLineEl: HTMLDivElement | null = null;
+    let count = 0;
     projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
       const d = new Date(guest.lastChange || guest.createdAt!);
       const gMonth = d.getMonth();
@@ -180,8 +181,14 @@ export class CGuestsMain extends HTMLElement {
         day = gDay;
         dayLineEl = document.createElement("div");
         dayLineEl.classList.add("day-line");
-        dayLineEl.innerHTML = `<div class="bl-0"><span>${gDay}.${gMonth + 1}</span><span class="day-name">${dayName}</span></div>`;
+        dayLineEl.innerHTML = `<div class="bl-0">
+        <span>${gDay}.${gMonth + 1}</span>
+        <span class="day-name">${dayName}</span>
+        </div>
+        <div class="count-col total">${count}</div>
+        `;
         this.guests_list_block!.appendChild(dayLineEl);
+        count = 0;
       }
 
       if (guest.level && guest.level > 0) {
@@ -193,6 +200,7 @@ export class CGuestsMain extends HTMLElement {
         statisticDay[0]++;
       }
 
+      count++;
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
       this.guestsNotes.push(guestBlock);
