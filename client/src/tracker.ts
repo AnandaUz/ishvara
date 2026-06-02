@@ -144,7 +144,7 @@ class Guest {
 
     window.document.body.addEventListener("click", (e) => {
       //- for WT
-      const banner = (e.target as HTMLElement).closest(".top-baner");
+      const banner = (e.target as HTMLElement).closest(".top-banner");
 
       if (banner) {
         this.track("c-tBaner");
