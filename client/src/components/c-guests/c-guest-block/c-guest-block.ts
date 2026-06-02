@@ -434,6 +434,10 @@ export class CGuestBlock extends HTMLElement {
             eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
             eventElement.className += " " + "click";
             break;
+          case "c-tBaner": //простой клик
+            eventElement.innerHTML = `<span><b>top baner</b></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
+            eventElement.className += " " + "click main-goal";
+            break;
           default:
             const eventItem = EVENT_BY_CODE[event_code];
             if (eventItem && eventItem.class) {

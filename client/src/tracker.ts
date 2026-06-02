@@ -142,10 +142,11 @@ class Guest {
       }
     }, 1000);
 
-    window.document.body.addEventListener("click", () => {
+    window.document.body.addEventListener("click", (e) => {
       //- for WT
-      const baner = document.querySelector(".top-banner");
-      if (baner) {
+      const banner = (e.target as HTMLElement).closest(".top-baner");
+
+      if (banner) {
         this.track("c-tBaner");
       } else {
         this.track("c");

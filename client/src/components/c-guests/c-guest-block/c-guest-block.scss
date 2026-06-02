@@ -332,6 +332,11 @@ c-guest-block {
           margin: -2px 0 0;
 
         }
+
+        &.main-goal span {
+          --w: 12px;
+          background: url("@assets/ico-star-1.svg");
+        }
       }
 
       // min-width: 7px;
@@ -372,11 +377,13 @@ c-guest-block {
           border: 2px solid #ffa200;
           border-radius: 50%;
 
-          b {
-            color: #000;
-            margin: -13px 0 0;
-            display: block;
-          }
+
+        }
+
+        b {
+          color: #000;
+          margin: -13px 0 0;
+          display: block;
         }
       }
 
