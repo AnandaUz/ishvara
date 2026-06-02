@@ -321,6 +321,19 @@ c-guest-block {
         margin: 0 0 0 -10px;
       }
 
+      &.click {
+        span {
+          --w: 10px;
+          background: url("@assets/ico-star.svg");
+          background-size: var(--w) var(--w);
+          border: none;
+          height: var(--w);
+          width: var(--w);
+          margin: -2px 0 0;
+
+        }
+      }
+
       // min-width: 7px;
       &.scale {
         background: #b0b0f9;

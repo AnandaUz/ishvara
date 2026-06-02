@@ -430,6 +430,10 @@ export class CGuestBlock extends HTMLElement {
             eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
             eventElement.className += " " + EVENT_CODE.outPage!.class!;
             break;
+          case "c": //простой клик
+            eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
+            eventElement.className += " " + "click";
+            break;
           default:
             const eventItem = EVENT_BY_CODE[event_code];
             if (eventItem && eventItem.class) {
