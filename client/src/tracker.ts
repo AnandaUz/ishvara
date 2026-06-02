@@ -141,6 +141,10 @@ class Guest {
         clearInterval(checkFbq);
       }
     }, 1000);
+
+    window.document.body.addEventListener("click", () => {
+      this.track("c");
+    });
   }
 
   async init() {
