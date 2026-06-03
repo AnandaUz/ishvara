@@ -35,11 +35,49 @@ class TProject {
     if (this.guests.length) return;
     this.guests = await api.guest.load(this.config.id);
   }
+  async arhive() {
+    // 1.9 M
+    // 477 К
+    let savedGuestCount = 0;
+    let clearnGuestCount = 0;
+    // let t = 10;
+    this.guests.forEach(async (guest) => {
+      if (guest.level && guest.level > 0) {
+        savedGuestCount++;
+      } else {
+        // if (t < 0) return;
+        // t--;
+        if (!guest.createdAt) return;
+        clearnGuestCount++;
+
+        if (!guest.lastChange && guest.createdAt)
+          guest.lastChange = guest.createdAt;
+
+        Object.keys(guest).forEach((key) => {
+          if (
+            key !== "_id" &&
+            key !== "projectId" &&
+            key !== "lastChange" &&
+            key !== "tg"
+          ) {
+            (guest as any)[key] = null;
+          }
+        });
+        await api.guest.patchOne(guest._id || "", guest);
+
+        console.log(guest._id);
+
+        return;
+      }
+    });
+    console.log("savedGuestCount", savedGuestCount);
+    console.log("clearnGuestCount", clearnGuestCount);
+  }
 }
 
-class ProjectsManager {
-  activeProject: TProject | null = null;
-  projects: Map<number, TProject> = new Map();
+export class ProjectsManager {
+  private _activeProject: TProject | null = null;
+  private projects: Map<number, TProject> = new Map();
   constructor() {}
 
   async setProject(
@@ -57,8 +95,12 @@ class ProjectsManager {
     if (filterFunc) {
       newProject.filterFunc = filterFunc;
     }
-    this.activeProject = newProject;
+    this._activeProject = newProject;
     core.store.emit(EVENTS.project.Changed, id);
+  }
+  get activeProject(): TProject {
+    if (!this._activeProject) throw new Error("No active project");
+    return this._activeProject;
   }
 
   // getProject() {
@@ -70,5 +112,3 @@ class ProjectsManager {
     // this.setProject(localStorage.getItem("project") || projects_configs[0]!.id);
   }
 }
-
-export const projectsManager = new ProjectsManager();

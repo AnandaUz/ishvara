@@ -2,7 +2,6 @@ import "./c-guests-main.scss";
 import template from "./c-guests-main.html?raw";
 import type { IGuest } from "@shared/types/IGuest";
 import { EVENTS } from "@/features/store";
-import { projectsManager } from "@/features/projectsManager";
 import { CGuestBlock } from "../c-guest-block/c-guest-block";
 import { CPopup } from "../../c-popup/c-popup";
 import { CGuestCard } from "../c-guest-card/c-guest-card";
@@ -42,7 +41,7 @@ export class CGuestsMain extends HTMLElement {
     super();
     core.cGuestMain = this;
     core.store.on(EVENTS.project.Changed, (_id: number) => {
-      h1!.textContent = projectsManager.activeProject!.config.name;
+      h1!.textContent = core.projectsManager.activeProject!.config.name;
     });
     core.store.on(EVENTS.guests.Filter.LevelChanged, (level: number) => {
       this.filters.eventLevel = level;
@@ -152,7 +151,7 @@ export class CGuestsMain extends HTMLElement {
     // const statisticMonth:number[] = []
     let dayLineEl: HTMLDivElement | null = null;
     let count = 0;
-    projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
+    core.projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
       const d = new Date(guest.lastChange || guest.createdAt!);
       const gMonth = d.getMonth();
       const gDay = d.getDate();
@@ -201,10 +200,15 @@ export class CGuestsMain extends HTMLElement {
       }
 
       count++;
+
+      if (!guest.createdAt && !guest.events) {
+        return;
+      }
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
       this.guestsNotes.push(guestBlock);
     });
+
     core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
   }
 }

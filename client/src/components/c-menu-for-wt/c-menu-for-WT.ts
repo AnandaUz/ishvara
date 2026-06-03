@@ -14,9 +14,6 @@ export class CMenuForWT extends HTMLElement {
           }
         }
       });
-    });
-
-    this.querySelector("button.by-tour")?.addEventListener("click", () => {
       core.cGuestMain.guestsNotes.forEach((item) => {
         if (item.flags.isTour) {
           if (item.data.level && item.data.level === 1) {
@@ -24,6 +21,10 @@ export class CMenuForWT extends HTMLElement {
           }
         }
       });
+    });
+
+    this.querySelector(".arhive-items")?.addEventListener("click", () => {
+      core.projectsManager.activeProject.arhive();
     });
   }
 }

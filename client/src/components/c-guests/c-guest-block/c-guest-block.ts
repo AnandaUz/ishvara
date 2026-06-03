@@ -16,7 +16,7 @@ import type { IPixelEventData } from "@shared/types/Is";
 import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
 import { EVENTS } from "@/features/store";
 // import { chat } from "@/components/c-chats/c-chats";
-import { projectsManager } from "@/features/projectsManager";
+
 import { core } from "@/features/core";
 
 export class CGuestBlock extends HTMLElement {
@@ -41,7 +41,7 @@ export class CGuestBlock extends HTMLElement {
 
     this.data.level = level;
 
-    const activeProject = projectsManager.activeProject;
+    const activeProject = core.projectsManager.activeProject;
     // if (!activeProject?.config.companyPageURL) return false;
     const config = activeProject?.config;
     const pixel = config?.pixel;
@@ -332,8 +332,8 @@ export class CGuestBlock extends HTMLElement {
     const k = 30; // 20 пикселей на секунду
 
     let currentDate: string = "";
-    for (let i = 0; i < this.data.events!.length; i++) {
-      const event = this.data.events![i];
+    for (let i = 0; i < (this.data.events?.length ?? 0); i++) {
+      const event = this.data.events?.[i];
       if (!event) continue;
       const eventElement = document.createElement("div");
       eventElement.classList.add("event");

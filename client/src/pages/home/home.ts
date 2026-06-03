@@ -1,13 +1,12 @@
 import type { Page } from "../../types";
 import html from "@pages/home/home.html?raw";
 import "@/components/c-guests/c-guests-main/c-guests-main";
-// import "@components/c-project-tabs/c-project-tabs";
-import { projectsManager } from "@/features/projectsManager";
 import "@/components/c-chats/c-chats";
 import "./home.scss";
 import "@components/c-tabs/c-tabs";
 import type { CTabs, ITab } from "@components/c-tabs/c-tabs";
 import { bigProjectsGet, bigProjects } from "@shared/projects_config";
+import { core } from "@/features/core";
 
 interface ITabData {
   companyId?: number;
@@ -19,7 +18,7 @@ export const homePage: Page = () => {
     html: html,
     pageClass: "home-page",
     init() {
-      projectsManager.init();
+      core.projectsManager.init();
 
       const projectsTabs = document.getElementById("projects-tabs") as CTabs;
       const companyTabs = document.getElementById("company-tabs") as CTabs;
@@ -91,7 +90,7 @@ export const homePage: Page = () => {
             const companyId = tabData?.data?.companyId;
 
             // const adsetId = tabData?.data?.adsetId;
-            projectsManager.setProject(project.id, (guest) => {
+            core.projectsManager.setProject(project.id, (guest) => {
               // console.log(guest.instagram);
 
               if (companyId == -1) return true;
@@ -121,7 +120,7 @@ export const homePage: Page = () => {
           companyTabs_block.style.display = "block";
         } else {
           companyTabs_block.style.display = "none";
-          projectsManager.setProject(project.id);
+          core.projectsManager.setProject(project.id);
         }
 
         //

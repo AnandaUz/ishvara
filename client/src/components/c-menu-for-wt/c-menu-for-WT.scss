@@ -1,0 +1,45 @@
+c-menu-for-wt {
+     button {
+          background: #9ed4c7;
+          border-radius: 3px;
+          border: none;
+          padding: 5px 10px;
+          cursor: pointer;
+
+          &:hover {
+               background: #64978b;
+          }
+
+          &:active {
+               background: #568075;
+          }
+     }
+
+
+
+
+
+     .buttons-group {
+          display: flex;
+          gap: 10px;
+
+          &.j-right {
+               justify-content: right;
+          }
+     }
+
+     .arhive-items {
+          --bgCol: #fd5858;
+          background: var(--bgCol);
+          max-width: 20px;
+          transition: all 0.3s ease;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          &:hover {
+               max-width: 150px;
+               background-color: color-mix(in srgb, var(--bgCol) 80%, black 20%);
+          }
+     }
+}

@@ -6,12 +6,15 @@ import { renderHeader } from "@components/header"; // добавить
 import { renderFooter } from "@components/footer"; // добавить
 import { EVENTS, Store } from "./store";
 import type { CGuestsMain } from "@/components/c-guests/c-guests-main/c-guests-main";
+import { ProjectsManager } from "@features/projectsManager";
 
 class Core {
   options = {
     isShowTimeLine: true,
   };
   cGuestMain!: CGuestsMain;
+
+  projectsManager = new ProjectsManager();
 
   store = new Store();
   constructor() {

@@ -3,7 +3,6 @@ import "./c-project-tabs.scss";
 // import template from "./c-project-tabs.html?raw";
 import { projects_configs } from "@/tabs_config";
 import { core } from "@features/core";
-import { projectsManager } from "@features/projectsManager";
 
 class ProjectTabs extends HTMLElement {
   tabs: Element[];
@@ -24,7 +23,7 @@ class ProjectTabs extends HTMLElement {
         tab.id = project.id;
 
         tab.addEventListener("click", () => {
-          projectsManager.setProject(Number(project.id));
+          core.projectsManager.setProject(Number(project.id));
         });
         this.tabs.push(tab);
       });

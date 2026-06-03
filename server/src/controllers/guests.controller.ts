@@ -114,9 +114,41 @@ export async function getOneGuest(_req: Request, res: Response) {
 // обновить гостя
 export async function patchOneGuest(req: Request, res: Response) {
   const id = req.params!.id as string;
-  await Guest.updateOne(
-    { _id: new mongoose.Types.ObjectId(id) },
-    { $set: req.body },
-  );
-  res.json({ ok: true });
+
+  try {
+    const updateQuery: any = {};
+    const toSet: any = {};
+    const toUnset: any = {};
+
+    // Пробегаемся по телу запроса
+    for (const key in req.body) {
+      if (req.body[key] === null) {
+        // Если значение undefined (или null), отправляем его в $unset для удаления
+        // В MongoDB для $unset значением может быть пустая строка "" или 1
+        toUnset[key] = "";
+      } else if (key !== "_id") {
+        // Все заполненные поля (кроме _id) отправляем в $set
+        toSet[key] = req.body[key];
+      }
+    }
+
+    // Формируем финальный запрос, только если в них есть ключи
+    if (Object.keys(toSet).length > 0) updateQuery.$set = toSet;
+    if (Object.keys(toUnset).length > 0) updateQuery.$unset = toUnset;
+
+    // Если объект запроса пустой, сразу отвечаем
+    if (Object.keys(updateQuery).length === 0) {
+      return res.json({ ok: true, message: "No changes made" });
+    }
+
+    await Guest.updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      updateQuery,
+    );
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.log("patchOneGuest error:", error);
+    res.status(500).json({ error: "error" });
+  }
 }
