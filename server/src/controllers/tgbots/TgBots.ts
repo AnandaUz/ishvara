@@ -160,6 +160,7 @@ BaseID: ${userID || "---"} `;
         let mode = "";
         let tgUserId = "";
         let match;
+
         if (replyTo?.text) {
           match = replyTo.text.match(/--(.+?)-(\d+)--/);
           if (match) {
@@ -192,6 +193,8 @@ BaseID: ${userID || "---"} `;
           } catch (e) {
             await ctx.reply("❌ Ошибка отправки");
           }
+        } else {
+          await ctx.reply("❌ Не сделан реплай");
         }
       } else {
         const userInfo = this.getUserData(ctx);
