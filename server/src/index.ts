@@ -10,7 +10,7 @@ import { connectDB } from "../../_base/server/db.js";
 
 import trackerRouter from "./routers/tracker.routers.js";
 import guestsRouter from "./routers/guests.routers.js";
-import { botRegistry } from "./controllers/tgbots/botRegistry.js";
+import { tgbots } from "./controllers/tgbots/TgBots.js";
 import chatsRouter from "./routers/chats.routers.js";
 
 const app = express();
@@ -46,7 +46,7 @@ app.use("/api/chats", chatsRouter);
 // маршрут для Telegram webhook
 app.post("/tgbots_user_webhook", (req, res) => {
   const mode = req.query.mode as string;
-  const bot = botRegistry.get(mode);
+  const bot = tgbots.botRegistry.get(mode);
 
   if (!bot) {
     res.status(400).send(`Unknown bot mode: ${mode}`);

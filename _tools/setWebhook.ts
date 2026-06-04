@@ -1,7 +1,8 @@
 import "../_base/server/config";
+import { TG_MODES } from "../server/src/controllers/tgbots/botConfig.js";
 import { setWebhook2, Links } from "../_base/_tools/setWebhook.js";
 
-const ngrokUrl = "5547-92-253-194-231";
+const ngrokUrl = "4859-92-253-194-231";
 
 const apiUrl = "/tgbots_user_webhook";
 
@@ -33,6 +34,16 @@ const links: Links = {
     SERVER_URL: serverBase,
     apiURL: apiUrl + "?mode=meditation",
   },
+  "подключить клиент DEV к NGROK": {
+    BOT_TOKEN: process.env.TGBOT_MM_TOKEN || "",
+    SERVER_URL: fullNgrokUrl,
+    apiURL: apiUrl + "?mode=" + TG_MODES.meditation,
+  },
+  "подключить клиент Ananda_bot (как админ) к NGROK": {
+    BOT_TOKEN: process.env.TGBOT_ANANDA_BOT_TOKEN || "",
+    SERVER_URL: fullNgrokUrl,
+    apiURL: apiUrl + "?mode=" + TG_MODES.admin,
+  },
   //   "подключить Админ PROD к API": {
   //     BOT_TOKEN: process.env.TGBOT_ADMIN_TOKEN || "",
   //     SERVER_URL: serverBase,
@@ -50,6 +61,9 @@ const links: Links = {
   //     apiURL: apiUrl,
   //   },
 };
-setWebhook2("подключить клиент MEET DEV к NGROK", links);
+// setWebhook2("подключить клиент MEET DEV к NGROK", links);
 // setWebhook2("подключить клиент MEET PROD к API", links);
 // setWebhook2("подключить клиент MEDITATION PROD к API", links);
+
+// setWebhook2("подключить клиент Ananda_bot (как админ) к NGROK", links);
+setWebhook2("подключить клиент DEV к NGROK", links);

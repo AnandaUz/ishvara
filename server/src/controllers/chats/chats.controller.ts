@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Guest from "../../models/Guest.js";
 import Message from "../../models/Message.js";
 import { MessageDirection } from "../../../../shared/types/IMessage.js";
-import { botRegistry } from "../tgbots/botRegistry.js";
+import { TG_MODES, tgbots } from "../tgbots/TgBots.js";
 import { sendToAdmin } from "./sse.js";
 import { Context } from "telegraf";
 import { IGuest } from "../../../../shared/types/IGuest.js";
@@ -25,7 +25,7 @@ const chats = {
       return;
     }
     //#######
-    const bot = botRegistry.get("mastermind")!;
+    const bot = tgbots.botRegistry.get(TG_MODES.mastermind)!;
     const sent = await bot.telegram.sendMessage(guest.tg.id, text);
 
     try {
