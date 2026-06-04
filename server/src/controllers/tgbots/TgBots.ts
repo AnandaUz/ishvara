@@ -20,7 +20,7 @@ export const botConfigs: BotConfig[] = [
   },
   {
     mode: TG_MODES.admin,
-    token: process.env.TGBOT_ANANDA_BOT_TOKEN || "",
+    token: process.env.TGBOT_ADMIN_TOKEN || "",
   },
 ];
 interface IUserInfo {
