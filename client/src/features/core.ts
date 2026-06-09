@@ -18,7 +18,7 @@ class Core {
 
   store = new Store();
   constructor() {
-    this.store.on(EVENTS.options.Changed, () => {});
+    // this.store.on(EVENTS.options.Changed, () => {});
 
     //- options ------
     const d = localStorage.getItem("guests-show-timeline");
