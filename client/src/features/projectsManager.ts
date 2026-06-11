@@ -58,7 +58,10 @@ class TProject {
             key !== "_id" &&
             key !== "projectId" &&
             key !== "lastChange" &&
-            key !== "tg"
+            key !== "tg" &&
+            key !== "companyId" &&
+            key !== "adsetId"
+            // key !== "adId"
           ) {
             (guest as any)[key] = null;
           }

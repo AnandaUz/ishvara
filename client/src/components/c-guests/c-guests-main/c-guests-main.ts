@@ -201,7 +201,13 @@ export class CGuestsMain extends HTMLElement {
 
       count++;
 
-      if (!guest.createdAt && !guest.events) {
+      // console.log(guest);
+
+      if (guest._id === "6a257d4253d2f2ecd26964ba") {
+        console.log(guest);
+      }
+
+      if (!guest.createdAt && !guest.events && !guest.tg) {
         return;
       }
       const guestBlock = new CGuestBlock(guest, this);
