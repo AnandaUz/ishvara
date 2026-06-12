@@ -42,5 +42,12 @@ pipeline {
                 '''
             }
         }
+
+        stage('Logs') {
+            steps {
+                sh 'sleep 5'
+                sh 'docker logs ishvara'
+            }
+        }
     }
 }
