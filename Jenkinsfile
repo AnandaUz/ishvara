@@ -37,7 +37,7 @@ pipeline {
                     docker run -d \
                         --name $APP_NAME \
                         --restart unless-stopped \
-                        -p 3000:3000 \
+                        -p 3022:3022 \
                         $APP_NAME
                 '''
             }
