@@ -23,7 +23,7 @@ export class CGuestBlock extends HTMLElement {
   data: IGuest;
   owner: CGuestsMain;
   // private _levelBehavior: number = 0;
-  private isRender: boolean = false;
+  private isRendered: boolean = false;
   private body!: HTMLDivElement;
   private timeLineBlock!: HTMLDivElement;
   private projectConfig?: any;
@@ -31,6 +31,7 @@ export class CGuestBlock extends HTMLElement {
   private adsetConfig?: any;
   private adConfig?: any;
   private isVisible: boolean = false;
+  unsubscribers: Array<() => void> = [];
   flags = {
     isScrolled: false,
     isTour: false,
@@ -141,6 +142,7 @@ export class CGuestBlock extends HTMLElement {
     this.render_eventLevel();
     this.render_timeLine();
     this.set_eventLevel();
+    this.isRendered = true;
 
     this.data = data;
     this.owner = owner;
@@ -459,11 +461,31 @@ export class CGuestBlock extends HTMLElement {
   constructor(data: IGuest, owner: CGuestsMain) {
     super();
     //
-
-    core.store.on(EVENTS.options.Changed, () => {
-      if (!this.isVisible) return;
-      this.render();
-    });
+    this.unsubscribers.push(
+      core.store.on(EVENTS.guests.Filter.LevelChanged, () => {
+        if (this.owner.filters.eventLevel > (this.data.level || 0)) {
+          this.removeAttribute("visible");
+          this.isVisible = false;
+        } else {
+          this.setAttribute("visible", "");
+          this.isVisible = true;
+          if (!this.isRendered) {
+            this.render();
+          }
+          this.classList.remove("mode-0");
+          this.classList.remove("mode-1");
+          if (this.owner.filters.eventLevel === 0) {
+            this.classList.add("mode-0");
+          } else {
+            this.classList.add("mode-1");
+          }
+        }
+      }),
+      core.store.on(EVENTS.options.Changed, () => {
+        if (!this.isVisible) return;
+        this.render();
+      }),
+    );
 
     this.addEventListener("click", async (_e: MouseEvent) => {
       // chat.initForGuest(this.data);
@@ -485,57 +507,14 @@ export class CGuestBlock extends HTMLElement {
       data.adsetId!,
       data.adId!,
     );
-
-    // const project = Object.values(bigProjects).find(
-    //   (project) => project.id === data.projectId,
-    // );
-    // if (project) {
-    //   // this.projectConfig = project;
-    //   const comp_name = data.instagram?.comp_name! || "";
-    //   const adset_name = data.instagram?.adset_name! || "";
-    //   const ad_name = data.instagram?.ad_name! || "";
-    //   if (comp_name) {
-    //     this.companyConfig = Object.values(project.companys).find(
-    //       (c) => c.id === comp_name || c.name === comp_name,
-    //     );
-    //   }
-    //   if (adset_name && this.companyConfig) {
-    //     this.adsetConfig = Object.values(this.companyConfig.adsets).find(
-    //       (a: any) => a.id === adset_name || a.name === adset_name,
-    //     );
-    //   }
-    //   if (ad_name && this.adsetConfig) {
-    //     this.adConfig = Object.values(this.adsetConfig.ads).find(
-    //       (a: any) => a.id === ad_name || a.name === ad_name,
-    //     );
-    //   }
-    // }
-
     this.data = data;
     this.owner = owner;
-
-    core.store.on(EVENTS.guests.Filter.LevelChanged, () => {
-      if (this.owner.filters.eventLevel > (this.data.level || 0)) {
-        this.removeAttribute("visible");
-        this.isVisible = false;
-      } else {
-        this.setAttribute("visible", "");
-        this.isVisible = true;
-        if (!this.isRender) {
-          this.render();
-          this.isRender = true;
-        }
-        this.classList.remove("mode-0");
-        this.classList.remove("mode-1");
-        if (this.owner.filters.eventLevel === 0) {
-          this.classList.add("mode-0");
-        } else {
-          this.classList.add("mode-1");
-        }
-      }
-    });
   }
   async connectedCallback() {}
+  remove() {
+    this.unsubscribers.forEach((unsubscribe) => unsubscribe());
+    super.remove();
+  }
 }
 
 customElements.define("c-guest-block", CGuestBlock);

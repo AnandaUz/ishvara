@@ -151,7 +151,8 @@ export class CGuestsMain extends HTMLElement {
     // const statisticMonth:number[] = []
     let dayLineEl: HTMLDivElement | null = null;
     let count = 0;
-    core.projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
+    for (const guest of core.projectsManager.activeProject!.guests) {
+      // core.projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
       const d = new Date(guest.lastChange || guest.createdAt!);
       const gMonth = d.getMonth();
       const gDay = d.getDate();
@@ -198,24 +199,57 @@ export class CGuestsMain extends HTMLElement {
         if (statisticDay[0] === undefined) statisticDay[0] = 0;
         statisticDay[0]++;
       }
-
       count++;
-
-      // console.log(guest);
-
-      if (guest._id === "6a257d4253d2f2ecd26964ba") {
-        console.log(guest);
-      }
-
       if (!guest.createdAt && !guest.events && !guest.tg) {
-        return;
+        continue;
       }
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
       this.guestsNotes.push(guestBlock);
-    });
+      guestBlock.render();
+
+      const isVisible = this.checkElementVisibility(guestBlock);
+      if (!isVisible.partially) {
+        break;
+      }
+    }
 
     core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
+  }
+  checkElementVisibility(el: HTMLElement) {
+    const rect = el.getBoundingClientRect();
+
+    // Получаем размеры видимой области экрана (вьюпорта)
+    const viewHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+    const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+
+    // 1. Проверка: поместился ли блок ПОЛНОСТЬЮ
+    const isFullyVisible =
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= viewHeight &&
+      rect.right <= viewWidth;
+
+    // 2. Проверка: виден ли блок ХОТЯ БЫ ЧАСТИЧНО
+    const isPartiallyVisible = !(
+      rect.bottom < 0 || // Выше экрана
+      rect.top > viewHeight || // Ниже экрана
+      rect.right < 0 || // Левее экрана
+      rect.left > viewWidth // Правее экрана
+    );
+
+    return {
+      fully: isFullyVisible,
+      partially: isPartiallyVisible,
+      // На сколько пикселей блок вылез за границы (если нужно для логики)
+      outOfBounds: {
+        top: rect.top < 0 ? Math.abs(rect.top) : 0,
+        bottom: rect.bottom > viewHeight ? rect.bottom - viewHeight : 0,
+        left: rect.left < 0 ? Math.abs(rect.left) : 0,
+        right: rect.right > viewWidth ? rect.right - viewWidth : 0,
+      },
+    };
   }
 }
 
