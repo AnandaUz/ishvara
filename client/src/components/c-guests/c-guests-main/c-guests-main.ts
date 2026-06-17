@@ -145,6 +145,15 @@ export class CGuestsMain extends HTMLElement {
     this.guests_list_block?.replaceChildren();
     this.guestsNotes = [];
 
+    const observer = new IntersectionObserver((entries) => {
+      // if (entries[0].isIntersecting) {
+      //   loadMore();
+      // }
+      console.log(entries);
+    });
+
+    //
+
     let month = 0;
     let day = 0;
     let statisticDay: number[] = [];
@@ -215,6 +224,9 @@ export class CGuestsMain extends HTMLElement {
     }
 
     core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
+  }
+  addGuestsBlocks(data: IGuest[]) {
+    // observer.observe(lastElement);
   }
   checkElementVisibility(el: HTMLElement) {
     const rect = el.getBoundingClientRect();

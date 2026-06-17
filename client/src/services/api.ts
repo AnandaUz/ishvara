@@ -9,7 +9,13 @@ const guest = {
         "/api/guests/get" +
         (projectId ? "?projectId=" + projectId : ""),
     );
-    const data = await response.json();
+    const text = await response.text();
+    console.log(
+      `Размер загрузки ${(new Blob([text]).size / 1024).toFixed(2)} KB`,
+    );
+    console.log(text);
+
+    const data = JSON.parse(text);
     return data;
   },
   delete: async (id: string) => {

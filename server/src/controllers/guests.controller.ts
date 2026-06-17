@@ -21,7 +21,7 @@ export async function getGuests(req: Request, res: Response) {
       },
     },
     { $sort: { sortField: -1 } },
-  ]);
+  ]).limit(10);
   res.json(guests);
 }
 export async function updateGuest(_id: string, data: Partial<IGuest>) {

@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = 'ishvara'
-        PORT = '3123'
+        APP_NAME = 'ishvara'        
+
+        
     }
 
     stages {
