@@ -6,7 +6,7 @@ import { pixels_configs } from "../pixels_configs.js";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
 
 export async function getGuests(req: Request, res: Response) {
-  const projectId = req.query.projectId as string | undefined;
+  const { projectId, limit, skip } = req.query;
 
   const match: Record<string, any> = {};
 
@@ -21,7 +21,9 @@ export async function getGuests(req: Request, res: Response) {
       },
     },
     { $sort: { sortField: -1 } },
-  ]).limit(10);
+  ])
+    .skip(Number(skip))
+    .limit(Number(limit));
   res.json(guests);
 }
 export async function updateGuest(_id: string, data: Partial<IGuest>) {

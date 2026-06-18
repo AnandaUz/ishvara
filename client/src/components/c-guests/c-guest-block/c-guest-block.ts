@@ -204,9 +204,9 @@ export class CGuestBlock extends HTMLElement {
         ${fbc_fbpString}
         ${isBotMark}`,
       );
-      if (!isFbc && !isFbp && isOldGuest === "") {
-        this.classList.add("empty");
-      }
+      // if (!isFbc && !isFbp && isOldGuest === "") {
+      //   this.classList.add("empty");
+      // }
     }
 
     // const d_createdAt = this.data.createdAt
@@ -487,9 +487,9 @@ export class CGuestBlock extends HTMLElement {
       }),
     );
 
-    this.addEventListener("click", async (_e: MouseEvent) => {
-      // chat.initForGuest(this.data);
-    });
+    // this.addEventListener("click", async (_e: MouseEvent) => {
+    //   // chat.initForGuest(this.data);
+    // });
 
     this.projectConfig = bigProjectsGet.projectById(data.projectId!);
     this.companyConfig = bigProjectsGet.companyById(

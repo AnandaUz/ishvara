@@ -4,9 +4,11 @@ import { render } from "@features/router";
 
 import { renderHeader } from "@components/header"; // добавить
 import { renderFooter } from "@components/footer"; // добавить
-import { Store } from "./store";
+import { EVENTS, Store } from "./store";
 import type { CGuestsMain } from "@/components/c-guests/c-guests-main/c-guests-main";
 import { ProjectsManager } from "@features/projectsManager";
+import { ServerPersistence } from "./server-persistence";
+import type { IGuest } from "@shared/types/IGuest";
 
 class Core {
   options = {
@@ -15,9 +17,27 @@ class Core {
   cGuestMain!: CGuestsMain;
 
   projectsManager = new ProjectsManager();
+  serverPersistence = new ServerPersistence();
+  protected unsubscribers: Array<() => void> = [];
 
   store = new Store();
   constructor() {
+    document.addEventListener("DOMContentLoaded", () => {
+      core.store.emit(EVENTS.page.loaded, null);
+    });
+
+    this.unsubscribers.push(
+      this.store.on(EVENTS.project.Changed, async (_id: number) => {
+        core.projectsManager.activeProject.guests =
+          (await core.serverPersistence.loadNextGuests()) as IGuest[];
+
+        core.store.emit(
+          EVENTS.guests.loadNext,
+          core.projectsManager.activeProject.guests,
+        );
+      }),
+    );
+
     // this.store.on(EVENTS.options.Changed, () => {});
 
     //- options ------

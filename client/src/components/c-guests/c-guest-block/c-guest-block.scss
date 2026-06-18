@@ -4,7 +4,7 @@ c-guest-block {
   position: relative;
   overflow: hidden;
   transition: background 0.2s;
-  display: none;
+  // display: none;
   border: 1.5px solid #004d6942;
   border-top: none;
 
@@ -376,6 +376,13 @@ c-guest-block {
           top: -8px;
           border: 2px solid #ffa200;
           border-radius: 50%;
+
+          b {
+            display: block;
+            width: max-content;
+            background: #fff;
+
+          }
 
 
         }

@@ -18,13 +18,16 @@ import { api } from "@/services/api";
 import { CModal } from "../../c-modal/c-modal";
 import { core } from "@/features/core";
 
+const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 export class CGuestsMain extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
   menu: CPopup | null = null;
   modalMenu: CModal | null = null;
   guestForm: CGuestCard | null = null;
+  observer!: IntersectionObserver;
 
   guestsNotes: CGuestBlock[] = [];
+  lastDayForRender: Date | null = null;
 
   filters = {
     eventLevel: 0,
@@ -48,6 +51,24 @@ export class CGuestsMain extends HTMLElement {
       if (level === 0) this.filters.timeLine_visible = true;
       else this.filters.timeLine_visible = false;
     });
+    core.store.on(EVENTS.guests.loadNext, (guests: IGuest[]) => {
+      this.addGuestsBlocks(guests);
+    });
+    this.observer = new IntersectionObserver(async (entries) => {
+      if (entries && entries[0] && entries[0].isIntersecting) {
+        // loadMore();
+
+        this.observer.unobserve(entries[0].target);
+
+        const guests = await core.serverPersistence.loadNextGuests();
+        core.store.emit(EVENTS.guests.loadNext, guests);
+      }
+    });
+    // core.store.on(EVENTS.guests., (level: number) => {
+    //   this.filters.eventLevel = level;
+    //   if (level === 0) this.filters.timeLine_visible = true;
+    //   else this.filters.timeLine_visible = false;
+    // });
 
     this.innerHTML = template;
 
@@ -145,123 +166,48 @@ export class CGuestsMain extends HTMLElement {
     this.guests_list_block?.replaceChildren();
     this.guestsNotes = [];
 
-    const observer = new IntersectionObserver((entries) => {
-      // if (entries[0].isIntersecting) {
-      //   loadMore();
-      // }
-      console.log(entries);
-    });
+    core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
+  }
+  addGuestsBlocks(data: IGuest[]) {
+    if (!data) return;
 
-    //
+    for (let i = 0; i < data.length; i++) {
+      const guest = data[i];
+      if (!guest) continue;
+      let d = new Date(guest.lastChange || guest.createdAt!);
 
-    let month = 0;
-    let day = 0;
-    let statisticDay: number[] = [];
-    // const statisticMonth:number[] = []
-    let dayLineEl: HTMLDivElement | null = null;
-    let count = 0;
-    for (const guest of core.projectsManager.activeProject!.guests) {
-      // core.projectsManager.activeProject!.guests.forEach((guest: IGuest) => {
-      const d = new Date(guest.lastChange || guest.createdAt!);
-      const gMonth = d.getMonth();
-      const gDay = d.getDate();
-      const gWeekDay = d.getDay();
-      const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-      const dayName = daysName[gWeekDay];
+      if (
+        d.getMonth() !== this.lastDayForRender?.getMonth() ||
+        d.getDate() !== this.lastDayForRender?.getDate()
+      ) {
+        this.lastDayForRender = d;
+        const gMonth = d.getMonth();
+        const gDay = d.getDate();
+        const gWeekDay = d.getDay();
 
-      if (gMonth !== month || gDay !== day) {
-        if (dayLineEl) {
-          for (let i = 0; i < statisticDay.length; i++) {
-            const div = document.createElement("div");
-            div.classList.add("count-col");
-            if (i > 0) div.classList.add(`l-${i - 1}`);
-            const r = statisticDay[i] || 0;
-            if (r > 0) {
-              div.innerHTML = `${r} `;
-            } else {
-              div.classList.add("empty");
-            }
-            dayLineEl?.appendChild(div);
-          }
-        }
-        statisticDay = [];
-
-        month = gMonth;
-        day = gDay;
-        dayLineEl = document.createElement("div");
+        const dayLineEl = document.createElement("div");
         dayLineEl.classList.add("day-line");
+
         dayLineEl.innerHTML = `<div class="bl-0">
         <span>${gDay}.${gMonth + 1}</span>
-        <span class="day-name">${dayName}</span>
+        <span class="day-name">${daysName[gWeekDay]}</span>
         </div>
-        <div class="count-col total">${count}</div>
         `;
         this.guests_list_block!.appendChild(dayLineEl);
-        count = 0;
       }
 
-      if (guest.level && guest.level > 0) {
-        const i = guest.level;
-        if (statisticDay[i] === undefined) statisticDay[i] = 0;
-        statisticDay[i]++;
-      } else {
-        if (statisticDay[0] === undefined) statisticDay[0] = 0;
-        statisticDay[0]++;
-      }
-      count++;
-      if (!guest.createdAt && !guest.events && !guest.tg) {
-        continue;
-      }
+      // if (!guest.createdAt && !guest.events && !guest.tg) {
+      //   continue;
+      // }
       const guestBlock = new CGuestBlock(guest, this);
       this.guests_list_block!.appendChild(guestBlock);
       this.guestsNotes.push(guestBlock);
       guestBlock.render();
 
-      const isVisible = this.checkElementVisibility(guestBlock);
-      if (!isVisible.partially) {
-        break;
+      if (i == data.length - 1) {
+        this.observer.observe(guestBlock);
       }
     }
-
-    core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
-  }
-  addGuestsBlocks(data: IGuest[]) {
-    // observer.observe(lastElement);
-  }
-  checkElementVisibility(el: HTMLElement) {
-    const rect = el.getBoundingClientRect();
-
-    // Получаем размеры видимой области экрана (вьюпорта)
-    const viewHeight =
-      window.innerHeight || document.documentElement.clientHeight;
-    const viewWidth = window.innerWidth || document.documentElement.clientWidth;
-
-    // 1. Проверка: поместился ли блок ПОЛНОСТЬЮ
-    const isFullyVisible =
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= viewHeight &&
-      rect.right <= viewWidth;
-
-    // 2. Проверка: виден ли блок ХОТЯ БЫ ЧАСТИЧНО
-    const isPartiallyVisible = !(
-      rect.bottom < 0 || // Выше экрана
-      rect.top > viewHeight || // Ниже экрана
-      rect.right < 0 || // Левее экрана
-      rect.left > viewWidth // Правее экрана
-    );
-
-    return {
-      fully: isFullyVisible,
-      partially: isPartiallyVisible,
-      // На сколько пикселей блок вылез за границы (если нужно для логики)
-      outOfBounds: {
-        top: rect.top < 0 ? Math.abs(rect.top) : 0,
-        bottom: rect.bottom > viewHeight ? rect.bottom - viewHeight : 0,
-        left: rect.left < 0 ? Math.abs(rect.left) : 0,
-        right: rect.right > viewWidth ? rect.right - viewWidth : 0,
-      },
-    };
   }
 }
 

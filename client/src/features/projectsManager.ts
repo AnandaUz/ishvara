@@ -33,7 +33,7 @@ class TProject {
   }
   async initGuests() {
     if (this.guests.length) return;
-    this.guests = await api.guest.load(this.config.id);
+    this.guests = await core.serverPersistence.loadNextGuests();
   }
   async arhive() {
     // 1.9 M
@@ -93,7 +93,7 @@ export class ProjectsManager {
     } else {
       newProject = new TProject(id);
       this.projects.set(id, newProject);
-      await newProject.initGuests();
+      // await newProject.initGuests();
     }
     if (filterFunc) {
       newProject.filterFunc = filterFunc;
