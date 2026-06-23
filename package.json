@@ -17,8 +17,7 @@
   },
   "workspaces": [
     "client",
-    "server",
-    "_tools"
+    "server"
   ],
   "devDependencies": {
     "@types/node": "^25.5.2",
