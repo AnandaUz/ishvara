@@ -60,8 +60,9 @@ const GuestSchema = new Schema<IGuestDocument>(
     paramsString: { type: String, alias: "ps" },
 
     events: { type: [[Schema.Types.Mixed]], alias: "e" },
-    tags: { type: [Number], default: undefined, alias: "t" },
+    tags: { type: [Schema.Types.Int32], default: undefined, alias: "t" },
     notes: { type: String, alias: "nt" },
+    b: { type: Schema.Types.Boolean },
 
     chat: {
       id: { type: Number, alias: "ch.i" },

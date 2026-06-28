@@ -2,6 +2,7 @@ import "../../_base/server/config.js";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "../../_base/server/db.js";
+import compression from "compression";
 // import userRoutes from './routes/user.routes.js';
 // import authRoutes from './routes/auth.routes.js';
 
@@ -12,6 +13,7 @@ import trackerRouter from "./routers/tracker.routers.js";
 import guestsRouter from "./routers/guests.routers.js";
 import { tgbots } from "./controllers/tgbots/TgBots.js";
 import chatsRouter from "./routers/chats.routers.js";
+import statisticsRouter from "./routers/statistics.routers.js";
 
 const app = express();
 
@@ -34,11 +36,13 @@ app.use(
 app.get("/", (_req, res) => {
   res.send("работаю");
 });
+app.use(compression());
 app.use(express.json());
 
 app.use("/api/tracker", trackerRouter);
 app.use("/api/guests", guestsRouter);
 app.use("/api/chats", chatsRouter);
+app.use("/api/statistics", statisticsRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

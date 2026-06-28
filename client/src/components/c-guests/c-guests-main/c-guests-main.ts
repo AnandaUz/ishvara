@@ -8,7 +8,7 @@ import { CGuestCard } from "../c-guest-card/c-guest-card";
 import "../c-guests-filters-bl/c-guests-filters-bl";
 import "@components/elements/c-checkBox/c-checkBox";
 import { CCheckBox } from "@components/elements/c-checkBox/c-checkBox";
-import "@/components/c-menu-for-wt/c-menu-for-WT";
+// import "@/components/c-menu-for-wt/c-menu-for-WT";
 // import { api } from "@/services/api";
 import {
   META_EVENTS_LEVEL,

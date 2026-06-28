@@ -2,8 +2,9 @@ import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
 import { bigProjectsGet } from "@shared/projects_config";
+import { TAGS_TOOLS } from "@shared/types/Tags";
 
-import { cleanName, getTimeStr, hashSHA256 } from "@/services/tools";
+import { Tools } from "@/services/tools";
 import { api } from "@/services/api";
 import {
   META_EVENT_LEVEL_BY_CODE,
@@ -74,17 +75,21 @@ export class CGuestBlock extends HTMLElement {
       const city = this.adsetConfig?.city || this.projectConfig?.city;
       const country = this.adsetConfig?.country || this.projectConfig?.country;
       if (city) {
-        data.user_data.ct = await hashSHA256(city); // хешируется, lowercase
+        data.user_data.ct = await Tools.hashSHA256(city); // хешируется, lowercase
       }
       if (country) {
-        data.user_data.country = await hashSHA256(country); // код страны, тоже хешируется
+        data.user_data.country = await Tools.hashSHA256(country); // код страны, тоже хешируется
       }
 
       if (userData.tg && userData.tg.first_name) {
-        data.user_data.fn = await hashSHA256(cleanName(userData.tg.first_name));
+        data.user_data.fn = await Tools.hashSHA256(
+          Tools.cleanName(userData.tg.first_name),
+        );
       }
       if (userData.tg && userData.tg.last_name) {
-        data.user_data.ln = await hashSHA256(cleanName(userData.tg.last_name));
+        data.user_data.ln = await Tools.hashSHA256(
+          Tools.cleanName(userData.tg.last_name),
+        );
       }
 
       if (eventObj && "value" in eventObj && eventObj.value) {
@@ -143,6 +148,17 @@ export class CGuestBlock extends HTMLElement {
     this.render_timeLine();
     this.set_eventLevel();
     this.isRendered = true;
+
+    // tags block
+    const tagsEl = this.body.querySelector(".tags") as HTMLDivElement;
+    tagsEl.innerHTML =
+      data.tags
+        ?.map((tag) => {
+          const bgColor = TAGS_TOOLS.codeToBgColor.get(tag);
+          const name = TAGS_TOOLS.codeToName.get(tag);
+          return `<span class="tag" style="--bg-color: ${bgColor}">${name}</span>`;
+        })
+        .join("") || "";
 
     this.data = data;
     this.owner = owner;
@@ -204,36 +220,7 @@ export class CGuestBlock extends HTMLElement {
         ${fbc_fbpString}
         ${isBotMark}`,
       );
-      // if (!isFbc && !isFbp && isOldGuest === "") {
-      //   this.classList.add("empty");
-      // }
     }
-
-    // const d_createdAt = this.data.createdAt
-    //   ? new Date(this.data.createdAt)
-    //   : null;
-    // if (d_createdAt) {
-    //   const t = getTimeStr(d_createdAt);
-    //   setBlock(".create-time", `${t}`);
-    // }
-
-    // const d_lastChange = this.data.lastChange
-    //   ? new Date(this.data.lastChange)
-    //   : null;
-    // if (d_lastChange) {
-    //   const t = getTimeStr(d_lastChange);
-    //   setBlock(".last-change", `${t}`);
-    // }
-    // if (d_createdAt && d_lastChange) {
-    //   const d = (d_lastChange.getTime() - d_createdAt.getTime()) / 1000;
-    //   let duration = "";
-    //   if (d > 60) {
-    //     duration = (d / 60).toFixed(1) + "m";
-    //   } else {
-    //     duration = d.toFixed(1) + "s";
-    //   }
-    //   setBlock(".time-duration", `${duration}`);
-    // }
 
     let name = "";
     if (this.data.name) {
@@ -389,7 +376,7 @@ export class CGuestBlock extends HTMLElement {
             currentDate = d;
             s += `${d} `;
           }
-          s += `${getTimeStr(newStarTime)}</span>`;
+          s += `${Tools.getTimeStr(newStarTime)}</span>`;
           eventElement.innerHTML += s;
         }
         eventElement.className += " " + "page-in";

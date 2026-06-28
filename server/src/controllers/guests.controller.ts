@@ -85,21 +85,21 @@ export async function sendMetaEvent(req: Request, res: Response) {
   }
 }
 
-async function addTag(_id: string, tag: number) {
+async function addTags(_id: string, tags: number[]) {
   try {
-    await Guest.updateOne({ _id }, { $addToSet: { tags: tag } });
+    await Guest.updateOne({ _id }, { $addToSet: { tags: { $each: tags } } });
   } catch (error) {
-    console.log("addTag error:", error);
+    console.log("addTags error:", error);
   }
 }
 export const guestObj = {
-  addTag,
+  addTags,
 };
 
 export async function post_addTag(_req: Request, res: Response) {
   const { _id, tag } = _req.body;
   try {
-    await addTag(_id, tag);
+    await addTags(_id, [tag]);
     res.json({ ok: true });
   } catch (error) {
     res.status(500).json({ error: "error" });

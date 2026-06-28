@@ -4,7 +4,6 @@ export interface IGuest {
   lastChange?: Date;
   level?: number;
 
-
   referrer?: string;
   name?: string;
   userAgentString?: string;
@@ -33,6 +32,7 @@ export interface IGuest {
   events?: [number | string, number | string][]; // [[время, код], ...]
   tags?: number[];
   notes?: string;
+  b?: boolean;
   chat?: {
     id: number;
     tgbotName: string;

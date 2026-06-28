@@ -3,6 +3,22 @@ import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
 
 export const api = {
+  statistics: {
+    doFormatingData: async () => {
+      return fetch(
+        import.meta.env.VITE_API_URL + "/api/statistics/do-formating-data",
+      );
+    },
+    countTags: async (tags: number[]) => {
+      const result = await fetch(
+        import.meta.env.VITE_API_URL +
+          "/api/statistics/stat-count-tags?tags=" +
+          tags.join(","),
+      );
+      const data = await result.json();
+      return data;
+    },
+  },
   guest: {
     loadNext: async (
       projectId: number,

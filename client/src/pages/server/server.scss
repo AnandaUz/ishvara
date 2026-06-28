@@ -1,0 +1,29 @@
+.test-block {
+     font-size: 14px;
+     line-height: 1;
+     white-space: pre-line;
+
+     .ev_name {
+          color: rgb(177, 177, 177);
+          font-weight: 400;
+     }
+
+     .ev_code {
+          color: rgb(255, 125, 3);
+          font-weight: 400;
+     }
+}
+
+.btn-block {
+     display: flex;
+     gap: 15px;
+     padding: 20px;
+}
+
+pre {
+     padding: 20px;
+     border: 1px solid #aaaaaa82;
+     border-radius: 10px;
+     margin: 20px;
+     background: #ffffff18;
+}

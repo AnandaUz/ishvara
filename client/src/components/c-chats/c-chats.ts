@@ -4,7 +4,7 @@ import type { IGuest } from "../../../../shared/types/IGuest";
 import { api } from "@/services/api";
 import { MessageDirection, type IMessage } from "@shared/types/IMessage";
 import { bigProjectsGet } from "@shared/projects_config";
-import { getTimeStr } from "@/services/tools";
+import { Tools } from "@/services/tools";
 export let chat: CChats;
 export class CChats extends HTMLElement {
   userNameEl!: HTMLDivElement;
@@ -32,7 +32,8 @@ export class CChats extends HTMLElement {
         if (!chatId) {
           const projectId = this.guest.projectId!;
           const companyId = Number(this.guest.instagram?.comp_name!);
-          const tgbotName = bigProjectsGet.companyById(projectId, companyId)?.tgbotName || "";
+          const tgbotName =
+            bigProjectsGet.companyById(projectId, companyId)?.tgbotName || "";
           chatData = await api.chats.createNewChatFor(
             this.guest._id!.toString(),
             tgbotName,
@@ -64,7 +65,7 @@ export class CChats extends HTMLElement {
     );
     messageEl.innerHTML = `
     <div class="body">
-    <div class="time">${getTimeStr(new Date(message.createdAt))}</div>
+    <div class="time">${Tools.getTimeStr(new Date(message.createdAt))}</div>
     <div class="text">${message.text}</div>
     </div>`;
     this.messageEl.appendChild(messageEl);
