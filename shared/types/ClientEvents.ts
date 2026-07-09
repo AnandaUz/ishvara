@@ -2,7 +2,19 @@ interface IClientEventCodeItem {
   name?: string;
   oldCode?: number | string;
   code: number;
+  bgColor?: string;
+  txColor?: string;
 }
+const Color = {
+  topGoal: {
+    bg: "#fa654bff",
+    tx: "#fff",
+  },
+  middleGoal: {
+    bg: "#fa4ba2ff",
+    tx: "#fff",
+  },
+} as const;
 export const CLIENT_EVENTS = {
   scroll: {
     up: { code: 11, name: "скрол наверх" },
@@ -18,6 +30,30 @@ export const CLIENT_EVENTS = {
   page: {
     in: { code: 21, name: "Вход на страницу", oldCode: 8 },
     out: { code: 22, name: "Выход со страницы", oldCode: 9 },
+    showTours: { code: 23, name: "Показал туры", oldCode: "tours-show" },
+  },
+  click: {
+    topBaner: {
+      code: 31,
+      name: "Клик по верхнему баннеру",
+      oldCode: "c-tBaner",
+      bgColor: Color.topGoal.bg,
+      txColor: Color.topGoal.tx,
+    },
+    bookingForm: {
+      code: 32,
+      name: "Кнопка брони",
+      oldCode: "show-booking-form",
+      bgColor: Color.middleGoal.bg,
+      txColor: Color.middleGoal.tx,
+    },
+    copyBookingPhone: {
+      code: 33,
+      name: "Скопировал телефон",
+      oldCode: "copy-booking-phone",
+      bgColor: Color.topGoal.bg,
+      txColor: Color.topGoal.tx,
+    },
   },
 } as const satisfies Record<string, Record<string, IClientEventCodeItem>>;
 
@@ -28,13 +64,7 @@ export const CLIENT_EVENTS = {
 // { code: "b0", name: "Клик по кнопке целиё", oldCode: "goalBtnClick" },
 
 // // wt events
-// { code: "s1", name: "скрол 10%", oldCode: 1 },
-// { code: "s2", name: "скрол 25%", oldCode: 2 },
-// { code: "s3", name: "скрол 50%", oldCode: 3 },
-// { code: "s4", name: "скрол 75%", oldCode: 4 },
-// { code: "s5", name: "скрол 100%", oldCode: 5 },
-// { code: "s6", name: "скрол 100%", oldCode: 6 },
-// { code: "s7", name: "скрол 100%", oldCode: 7 },
+
 // { code: "pI", name: "Вход на страницу", oldCode: 8 },
 // { code: "pO", name: "Выход со страницы", oldCode: 9 },
 // { code: "gl", name: "Клик по кнопке цели", oldCode: 10 },
@@ -43,12 +73,10 @@ export const CLIENT_EVENTS = {
 // { code: "cl", name: "Клик", oldCode: "c" },
 // { code: "iR", name: "??", oldCode: "inner-routing" },
 
-// { code: "pT", name: "Показал туры", oldCode: "tours-show" },
 // { code: "tD", name: "??", oldCode: "open-tour-details" },
 // { code: "fS", name: "??", oldCode: "small-search-tours" },
 // { code: "tF", name: "??", oldCode: "tour-filter" },
-// { code: "bF", name: "Показ формы брони", oldCode: "show-booking-form" },
-// { code: "cP", name: "Скопировал телефон", oldCode: "copy-booking-phone" },
+
 // { code: "bС", name: "Клик по баннеру", oldCode: "c-tBaner" },
 // {
 //   code: "tC",

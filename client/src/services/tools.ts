@@ -22,6 +22,12 @@ export const Tools = {
       .toLowerCase()
       .trim();
   },
+  arraysEqual(a: number[], b: number[]): boolean {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort((x, y) => x - y);
+    const sortedB = [...b].sort((x, y) => x - y);
+    return sortedA.every((val, i) => val === sortedB[i]);
+  },
 
   loess(y: number[], windowSize: number = 10): number[] {
     const n = y.length;
@@ -48,7 +54,7 @@ export const Tools = {
         if (dist > maxDist) maxDist = dist;
       }
       if (maxDist === 0 && y[i]) {
-        result[i] = y[i] || { weight: 0 };
+        result[i] = y[i] || 0;
         continue;
       }
 
@@ -66,7 +72,7 @@ export const Tools = {
         const w = Math.pow(1 - Math.pow(dist, 3), 3);
 
         const x = j;
-        const yj = y[j]?.weight || 0;
+        const yj = y[j] || 0;
 
         sumW += w;
         sumWX += w * x;
@@ -89,9 +95,8 @@ export const Tools = {
       }
 
       // 4. Прогноз в точке x0
-      result[i] = { weight: a + b * x0, date: y[i]?.date || new Date() };
+      result[i] = a + b * x0;
     }
-
     return result;
   },
 };

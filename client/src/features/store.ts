@@ -16,6 +16,7 @@ export const EVENTS = {
   },
   options: {
     Changed: "options:changed",
+    MainTabsChanged: "options:maintabs:changed",
   },
 } as const;
 
@@ -25,6 +26,7 @@ export type DeskEvents = {
   [EVENTS.guests.Filter.LevelChanged]: number;
   [EVENTS.guests.loadNext]: IGuest[];
   [EVENTS.options.Changed]: any;
+  [EVENTS.options.MainTabsChanged]: string[];
 };
 
 export class Store extends EventEmitter<DeskEvents> {}

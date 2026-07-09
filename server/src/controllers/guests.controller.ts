@@ -10,6 +10,8 @@ export async function getGuests(req: Request, res: Response) {
 
   const match: Record<string, any> = {};
 
+  match.b = { $in: [false, null] };
+
   if (projectId) {
     match.projectId = Number(projectId);
   }

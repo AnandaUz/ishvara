@@ -7,73 +7,47 @@ interface IGuestDocument extends Omit<IGuest, "_id"> {
 
 const GuestSchema = new Schema<IGuestDocument>(
   {
-    // ca = createdAt
-    createdAt: { type: Date, default: Date.now, alias: "ca" },
+    createdAt: { type: Date, default: Date.now },
+    lastChange: { type: Date },
+    referrer: { type: String },
 
-    // lc = lastChange
-    lastChange: { type: Date, alias: "lc" },
-
-    // rf = referrer
-    referrer: { type: String, alias: "rf" },
-
-    name: { type: String, alias: "n" }, // Если поле короткое, можно оставить как есть
-
-    // ua = userAgentString
-    userAgentString: { type: String, alias: "ua" },
-
-    phone: { type: String, alias: "p" },
-
-    // pid = projectId
-    projectId: { type: Number, alias: "pi" },
-
-    // Исправили ошибку типизации: для Mongoose указываем массив разрешенных типов
-    // cid = companyId
-    companyId: { type: Schema.Types.Mixed, alias: "ci" },
-
-    // asid = adsetId
-    adsetId: { type: Number, alias: "asi" },
-
-    // aid = adId
-    adId: { type: Number, alias: "ai" },
-
-    level: { type: Number, alias: "l" },
-    oldId: { type: String, required: false, alias: "oi" },
+    name: { type: String },
+    userAgentString: { type: String },
+    phone: { type: String },
+    projectId: { type: Number },
+    companyId: { type: Schema.Types.Number },
+    adsetId: { type: Number },
+    adId: { type: Number },
+    level: { type: Number },
+    oldId: { type: String, required: false },
     ip: { type: String, required: false },
-
     tg: {
-      id: { type: String, alias: "tg.i" },
-      first_name: { type: String, alias: "tg.f" },
-      last_name: { type: String, alias: "tg.l" },
-      username: { type: String, alias: "tg.u" },
+      id: { type: String },
+      first_name: { type: String },
+      last_name: { type: String },
+      username: { type: String },
     },
-
     instagram: {
-      fbp: { type: String, alias: "ig.p" },
-      fbc: { type: String, alias: "ig.c" },
-      // Для вложенных объектов алиасы тоже работают!
-      // comp_name: { type: Schema.Types.Mixed, alias: "instagram.cn" },
-      // adset_name: { type: Schema.Types.Mixed, alias: "instagram.asn" },
-      // ad_name: { type: Schema.Types.Mixed, alias: "instagram.an" },
+      fbp: { type: String },
+      fbc: { type: String },
     },
+    paramsString: { type: String },
 
-    // ps = paramsString
-    paramsString: { type: String, alias: "ps" },
-
-    events: { type: [[Schema.Types.Mixed]], alias: "e" },
-    tags: { type: [Schema.Types.Int32], default: undefined, alias: "t" },
-    notes: { type: String, alias: "nt" },
+    events: { type: [[Schema.Types.Mixed]], default: undefined },
+    tags: { type: [Schema.Types.Int32], default: undefined },
+    notes: { type: String },
     b: { type: Schema.Types.Boolean },
 
     chat: {
-      id: { type: Number, alias: "ch.i" },
-      tgbotName: { type: String, alias: "ch.t" },
+      id: { type: Number },
+      tgbotName: { type: String },
     },
   },
-  {
-    // Важно включить, чтобы алиасы корректно преобразовывались в .toJSON() и .toObject()
-    toObject: { aliases: true, virtuals: true },
-    toJSON: { aliases: true, virtuals: true },
-  },
+  // {
+  //   // Важно включить, чтобы алиасы корректно преобразовывались в .toJSON() и .toObject()
+  //   toObject: { aliases: true, virtuals: true },
+  //   toJSON: { aliases: true, virtuals: true },
+  // },
 );
 
 // В индексах нужно использовать КОРОТКОЕ имя, которое идет в базу!

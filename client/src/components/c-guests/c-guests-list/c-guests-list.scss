@@ -1,4 +1,4 @@
-c-guests-main {
+c-guests-list {
   .guests-list {
     display: flex;
     flex-direction: column;
@@ -141,6 +141,32 @@ c-guests-main {
   .level-7 {
     background: var(--color-level-6);
   }
+
+  .stat-line {
+    color: black;
+    font-size: 12px;
+    padding: 5px;
+
+    span {
+      --bgColor: #ff8b8b;
+      --fgColor: #585858;
+      background-color: var(--bgColor);
+      color: var(--fgColor);
+      border-radius: 6px;
+      margin: 0 5px 0 0;
+      padding: 0 5px;
+
+      i {
+        font-size: 10px;
+        color: #000000;
+        background: #ffffff;
+        margin: 0 0 0 2px;
+        font-style: normal;
+        border-radius: 5px;
+        padding: 0 3px;
+      }
+    }
+  }
 }
 
 .options-block {
@@ -157,4 +183,6 @@ c-guests-main {
     display: flex;
     gap: 10px;
   }
+
+
 }

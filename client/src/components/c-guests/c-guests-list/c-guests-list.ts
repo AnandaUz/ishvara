@@ -1,5 +1,5 @@
-import "./c-guests-main.scss";
-import template from "./c-guests-main.html?raw";
+import "./c-guests-list.scss";
+import template from "./c-guests-list.html?raw";
 import type { IGuest } from "@shared/types/IGuest";
 import { EVENTS } from "@/features/store";
 import { CGuestBlock } from "../c-guest-block/c-guest-block";
@@ -17,9 +17,10 @@ import {
 import { api } from "@/services/api";
 import { CModal } from "../../c-modal/c-modal";
 import { core } from "@/features/core";
+import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
 
 const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-export class CGuestsMain extends HTMLElement {
+export class CGuestsList extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
   menu: CPopup | null = null;
   modalMenu: CModal | null = null;
@@ -28,6 +29,7 @@ export class CGuestsMain extends HTMLElement {
 
   guestsNotes: CGuestBlock[] = [];
   lastDayForRender: Date | null = null;
+  stat: number[] = [];
 
   filters = {
     eventLevel: 0,
@@ -40,28 +42,31 @@ export class CGuestsMain extends HTMLElement {
 
     this.guestForm?.init(guestBlock, this.modalMenu!);
   }
+  async loadNextGuests() {
+    const guests = await core.serverPersistence.loadNextGuests(
+      Number(core.localPersistence.state.projectId!),
+    );
+    this.addGuestsBlocks(guests);
+  }
   constructor() {
     super();
-    core.cGuestMain = this;
-    core.store.on(EVENTS.project.Changed, (_id: number) => {
-      h1!.textContent = core.projectsManager.activeProject!.config.name;
-    });
+    // core.cGuestMain = this;
+    // core.store.on(EVENTS.project.Changed, (_id: number) => {
+    //   h1!.textContent = core.projectsManager.activeProject!.config.name;
+    // });
     core.store.on(EVENTS.guests.Filter.LevelChanged, (level: number) => {
       this.filters.eventLevel = level;
       if (level === 0) this.filters.timeLine_visible = true;
       else this.filters.timeLine_visible = false;
     });
-    core.store.on(EVENTS.guests.loadNext, (guests: IGuest[]) => {
-      this.addGuestsBlocks(guests);
-    });
+
     this.observer = new IntersectionObserver(async (entries) => {
       if (entries && entries[0] && entries[0].isIntersecting) {
         // loadMore();
 
         this.observer.unobserve(entries[0].target);
 
-        const guests = await core.serverPersistence.loadNextGuests();
-        core.store.emit(EVENTS.guests.loadNext, guests);
+        await this.loadNextGuests();
       }
     });
     // core.store.on(EVENTS.guests., (level: number) => {
@@ -69,16 +74,92 @@ export class CGuestsMain extends HTMLElement {
     //   if (level === 0) this.filters.timeLine_visible = true;
     //   else this.filters.timeLine_visible = false;
     // });
+  }
 
+  async render() {
+    this.guests_list_block?.replaceChildren();
+    this.guestsNotes = [];
+
+    const guests = await core.serverPersistence.loadNextGuests(
+      Number(core.localPersistence.state.projectId!),
+    );
+    this.addGuestsBlocks(guests);
+  }
+  addGuestsBlocks(data: IGuest[]) {
+    if (!data) return;
+    let guestBlock: CGuestBlock | null = null;
+    for (let i = 0; i < data.length; i++) {
+      const guest = data[i];
+      if (!guest) continue;
+
+      if (
+        !(
+          guest.tags?.includes(TAGS.goals.top.code) ||
+          guest.tags?.includes(TAGS.goals.middle.code)
+        )
+      )
+        continue;
+
+      let d = new Date(guest.lastChange || guest.createdAt!);
+
+      if (
+        d.getMonth() !== this.lastDayForRender?.getMonth() ||
+        d.getDate() !== this.lastDayForRender?.getDate()
+      ) {
+        if (this.stat.length > 0) {
+          const el = document.createElement("div");
+          el.classList.add("stat-line");
+          this.stat.forEach((count, tag) => {
+            const span = document.createElement("span");
+            span.innerHTML = `${TAGS_TOOLS.codeToName.get(tag)} <i>${count}</i>`;
+            span.style.setProperty(
+              "--bgColor",
+              TAGS_TOOLS.codeToBgColor.get(tag) || "",
+            );
+
+            el.appendChild(span);
+          });
+          this.guests_list_block!.appendChild(el);
+          this.stat = [];
+        }
+        this.lastDayForRender = d;
+        const gMonth = d.getMonth();
+        const gDay = d.getDate();
+        const gWeekDay = d.getDay();
+
+        const dayLineEl = document.createElement("div");
+        dayLineEl.classList.add("day-line");
+
+        dayLineEl.innerHTML = `<div class="bl-0">
+        <span>${gDay}.${gMonth + 1}</span>
+        <span class="day-name">${daysName[gWeekDay]}</span>
+        </div>
+        `;
+        this.guests_list_block!.appendChild(dayLineEl);
+      }
+
+      // if (!guest.createdAt && !guest.events && !guest.tg) {
+      //   continue;
+      // }
+      guestBlock = new CGuestBlock(guest, this);
+      this.guests_list_block!.appendChild(guestBlock);
+      this.guestsNotes.push(guestBlock);
+      guestBlock.render();
+
+      guest.tags?.forEach((tag: number) => {
+        this.stat[tag] = (this.stat[tag] || 0) + 1;
+      });
+    }
+    if (guestBlock) this.observer.observe(guestBlock);
+    else this.loadNextGuests();
+  }
+  connectedCallback() {
     this.innerHTML = template;
-
-    const h1 = this.querySelector("h1");
-
     this.guests_list_block = this.querySelector(".guests-list");
 
-    core.store.on(EVENTS.project.Changed, () => {
-      this.render();
-    });
+    // core.store.on(EVENTS.project.Changed, () => {
+    //   this.render();
+    // });
 
     this.menu = new CPopup();
 
@@ -161,54 +242,6 @@ export class CGuestsMain extends HTMLElement {
         core.store.emit(EVENTS.options.Changed, { isShowTimeLine: checked });
       });
   }
-
-  render() {
-    this.guests_list_block?.replaceChildren();
-    this.guestsNotes = [];
-
-    core.store.emit(EVENTS.guests.Filter.LevelChanged, this.filters.eventLevel);
-  }
-  addGuestsBlocks(data: IGuest[]) {
-    if (!data) return;
-
-    for (let i = 0; i < data.length; i++) {
-      const guest = data[i];
-      if (!guest) continue;
-      let d = new Date(guest.lastChange || guest.createdAt!);
-
-      if (
-        d.getMonth() !== this.lastDayForRender?.getMonth() ||
-        d.getDate() !== this.lastDayForRender?.getDate()
-      ) {
-        this.lastDayForRender = d;
-        const gMonth = d.getMonth();
-        const gDay = d.getDate();
-        const gWeekDay = d.getDay();
-
-        const dayLineEl = document.createElement("div");
-        dayLineEl.classList.add("day-line");
-
-        dayLineEl.innerHTML = `<div class="bl-0">
-        <span>${gDay}.${gMonth + 1}</span>
-        <span class="day-name">${daysName[gWeekDay]}</span>
-        </div>
-        `;
-        this.guests_list_block!.appendChild(dayLineEl);
-      }
-
-      // if (!guest.createdAt && !guest.events && !guest.tg) {
-      //   continue;
-      // }
-      const guestBlock = new CGuestBlock(guest, this);
-      this.guests_list_block!.appendChild(guestBlock);
-      this.guestsNotes.push(guestBlock);
-      guestBlock.render();
-
-      if (i == data.length - 1) {
-        this.observer.observe(guestBlock);
-      }
-    }
-  }
 }
 
-customElements.define("c-guests-main", CGuestsMain);
+customElements.define("c-guests-list", CGuestsList);

@@ -2,7 +2,7 @@
      display: grid;
      // grid-template-columns: 1fr 410px;
 
-     c-guests-main {
+     c-guests-list {
           grid-column: 1;
      }
 
@@ -42,4 +42,29 @@
                padding: 0 2px;
           }
      }
+}
+
+.view-type-tabs-block {
+
+     .view-type-tabs {
+          margin: 0px 5px;
+          gap: 5px;
+     }
+
+     .tab {
+          border-radius: 7px;
+          font-size: 13px;
+          margin: 0;
+          padding: 2px 11px;
+          height: min-content;
+     }
+}
+
+.viewports-block {
+     padding: 10px;
+
+     .viewport {
+          display: none;
+     }
+
 }

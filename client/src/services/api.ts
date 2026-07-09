@@ -3,17 +3,75 @@ import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
 
 export const api = {
+  /**
+   * Открывает постоянное соединение
+   * @param url
+   * @param boxEl
+   */
+  eventSourceAsync(url: string, boxEl: HTMLElement): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const baseUrl = import.meta.env.VITE_API_URL?.trim() + url;
+      const sse = new EventSource(baseUrl);
+
+      sse.onopen = () => {
+        console.log("[SSE] соединение открыто");
+      };
+
+      sse.onmessage = (e) => {
+        if (boxEl) {
+          boxEl.innerHTML = e.data + "<br/>" + boxEl.innerHTML;
+        }
+      };
+
+      sse.onerror = (err) => {
+        console.error("[SSE] ошибка соединения:", err);
+        sse.close();
+        reject(err);
+      };
+
+      sse.addEventListener("end", () => {
+        sse.close();
+        resolve();
+      });
+    });
+  },
+  server: {
+    arhive1: async () => {
+      return fetch(import.meta.env.VITE_API_URL + "/api/server/arhive1");
+    },
+  },
   statistics: {
     doFormatingData: async () => {
       return fetch(
         import.meta.env.VITE_API_URL + "/api/statistics/do-formating-data",
       );
     },
-    countTags: async (tags: number[]) => {
+    countTags: async ({
+      projectId,
+      companyId,
+      tags,
+    }: {
+      projectId: number;
+      companyId: number;
+      tags: number[];
+    }) => {
       const result = await fetch(
         import.meta.env.VITE_API_URL +
-          "/api/statistics/stat-count-tags?tags=" +
-          tags.join(","),
+          `/api/statistics/stat-count-tags?projectId=${projectId}&companyId=${companyId}&tags=${tags.join(",")}`,
+      );
+      const data = await result.json();
+      return data;
+    },
+    countBots: async ({
+      projectId,
+      companyId,
+    }: {
+      projectId: number;
+      companyId: number;
+    }) => {
+      const result = await fetch(
+        import.meta.env.VITE_API_URL +
+          `/api/statistics/stat-count-bots?projectId=${projectId}&companyId=${companyId}`,
       );
       const data = await result.json();
       return data;
@@ -21,7 +79,7 @@ export const api = {
   },
   guest: {
     loadNext: async (
-      projectId: number,
+      projectId: string,
       limit: number = 20,
       skip: number = 0,
     ) => {

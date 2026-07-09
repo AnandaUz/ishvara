@@ -1,6 +1,8 @@
 import type { Page, Routes } from "../types";
 
 import { notFoundPage } from "../pages/notFound";
+import { renderHeader } from "@components/header"; // добавить
+import { renderFooter } from "@components/footer"; // добавить
 
 const routes: Routes = {
   "/": (params) => import("../pages/home/home").then((m) => m.homePage(params)),
@@ -9,7 +11,11 @@ const routes: Routes = {
   "/server": (params) =>
     import("../pages/server/server").then((m) => m.serverPage(params)),
 };
-
+export async function init() {
+  renderHeader();
+  renderFooter();
+  await render();
+}
 function matchRoute(
   routes: Routes,
   path: string,
@@ -61,3 +67,24 @@ export async function render(): Promise<void> {
     console.error("Ошибка роутера:", e);
   }
 }
+
+document.addEventListener("click", (e) => {
+  const target = e.target as HTMLAnchorElement;
+
+  if (
+    target.tagName === "A" &&
+    target.href.startsWith(window.location.origin)
+  ) {
+    // Пропускаем PDF и внешние открытия
+    if (target.href.endsWith(".pdf") || target.target === "_blank") return;
+
+    e.preventDefault();
+    history.pushState({}, "", target.href);
+    render();
+  }
+});
+
+// Обрабатываем кнопки браузера "назад" / "вперёд"
+window.addEventListener("popstate", () => {
+  render();
+});

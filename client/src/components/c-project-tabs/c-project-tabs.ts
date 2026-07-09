@@ -1,4 +1,3 @@
-import { EVENTS } from "@/features/store";
 import "./c-project-tabs.scss";
 // import template from "./c-project-tabs.html?raw";
 import { projects_configs } from "@/tabs_config";
@@ -27,10 +26,6 @@ class ProjectTabs extends HTMLElement {
         });
         this.tabs.push(tab);
       });
-
-    core.store.on(EVENTS.project.Changed, (id: number) => {
-      this.setProject(id);
-    });
   }
 
   setProject(id: number) {

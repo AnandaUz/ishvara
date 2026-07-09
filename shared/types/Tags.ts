@@ -7,6 +7,22 @@ interface ITagItem {
 }
 
 export const TAGS = {
+  goals: {
+    middle: {
+      code: 31,
+      name: "middle",
+      description: "Достижение средней цели",
+      bgColor: "#ff56daff",
+      fontColor: "#ffffff",
+    },
+    top: {
+      code: 32,
+      name: "top",
+      description: "Достижение главной цели",
+      bgColor: "#ff5f38ff",
+      fontColor: "#ffffff",
+    },
+  },
   scroll: {
     was: {
       code: 10,
@@ -17,7 +33,12 @@ export const TAGS = {
     },
   },
   page: {
-    tours: { code: 20, name: "стр Туры", description: "Страница туры" },
+    tours: {
+      code: 20,
+      name: "стр Туры",
+      description: "Страница туры",
+      bgColor: "#d8b281ff",
+    },
   },
 } as const satisfies Record<string, Record<string, ITagItem>>;
 

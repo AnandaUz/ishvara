@@ -1,12 +1,16 @@
 import type { Page } from "../../types";
 import html from "@pages/home/home.html?raw";
-import "@/components/c-guests/c-guests-main/c-guests-main";
+import "@/components/c-guests/c-guests-list/c-guests-list";
 import "@/components/c-chats/c-chats";
 import "./home.scss";
 import "@components/c-tabs/c-tabs";
 import type { CTabs, ITab } from "@components/c-tabs/c-tabs";
 import { bigProjectsGet, bigProjects } from "@shared/projects_config";
 import { core } from "@/features/core";
+import type { CGuestsList } from "@/components/c-guests/c-guests-list/c-guests-list";
+import { EVENTS } from "@/features/store";
+import "@/components/c-statictics-block/c-statictics-block";
+import type { CStaticticsBlock } from "@/components/c-statictics-block/c-statictics-block";
 
 interface ITabData {
   companyId?: number;
@@ -17,11 +21,9 @@ export const homePage: Page = () => {
   return {
     html: html,
     pageClass: "home-page",
-    init() {
-      core.projectsManager.init();
 
-      const projectsTabs = document.getElementById("projects-tabs") as CTabs;
-      const companyTabs = document.getElementById("company-tabs") as CTabs;
+    init() {
+      core.init();
       const companyTabs_block = document.querySelector(
         ".company-tabs-block",
       ) as HTMLElement;
@@ -36,97 +38,161 @@ export const homePage: Page = () => {
           }) as ITab,
       );
 
-      projectsTabs.addEventChange((tabData) => {
-        const id = tabData?.data;
-
-        const project = bigProjectsGet.projectById(Number(id));
-        if (!project) return;
-
-        if (project.companys) {
-          let c: ITab[] = [];
-
-          c.push({
-            id: project.id + "_ALL",
-            name: `всё`,
-            data: {
-              companyId: -1,
-            } as ITabData,
-          } as ITab);
-          c.push({
-            id: project.id + "_else",
-            name: `прочее`,
-            data: {
-              companyId: -2,
-            } as ITabData,
-          } as ITab);
-
-          project.companys.forEach((company) => {
-            // if (company.adsets) {
-            //   company.adsets.forEach((adset) => {
-            //     c.push({
-            //       id: adset.id + "_" + company.id,
-            //       name: `<span class="company-name"><span>${company.name}</span></span> <span class="adset-name">${adset.name}</span>`,
-            //       isOff: adset.isOff,
-            //       data: {
-            //         companyId: company.id,
-            //         adsetId: adset.id,
-            //       } as ITabData,
-            //     } as ITab);
-            //   });
-            // } else {
-            c.push({
-              id: company.id,
-              name: company.name,
-              isOff: company.isOff,
-              data: {
-                companyId: company.id,
-              } as ITabData,
-            } as ITab);
-            // }
-          });
-          companyTabs.name = "pr" + project.id;
-
-          companyTabs.addEventChange((tabData) => {
-            const companyId = tabData?.data?.companyId;
-
-            // const adsetId = tabData?.data?.adsetId;
-            core.projectsManager.setProject(project.id, (guest) => {
-              // console.log(guest.instagram);
-
-              if (companyId == -1) return true;
-
-              const comp = guest.companyId;
-              if (comp && comp == companyId) {
-                // if (guest.adsetId == adsetId) return true;
-                return true;
-                // const inst: string | number | undefined = guest.instagram?.adset;
-                // if (!inst) return false;
-
-                // if (inst === id) return true;
-              }
-              return false;
-            });
-          });
-          companyTabs.init(c);
-
-          // const d: ITab[] = projects_configs.map((conf) => {
-          //   return {
-          //     id: conf.id,
-          //     name: conf.name,
-          //     isOff: conf.isOff,
-          //   } as ITab;
-          // });
-          // companyTabs.init(d);
-          companyTabs_block.style.display = "block";
-        } else {
-          companyTabs_block.style.display = "none";
-          core.projectsManager.setProject(project.id);
-        }
-
-        //
-      });
-
+      let oldProjectId = "";
+      let oldCompanyId = "";
+      // projectsTabs
+      const projectsTabs = document.getElementById("projects-tabs") as CTabs;
+      let activeProjectId = core.localPersistence.state.projectId;
       projectsTabs.init(data as ITab[]);
+      projectsTabs.addEventChange((tabId) => {
+        const id = tabId.toString();
+        if (activeProjectId !== id) {
+          activeProjectId = id;
+          core.localPersistence.state.projectId = id || "";
+          core.localPersistence.save();
+          core.store.emit(EVENTS.options.MainTabsChanged, [id]);
+        }
+      });
+      if (activeProjectId) {
+        projectsTabs.setActive(activeProjectId);
+      }
+      // #region companyTabs
+      const companyTabs = document.getElementById("company-tabs") as CTabs;
+
+      companyTabs.addEventChange((tabId) => {
+        const companyId = tabId;
+        const projectId = core.localPersistence.state.projectId || "";
+        if (projectId) {
+          if (!core.localPersistence.state.companiesIds) {
+            core.localPersistence.state.companiesIds = {};
+          }
+          core.localPersistence.state.companiesIds[projectId] =
+            companyId?.toString() || "";
+          core.localPersistence.save();
+          core.store.emit(EVENTS.options.MainTabsChanged, ["companyChanged"]);
+        }
+      });
+      const companyTabRender = () => {
+        const projectId = core.localPersistence.state.projectId;
+        const companyId =
+          core.localPersistence.state.companiesIds?.[projectId || ""] || "";
+
+        if (oldProjectId == projectId) {
+          if (oldCompanyId == companyId) {
+            return;
+          }
+        } else {
+          const projectData = bigProjectsGet.projectById(Number(projectId));
+          if (!projectData) return;
+
+          if (projectData.companys) {
+            let c: ITab[] = [];
+            companyTabs_block.style.display = "";
+
+            c.push({
+              id: -1,
+              name: `всё`,
+              bgColor: "rgba(102, 197, 145, 1)",
+            } as ITab);
+            c.push({
+              id: -2,
+              name: `прочее`,
+            } as ITab);
+
+            projectData.companys.forEach((company) => {
+              c.push({
+                id: company.id,
+                name: company.name,
+                isOff: company.isOff,
+                data: {
+                  companyId: company.id,
+                } as ITabData,
+              } as ITab);
+            });
+
+            companyTabs.name = "pr" + projectId;
+            companyTabs.init(c);
+            if (companyId) {
+              companyTabs.setActive(companyId);
+            }
+          } else {
+            companyTabs_block.style.display = "none";
+          }
+        }
+        oldProjectId = projectId || "";
+        oldCompanyId = companyId || "";
+      };
+      companyTabRender();
+      core.store.on(EVENTS.options.MainTabsChanged, () => {
+        companyTabRender();
+      });
+      // #endregion companyTabs
+      // #region viewTypeTabs
+      const viewTypeTabs = document.querySelector(".view-type-tabs") as CTabs;
+      viewTypeTabs.addEventChange((tabId) => {
+        core.localPersistence.state.viewports = tabId.toString();
+        core.localPersistence.save();
+        core.store.emit(EVENTS.options.MainTabsChanged, ["viewportChanged"]);
+      });
+      const viewTypeTabRender = () => {
+        let c: ITab[] = [];
+        c.push({
+          id: 1,
+          name: `статистика`,
+          bgColor: "rgba(245, 238, 149, 1)",
+        } as ITab);
+        c.push({
+          id: 2,
+          name: `активность`,
+          bgColor: "rgba(79, 204, 135, 1)",
+        } as ITab);
+        viewTypeTabs.init(c);
+        let activeViewType = core.localPersistence.state.viewports;
+        if (activeViewType) {
+          viewTypeTabs.setActive(activeViewType);
+        }
+      };
+      viewTypeTabRender();
+      core.store.on(EVENTS.options.MainTabsChanged, () => {
+        let activeViewType = core.localPersistence.state.viewports;
+        if (activeViewType) {
+          viewTypeTabs.setActive(activeViewType);
+        }
+      });
+      // #endregion viewTypeTabs
+      // #region viewports
+      const viewports = document.querySelector(".viewports-block");
+      const v1 = viewports?.querySelector(".v-statistics") as HTMLElement;
+      const v2 = viewports?.querySelector(".v-guests") as HTMLElement;
+      let cGuestList: CGuestsList | null = null;
+      let cStaticticsBlock: CStaticticsBlock | null = null;
+      const viewportsRender = () => {
+        v1.style.display = "none";
+        v2.style.display = "none";
+        let activeViewportId = core.localPersistence.state.viewports;
+        if (activeViewportId === "1") {
+          v1.style.display = "block";
+          if (!cStaticticsBlock) {
+            cStaticticsBlock = document.createElement(
+              "c-statictics-block",
+            ) as CStaticticsBlock;
+            v1.appendChild(cStaticticsBlock);
+          }
+        } else if (activeViewportId === "2") {
+          // guest list
+          v2.style.display = "block";
+          if (!cGuestList) {
+            cGuestList = document.createElement("c-guests-list") as CGuestsList;
+            v2.appendChild(cGuestList);
+          }
+          cGuestList.render();
+        }
+      };
+      viewportsRender();
+      core.store.on(EVENTS.options.MainTabsChanged, () => {
+        viewportsRender();
+      });
+      // #endregion viewports
     },
   };
 };

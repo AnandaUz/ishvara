@@ -1,5 +1,7 @@
 import { IGuest } from "../../../shared/types/IGuest.js";
 import Guest from "../models/Guest.js";
+import { ServerTools } from "../utils/ServerTools.js";
+
 import {
   CLIENT_EVENTS,
   CLIENT_EVENTS_TOOLS,
@@ -53,7 +55,7 @@ export const StatisticsController = {
     res.write(`data: Загружаю данные ...\n\n`);
     res.flush();
 
-    const guests = await Guest.find().sort({ createdAt: -1 }).limit(100);
+    const guests = await Guest.find().sort({ createdAt: -1 }); //.limit(100);
 
     res.write(`data: ${guests.length} ...\n\n`);
     res.flush();
@@ -143,10 +145,13 @@ export const StatisticsController = {
     if (res.flushHeaders) {
       res.flushHeaders();
     }
-    res.write(`data: Загружаю данные ...\n\n`);
+    res.write(`data: Установить теги, загружаю данные...\n\n`);
     res.flush();
 
-    const guests = await Guest.find().sort({ createdAt: -1 }).limit(100);
+    const guests = await Guest.find({ b: { $exists: false } })
+      .sort({ createdAt: -1 })
+      // .limit(100)
+      .lean();
 
     res.write(`data: ${guests.length} ...\n\n`);
     res.flush();
@@ -156,7 +161,10 @@ export const StatisticsController = {
     //   res.write(`:heartbeat\n\n`);
     // }, 15000);
 
+    let tt = 0;
+    let ttt = 0;
     for (let i = 0; i < guests.length; i++) {
+      tt++;
       const guest = guests[i] as unknown as IGuest;
       if (!guest) continue;
       const e = guest.events;
@@ -198,16 +206,45 @@ export const StatisticsController = {
             case CLIENT_EVENTS.scroll.down.code:
               tags.add(TAGS.scroll.was.code);
               break;
+
+            case CLIENT_EVENTS.page.showTours.code:
+              tags.add(TAGS.page.tours.code);
+              break;
+            case CLIENT_EVENTS.click.bookingForm.code:
+              tags.add(TAGS.goals.middle.code);
+              break;
+            case CLIENT_EVENTS.click.topBaner.code:
+            case CLIENT_EVENTS.click.copyBookingPhone.code:
+              tags.add(TAGS.goals.top.code);
+              break;
           }
         });
 
         const t = Array.from(tags);
         if (t.length > 0) {
-          await guestObj.addTags(guest._id || "", t);
-          res.write(`data: ${t.join(",")}\n\n`);
-          res.write(`data: ${JSON.stringify(e)}\n\n`);
-          res.flush();
+          const isHasSameTags = ServerTools.arrays.isSubset(
+            t,
+            guest.tags || [],
+          );
+
+          if (!isHasSameTags) {
+            await guestObj.addTags(guest._id || "", t);
+
+            ttt++;
+            res.write(`data: tags ${JSON.stringify(t)} \n\n`);
+            res.write(
+              `data: ${i} : ${((i / guests.length) * 100).toFixed(2)} % : Изменений ${ttt}\n\n`,
+            );
+            res.flush();
+          }
         }
+        // if (tt > 100) {
+        //   res.write(
+        //     `data: ${i} : ${((i / guests.length) * 100).toFixed(2)} % : Изменений ${ttt}\n\n`,
+        //   );
+        //   res.flush();
+        //   tt = 0;
+        // }
 
         // 🔥 КРИТИЧЕСКИЙ МОМЕНТ ДЛЯ БОЛЬШИХ ОБЪЕМОВ:
         // Каждые 100 итераций даем Node.js паузу в 1 миллисекунду.
@@ -220,74 +257,89 @@ export const StatisticsController = {
 
     // clearInterval(heartbeat);
 
-    res.write(`data: "КОНЕЦ ПОТОКА" \n\n`);
+    res.write(`data: КОНЕЦ ПОТОКА. Изменений ${ttt} \n\n`);
 
     res.write(`event: end\n`);
     res.write(`data: stream_finished\n\n`);
+    console.log("event: end");
     res.end();
   },
   stat_countTags: async (req: Request, res: Response) => {
-    const { tags } = req.query;
+    const { tags, projectId, companyId } = req.query;
 
     if (!tags) {
       res.status(400).send("Не переданы теги");
       return;
     }
+    if (!projectId || !companyId) {
+      res.status(400).send("Не переданы projectId или companyId");
+      return;
+    }
+
+    console.log(projectId, companyId);
 
     const tagsData = (tags as string).split(",").map((tag) => parseInt(tag));
 
     const stats = await Guest.aggregate([
       {
-        $facet: {
-          byTags: [
-            { $match: { tags: { $in: tagsData } } },
-            { $unwind: "$tags" },
-            { $match: { tags: { $in: tagsData } } },
-            {
-              $group: {
-                _id: {
-                  date: {
-                    $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-                  },
-                  tag: "$tags",
-                },
-                count: { $sum: 1 },
+        $match: {
+          projectId: Number(projectId),
+        },
+      },
+      { $match: { tags: { $exists: true, $ne: [] } } },
+      { $unwind: "$tags" },
+      { $match: { tags: { $in: tagsData } } },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$createdAt",
+                timezone: "+05:00", // Ташкент
               },
             },
-            {
-              $group: {
-                _id: "$_id.tag",
-                data: { $push: { date: "$_id.date", count: "$count" } },
-              },
-            },
-          ],
-          byB: [
-            { $match: { b: true } },
-            {
-              $group: {
-                _id: {
-                  $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-                },
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $group: {
-                _id: -1,
-                data: { $push: { date: "$_id", count: "$count" } },
-              },
-            },
-          ],
+            tag: "$tags",
+          },
+          count: { $sum: 1 },
         },
       },
       {
-        $project: {
-          result: { $concatArrays: ["$byTags", "$byB"] },
+        $group: {
+          _id: "$_id.date",
+          data: { $push: { tagId: "$_id.tag", count: "$count" } },
         },
       },
+      { $sort: { _id: 1 } },
     ]);
 
-    const result = stats[0].result;
-    res.json(result);
+    res.json(stats);
+  },
+  stat_countBots: async (req: Request, res: Response) => {
+    const { projectId, companyId } = req.query;
+
+    if (!projectId || !companyId) {
+      res.status(400).send("Не переданы projectId или companyId");
+      return;
+    }
+
+    const bStats = await Guest.aggregate([
+      { $match: { projectId: Number(projectId), b: true } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$lastChange",
+              timezone: "+05:00",
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.json(bStats);
   },
 };

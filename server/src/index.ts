@@ -14,6 +14,7 @@ import guestsRouter from "./routers/guests.routers.js";
 import { tgbots } from "./controllers/tgbots/TgBots.js";
 import chatsRouter from "./routers/chats.routers.js";
 import statisticsRouter from "./routers/statistics.routers.js";
+import serverRouter from "./routers/server.routers.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/tracker", trackerRouter);
 app.use("/api/guests", guestsRouter);
 app.use("/api/chats", chatsRouter);
 app.use("/api/statistics", statisticsRouter);
+app.use("/api/server", serverRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

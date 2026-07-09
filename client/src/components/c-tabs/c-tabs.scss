@@ -2,8 +2,9 @@ c-tabs {
     display: flex;
 
     .tab {
+        --bg-color: #b2dae4;
         padding: 5px 10px;
-        background: #b2dae4;
+        background: var(--bg-color);
         cursor: pointer;
         border-radius: 8px 8px 0 0;
         font-size: 13px;
@@ -16,13 +17,14 @@ c-tabs {
         }
 
         &:hover {
-            background: #6796a1;
-            color: #fff;
+            filter: brightness(0.85); // темнее
+            color: #003647;
         }
 
         &.active {
-            background: #5eb5ca;
-            color: #fff;
+            filter: saturate(2) brightness(1);
+            color: #003647;
+            font-weight: bold;
         }
     }
 }

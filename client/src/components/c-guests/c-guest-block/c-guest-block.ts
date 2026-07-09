@@ -14,7 +14,7 @@ import {
 } from "@shared/types/GuestConst";
 import type { IPixelEventData } from "@shared/types/Is";
 
-import type { CGuestsMain } from "@components/c-guests/c-guests-main/c-guests-main";
+import type { CGuestsList } from "@/components/c-guests/c-guests-list/c-guests-list";
 import { EVENTS } from "@/features/store";
 // import { chat } from "@/components/c-chats/c-chats";
 
@@ -22,7 +22,7 @@ import { core } from "@/features/core";
 
 export class CGuestBlock extends HTMLElement {
   data: IGuest;
-  owner: CGuestsMain;
+  owner: CGuestsList;
   // private _levelBehavior: number = 0;
   private isRendered: boolean = false;
   private body!: HTMLDivElement;
@@ -156,6 +156,9 @@ export class CGuestBlock extends HTMLElement {
         ?.map((tag) => {
           const bgColor = TAGS_TOOLS.codeToBgColor.get(tag);
           const name = TAGS_TOOLS.codeToName.get(tag);
+          if (name === undefined) {
+            console.log("tag", tag);
+          }
           return `<span class="tag" style="--bg-color: ${bgColor}">${name}</span>`;
         })
         .join("") || "";
@@ -445,7 +448,7 @@ export class CGuestBlock extends HTMLElement {
       t = time;
     }
   }
-  constructor(data: IGuest, owner: CGuestsMain) {
+  constructor(data: IGuest, owner: CGuestsList) {
     super();
     //
     this.unsubscribers.push(

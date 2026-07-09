@@ -4,20 +4,20 @@ export interface ITab {
   id: string | number;
   name: string;
   isOff: boolean;
-  data?: any;
+  bgColor?: string;
 }
 
 export class CTabs extends HTMLElement {
   tabs: HTMLDivElement[] = [];
   dataString: string = "";
-  funcChangeEvent: ((tabData: ITab | null) => void) | null = null;
+  funcChangeEvent: ((id: string | number) => void) | null = null;
   name: string = "";
   private tabsData: Map<string | number, ITab> = new Map();
 
   init(data: ITab[]) {
     this.tabs = [];
     this.innerHTML = "";
-    this.dataString = this.getAttribute("data-name") || "aaa";
+    this.dataString = this.getAttribute("data-name") || "";
 
     this.tabsData.clear();
 
@@ -29,18 +29,23 @@ export class CTabs extends HTMLElement {
         tabDiv.innerHTML = tab.name;
         tabDiv.classList.add("tab");
         if (tab.isOff) tabDiv.classList.add("off");
+        if (tab.bgColor)
+          tabDiv.setAttribute("style", "--bg-color: " + tab.bgColor);
 
         this.appendChild(tabDiv);
         tabDiv.id = `tab_${tab.id}`;
 
         tabDiv.addEventListener("click", () => {
           this.setActive(tab.id.toString());
+          if (this.funcChangeEvent) {
+            this.funcChangeEvent(tab.id);
+          }
         });
         this.tabs.push(tabDiv);
       });
 
-    const s = localStorage.getItem(this.name + this.dataString);
-    if (s) this.setActive(s);
+    // const s = localStorage.getItem(this.name + this.dataString);
+    // if (s) this.setActive(s);
   }
 
   setActive(id: string) {
@@ -48,13 +53,11 @@ export class CTabs extends HTMLElement {
     const tab = this.querySelector(`#tab_${id}`);
     if (tab) {
       tab.classList.add("active");
-      localStorage.setItem(this.name + this.dataString, id.toString());
-      if (this.funcChangeEvent) {
-        this.funcChangeEvent(this.tabsData.get(id) || null);
-      }
+      // localStorage.setItem(this.name + this.dataString, id.toString());
     }
   }
-  addEventChange(func: (tabData: ITab | null) => void) {
+
+  addEventChange(func: (id: string | number) => void) {
     this.funcChangeEvent = func;
   }
 }
