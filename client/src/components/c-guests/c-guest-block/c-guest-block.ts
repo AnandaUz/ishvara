@@ -9,8 +9,8 @@ import { Tools } from "@/services/tools";
 import { api } from "@/services/api";
 import {
   META_EVENT_LEVEL_BY_CODE,
-  EVENT_CODE,
-  EVENT_BY_CODE,
+  // EVENT_CODE,
+  // EVENT_BY_CODE,
   META_EVENT_BY_CODE,
 } from "@shared/types/GuestConst";
 import type { IPixelEventData } from "@shared/types/Is";
@@ -322,7 +322,6 @@ export class CGuestBlock extends HTMLElement {
     const timeLineBlock = this.timeLineBlock;
 
     let t = 0;
-    const k = 30; // 20 пикселей на секунду
 
     let currentDate: string = "";
     for (let i = 0; i < (this.data.events?.length ?? 0); i++) {
