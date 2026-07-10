@@ -31,6 +31,12 @@ export const CLIENT_EVENTS = {
     in: { code: 21, name: "Вход на страницу", oldCode: 8 },
     out: { code: 22, name: "Выход со страницы", oldCode: 9 },
     showTours: { code: 23, name: "Показал туры", oldCode: "tours-show" },
+    innerRouting: {
+      code: 24,
+      name: "Переход со страницу на страницу",
+      oldCode: "inner-routing",
+    },
+    pageShow: { code: 25, name: "Показал страницу", oldCode: 11 },
   },
   click: {
     topBaner: {
@@ -54,6 +60,8 @@ export const CLIENT_EVENTS = {
       bgColor: Color.topGoal.bg,
       txColor: Color.topGoal.tx,
     },
+    common: { code: 34, name: "Клик", oldCode: "c" },
+    goalClick: { code: 35, name: "Клик по кнопке цели", oldCode: 10 },
   },
 } as const satisfies Record<string, Record<string, IClientEventCodeItem>>;
 
@@ -65,12 +73,8 @@ export const CLIENT_EVENTS = {
 
 // // wt events
 
-// { code: "pI", name: "Вход на страницу", oldCode: 8 },
-// { code: "pO", name: "Выход со страницы", oldCode: 9 },
-// { code: "gl", name: "Клик по кнопке цели", oldCode: 10 },
-// { code: "pS", name: "Показал страницу", oldCode: 11 },
 // { code: "oG", name: "Открыл гайд", oldCode: 12 },
-// { code: "cl", name: "Клик", oldCode: "c" },
+
 // { code: "iR", name: "??", oldCode: "inner-routing" },
 
 // { code: "tD", name: "??", oldCode: "open-tour-details" },
@@ -113,6 +117,12 @@ export const CLIENT_EVENTS_TOOLS = {
     FLAT_EVENTS.filter((e) => e.oldCode !== undefined).map((e) => [
       e.oldCode,
       e.code,
+    ]),
+  ),
+  oldCodeToColors: new Map(
+    FLAT_EVENTS.filter((e) => e.oldCode !== undefined).map((e) => [
+      e.oldCode,
+      { bgColor: e.bgColor, txColor: e.txColor },
     ]),
   ),
 

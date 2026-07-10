@@ -3,6 +3,7 @@ import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
 import { bigProjectsGet } from "@shared/projects_config";
 import { TAGS_TOOLS } from "@shared/types/Tags";
+import { CLIENT_EVENTS, CLIENT_EVENTS_TOOLS } from "@shared/types/ClientEvents";
 
 import { Tools } from "@/services/tools";
 import { api } from "@/services/api";
@@ -328,7 +329,8 @@ export class CGuestBlock extends HTMLElement {
       const event = this.data.events?.[i];
       if (!event) continue;
       const eventElement = document.createElement("div");
-      eventElement.classList.add("event");
+
+      // eventElement.classList.add("event");
 
       let newStarTime = null;
       let time = 0;
@@ -348,6 +350,7 @@ export class CGuestBlock extends HTMLElement {
         time = Number(event[0]);
       }
 
+      // #region событие входа настраницу
       if (kod === "t") {
         if (i > 0) {
           const blBR = document.createElement("br");
@@ -360,7 +363,7 @@ export class CGuestBlock extends HTMLElement {
           .map((segment, i) => {
             let cls = `s${i + 1}`;
 
-            if (i === segments.length - 1) cls = "ss";
+            // if (i === segments.length - 1) cls = "ss";
 
             return `<b class="${cls}">${segment}</b>`;
           })
@@ -370,7 +373,8 @@ export class CGuestBlock extends HTMLElement {
           if (segments[0] == "tours") this.flags.isTour = true;
         }
 
-        eventElement.innerHTML = `<span></span><span class='page-name'>${eventName}</span>`;
+        eventElement.innerHTML = eventName;
+        eventElement.classList.add("url");
         if (newStarTime) {
           const d = `${newStarTime.getDate().toString().padStart(2, "0")}.${(newStarTime.getMonth() + 1).toString().padStart(2, "0")}`;
 
@@ -383,67 +387,100 @@ export class CGuestBlock extends HTMLElement {
           eventElement.innerHTML += s;
         }
         eventElement.className += " " + "page-in";
+
+        timeLineBlock.appendChild(eventElement);
+        continue;
+      }
+      timeLineBlock.appendChild(eventElement);
+      // #endregion
+
+      let xx = time - t;
+
+      // #region добавляем линии-секунды
+      if (xx > 20) {
+        const el = document.createElement("div");
+        el.classList.add("line");
+        el.classList.add("ex-scale");
+        timeLineBlock.appendChild(el);
+        xx = 1;
       } else {
-        let xx = time - t;
-
-        if (xx > 20) {
-          eventElement.classList.add("ex-scale");
-          xx = 1;
-        } else {
-          const dT = 1;
-          if (xx > dT) {
-            let ii = 0;
-            const n = Math.floor(xx / dT);
-            for (; ii < n; ii++) {
-              const eventElement = document.createElement("div");
-              eventElement.classList.add("event");
-              // eventElement.classList.add('scale');
-              eventElement.style.width = k + "px";
-              timeLineBlock.appendChild(eventElement);
-            }
-            xx -= n * dT;
+        const dT = 1;
+        if (xx > dT) {
+          let ii = 0;
+          const n = Math.floor(xx / dT);
+          for (; ii < n; ii++) {
+            const el = document.createElement("div");
+            el.classList.add("line");
+            timeLineBlock.appendChild(el);
           }
-        }
-
-        eventElement.style.width = Math.max(xx * k, 7) + "px";
-
-        const event_code = event[1];
-        if (typeof event_code === "string") {
-          if (event_code === "goalBtnClick") {
-            event[1] = EVENT_CODE.goalBtnClick.code;
-          }
-        }
-
-        if (Number(event_code) > 0 && Number(event_code) < 8)
-          this.flags.isScrolled = true;
-
-        switch (event_code) {
-          case EVENT_CODE.outPage!.code:
-            eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
-            eventElement.className += " " + EVENT_CODE.outPage!.class!;
-            break;
-          case "c": //простой клик
-            eventElement.innerHTML = `<span></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
-            eventElement.className += " " + "click";
-            break;
-          case "c-tBaner": //простой клик
-            eventElement.innerHTML = `<span><b>top baner</b></span>`; //<i class='time'>${time.toFixed(1)}</i>`;
-            eventElement.className += " " + "click main-goal";
-            break;
-          default:
-            const eventItem = EVENT_BY_CODE[event_code];
-            if (eventItem && eventItem.class) {
-              eventElement.className += " " + eventItem.class;
-              eventElement.innerHTML = `<span></span>`;
-            } else {
-              eventElement.innerHTML = `<span class="goal-event"><b>${event_code}</b></span>`;
-            }
-
-            break;
+          xx -= n * dT;
         }
       }
+      // #endregion
 
-      timeLineBlock.appendChild(eventElement);
+      // eventElement.style.width = Math.max(xx * k, 7) + "px";
+
+      const event_code = event[1];
+      // if (typeof event_code === "string") {
+      //   if (event_code === "goalBtnClick") {
+      //     event[1] = EVENT_CODE.goalBtnClick.code;
+      //   }
+      // }
+
+      // if (Number(event_code) > 0 && Number(event_code) < 8)
+      //   this.flags.isScrolled = true;
+
+      switch (event_code) {
+        case CLIENT_EVENTS.scroll.scroll1.oldCode:
+          eventElement.classList.add("scroll", "s1");
+          break;
+        case CLIENT_EVENTS.scroll.scroll2.oldCode:
+          eventElement.classList.add("scroll", "s2");
+          break;
+        case CLIENT_EVENTS.scroll.scroll3.oldCode:
+          eventElement.classList.add("scroll", "s3");
+          break;
+        case CLIENT_EVENTS.scroll.scroll4.oldCode:
+          eventElement.classList.add("scroll", "s4");
+          break;
+        case CLIENT_EVENTS.scroll.scroll5.oldCode:
+          eventElement.classList.add("scroll", "s5");
+          break;
+        case CLIENT_EVENTS.scroll.scroll6.oldCode:
+          eventElement.classList.add("scroll", "s6");
+          break;
+        case CLIENT_EVENTS.scroll.scroll7.oldCode:
+          eventElement.classList.add("scroll", "s7");
+          break;
+        case CLIENT_EVENTS.page.innerRouting.oldCode:
+        case CLIENT_EVENTS.page.showTours.oldCode:
+          // eventElement.classList.add("page-in");
+          break;
+
+        case CLIENT_EVENTS.page.pageShow.oldCode:
+          eventElement.classList.add("show-page", "circle");
+          break;
+        case CLIENT_EVENTS.page.out.oldCode:
+          eventElement.classList.add("page-out", "circle");
+          break;
+        // case CLIENT_EVENTS.page.in.oldCode:
+        //   eventElement.classList.add("page-in");
+        //   break;
+        case CLIENT_EVENTS.click.common.oldCode: //простой клик
+          eventElement.classList.add("click");
+          break;
+
+        default:
+          eventElement.classList.add("with-text");
+          let str =
+            CLIENT_EVENTS_TOOLS.oldCodeToName.get(event_code) || event_code;
+          eventElement.innerHTML = str;
+          const color = CLIENT_EVENTS_TOOLS.oldCodeToColors.get(event_code);
+          if (color) {
+            eventElement.style.backgroundColor = color.bgColor;
+            eventElement.style.color = color.txColor;
+          }
+      }
 
       t = time;
     }
