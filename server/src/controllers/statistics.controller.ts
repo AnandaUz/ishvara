@@ -182,7 +182,7 @@ export const StatisticsController = {
           });
           if (!ex) {
             if (!v1) {
-              console.log("###");
+              console.log("Не нашёл объект");
             } else if (!/\//.test(v1.toString())) {
               events.push(v1);
             }
@@ -193,6 +193,8 @@ export const StatisticsController = {
 
         events.forEach((ev) => {
           const code = CLIENT_EVENTS_TOOLS.oldCodeToCode.get(ev);
+
+          // групповые теги
           switch (code) {
             // если есть событие скрола то сраду добавляем тег скролл
             case CLIENT_EVENTS.scroll.scroll1.code:
@@ -216,6 +218,21 @@ export const StatisticsController = {
             case CLIENT_EVENTS.click.topBaner.code:
             case CLIENT_EVENTS.click.copyBookingPhone.code:
               tags.add(TAGS.goals.top.code);
+              break;
+          }
+          //events tags
+          switch (code) {
+            case CLIENT_EVENTS.click.topBaner.code:
+              tags.add(TAGS.events.click_topBaner.code);
+              break;
+            case CLIENT_EVENTS.click.bookingForm.code:
+              tags.add(TAGS.events.click_bronirivat.code);
+              break;
+            case CLIENT_EVENTS.click.copyBookingPhone.code:
+              tags.add(TAGS.events.click_copyPhone.code);
+              break;
+            case CLIENT_EVENTS.click.tourFilter.code:
+              tags.add(TAGS.events.tourFilter.code);
               break;
           }
         });

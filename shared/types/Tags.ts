@@ -7,6 +7,36 @@ interface ITagItem {
 }
 
 export const TAGS = {
+  events: {
+    click_topBaner: {
+      code: 101,
+      name: "cl baner",
+      description: "Клик банер",
+      bgColor: "#ff566cff",
+      fontColor: "#ffffff",
+    },
+    click_bronirivat: {
+      code: 102,
+      name: "cl бронировать",
+      description: "Клик бронировать",
+      bgColor: "#af3d4cff",
+      fontColor: "#ffffff",
+    },
+    click_copyPhone: {
+      code: 103,
+      name: "cl копировать телефон",
+      description: "Клик копировать телефон",
+      bgColor: "#b808cfff",
+      fontColor: "#ffffff",
+    },
+    tourFilter: {
+      code: 104,
+      name: "cl фильтр тур",
+      description: "Клик фильтр тур",
+      bgColor: "#01ccbbff",
+      fontColor: "#d1e0ffff",
+    },
+  },
   goals: {
     middle: {
       code: 31,
@@ -51,7 +81,12 @@ const FLAT_TAGS = flattenTags(TAGS);
 export const TAGS_TOOLS = {
   codeToName: new Map(FLAT_TAGS.map((e) => [e.code, e.name])),
   codeToDescription: new Map(FLAT_TAGS.map((e) => [e.code, e.description])),
-  codeToBgColor: new Map(FLAT_TAGS.map((e) => [e.code, e.bgColor])),
+  codeToBgColors: new Map(
+    FLAT_TAGS.map((e) => [
+      e.code,
+      { bgColor: e.bgColor, fontColor: e.fontColor },
+    ]),
+  ),
   // codeToFontColor: new Map(FLAT_TAGS.map((e) => [e.code, e.fontColor])),
 
   // getNames(events: (number | string)[]): (string | undefined)[] {

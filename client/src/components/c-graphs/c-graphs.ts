@@ -39,6 +39,7 @@ export class GraphData {
 export interface TGraphPoint {
   value: number;
   date: number;
+  title?: string;
   comment?: string;
   isDashed?: boolean;
 }
@@ -63,6 +64,7 @@ export class CGraphs extends HTMLElement {
   private dYY = 0;
   private graphs: GraphData[] = [];
   private tooltip!: HTMLDivElement;
+  title: string = "";
 
   optionsFromGraphs = {
     minValue: -Infinity,
@@ -76,8 +78,9 @@ export class CGraphs extends HTMLElement {
     forDay: Options.scale.forDay,
     forValue: Options.scale.forValue,
   };
-  constructor() {
+  constructor({ title }: { title?: string }) {
     super();
+    this.title = title ?? "";
   }
   addGraph(graph: GraphData) {
     this.graphs.push(graph);
@@ -93,6 +96,7 @@ export class CGraphs extends HTMLElement {
     this.initSvg();
     this.initDrag();
     this.initTooltip();
+    this.querySelector(".title")!.textContent = this.title;
   }
   initSvg() {
     // ── создаём SVG ───────────────────────────────────────────────────
@@ -440,6 +444,7 @@ export class CGraphs extends HTMLElement {
     for (let ii = 0; ii < this.graphs.length; ii++) {
       const layer = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
+      let dY_forGraph = ii * 2;
       this.svg.appendChild(layer);
       const graph = this.graphs[ii];
       const settings = graph?.settings;
@@ -458,8 +463,11 @@ export class CGraphs extends HTMLElement {
           if (curr && prevPoint) {
             const y1 =
               (grOptions.maxValue - (prevPoint as TGraphPoint).value) *
-              this.scale.forValue;
-            const y2 = (grOptions.maxValue - curr?.value) * this.scale.forValue;
+                this.scale.forValue +
+              dY_forGraph;
+            const y2 =
+              (grOptions.maxValue - curr?.value) * this.scale.forValue +
+              dY_forGraph;
 
             const dx = this.scale.forDay * 0.5;
             const d1 = prevPoint.date || 0;
@@ -473,6 +481,8 @@ export class CGraphs extends HTMLElement {
               Math.floor((d2 - minDate) / DAY_IN_MS) * this.scale.forDay * k +
               dx;
 
+            const innerHTML = `${curr.title || ""}`;
+
             this.createPoint(
               {
                 x: x2,
@@ -482,7 +492,7 @@ export class CGraphs extends HTMLElement {
                 radius: settings?.pointRadius || 1,
               },
               this.svg,
-              `<div class="w"> ${Math.round(curr.value * 100) / 100}</div>`,
+              innerHTML,
             );
 
             if (i == 2) {
@@ -495,7 +505,7 @@ export class CGraphs extends HTMLElement {
                   radius: settings?.pointRadius || 1,
                 },
                 this.svg,
-                `<div class="w"> ${Math.round(curr.value * 100) / 100}</div>`,
+                innerHTML,
               );
             }
             if (ii == 2) {

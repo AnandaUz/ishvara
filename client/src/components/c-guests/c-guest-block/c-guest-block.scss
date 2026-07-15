@@ -129,8 +129,9 @@ c-guest-block {
 
     .tag {
       --bg-color: #95caadff;
+      --fontColor: #000;
       background-color: var(--bg-color);
-      color: #02282b;
+      color: var(--fontColor);
       border-radius: 5px;
       font-size: 11px;
       padding: 0 4px;

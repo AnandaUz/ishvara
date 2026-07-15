@@ -112,10 +112,9 @@ export class CGuestsList extends HTMLElement {
           this.stat.forEach((count, tag) => {
             const span = document.createElement("span");
             span.innerHTML = `${TAGS_TOOLS.codeToName.get(tag)} <i>${count}</i>`;
-            span.style.setProperty(
-              "--bgColor",
-              TAGS_TOOLS.codeToBgColor.get(tag) || "",
-            );
+            const colors = TAGS_TOOLS.codeToBgColors.get(tag);
+            span.style.setProperty("--bgColor", colors?.bgColor || "");
+            span.style.setProperty("--fontColor", colors?.fontColor || "");
 
             el.appendChild(span);
           });

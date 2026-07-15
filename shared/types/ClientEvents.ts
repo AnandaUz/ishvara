@@ -62,6 +62,13 @@ export const CLIENT_EVENTS = {
     },
     common: { code: 34, name: "Клик", oldCode: "c" },
     goalClick: { code: 35, name: "Клик по кнопке цели", oldCode: 10 },
+    tourFilter: {
+      code: 36,
+      name: "Клик в фильтрах туров",
+      oldCode: "tour-filter",
+      bgColor: "#01ccbbff",
+      txColor: "#d1e0ffff",
+    },
   },
 } as const satisfies Record<string, Record<string, IClientEventCodeItem>>;
 

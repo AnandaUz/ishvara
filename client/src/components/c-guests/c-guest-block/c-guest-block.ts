@@ -155,12 +155,13 @@ export class CGuestBlock extends HTMLElement {
     tagsEl.innerHTML =
       data.tags
         ?.map((tag) => {
-          const bgColor = TAGS_TOOLS.codeToBgColor.get(tag);
+          const bgColor = TAGS_TOOLS.codeToBgColors.get(tag)?.bgColor;
+          const fontColor = TAGS_TOOLS.codeToBgColors.get(tag)?.fontColor;
           const name = TAGS_TOOLS.codeToName.get(tag);
           if (name === undefined) {
             console.log("tag", tag);
           }
-          return `<span class="tag" style="--bg-color: ${bgColor}">${name}</span>`;
+          return `<span class="tag" style="--bg-color: ${bgColor}; --font-color: ${fontColor}">${name}</span>`;
         })
         .join("") || "";
 

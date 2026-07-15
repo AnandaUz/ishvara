@@ -5,19 +5,87 @@ import "@/components/c-graphs/c-graphs";
 import { CGraphs, GraphData } from "@/components/c-graphs/c-graphs";
 import { core } from "@/features/core";
 import { api } from "@/services/api";
-import { TAGS } from "@shared/types/Tags";
+import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
 import { Tools } from "@/services/tools";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
+interface ITagStat {
+  tagId: number;
+  count: number;
+}
 
 export class CStaticticsBlock extends HTMLElement {
   constructor() {
     super();
   }
+  addGraphBlock({
+    title,
+    parentBlock,
+    tags,
+    data,
+  }: {
+    title: string;
+    parentBlock?: HTMLElement;
+    tags: number[];
+    data?: Array<{ _id: string; data: Array<ITagStat> }>;
+  }) {
+    if (!data) return;
+    const graphs = new CGraphs({ title });
+    (parentBlock || this).appendChild(graphs);
+    graphs.init();
+
+    const graphsDatas: GraphData[] = [];
+    tags.forEach((tagCode) => {
+      const colors = TAGS_TOOLS.codeToBgColors.get(tagCode);
+      graphsDatas[tagCode] = new GraphData({
+        color: colors?.bgColor || "rgba(0, 255, 115, 1)",
+        pointRadius: 0,
+      });
+    });
+    data.forEach((item: { _id: string; data: Array<ITagStat> }) => {
+      const date = new Date(item._id).getTime();
+
+      if (date < 1740834000000) return;
+
+      item.data.forEach((p) => {
+        const graphData = graphsDatas[p.tagId];
+        if (graphData) {
+          graphData.points.set(date, {
+            value: p.count,
+            date: date,
+            title: `${TAGS_TOOLS.codeToName.get(p.tagId)}: ${p.count}`,
+          });
+        }
+      });
+    });
+    graphsDatas.forEach((graphData) => {
+      const points = graphData.points;
+      const m = Array.from(points.values());
+      const minDate = m[0]?.date || 0;
+      const maxDate = m[m.length - 1]?.date || 0;
+
+      const daysDiff = (maxDate - minDate) / DAY_IN_MS;
+      for (let day = 0; day < daysDiff; day++) {
+        const date = minDate + day * DAY_IN_MS;
+
+        if (!points.has(date)) {
+          points.set(date, { value: 0, date: date });
+        }
+      }
+    });
+    graphsDatas.forEach((graphData) => {
+      graphs.addGraph(graphData);
+    });
+    graphs.refreshData();
+    graphs.setStartPosition();
+
+    graphs.render();
+  }
   async init() {
     this.innerHTML = template;
 
-    const body = this.querySelector(".body");
+    const body = this.querySelector(".body") as HTMLElement;
 
     if (!body) return;
     const projectId = core.localPersistence.state.projectId || "";
@@ -34,6 +102,12 @@ export class CStaticticsBlock extends HTMLElement {
         TAGS.page.tours.code,
         TAGS.goals.middle.code,
         TAGS.goals.top.code,
+
+        //events
+        TAGS.events.click_topBaner.code,
+        TAGS.events.click_bronirivat.code,
+        TAGS.events.click_copyPhone.code,
+        TAGS.events.tourFilter.code,
       ],
     });
     const dataBots = await api.statistics.countBots({
@@ -43,71 +117,23 @@ export class CStaticticsBlock extends HTMLElement {
     //#endregion
 
     // #region статстика по целям
-    const graphs2 = new CGraphs();
-    body.appendChild(graphs2);
-    graphs2.init();
-
-    const graphsDatas2: GraphData[] = [];
-    graphsDatas2[TAGS.goals.middle.code] = new GraphData({
-      color: TAGS.goals.middle.bgColor,
-      pointRadius: 0,
-    });
-    graphsDatas2[TAGS.goals.top.code] = new GraphData({
-      color: TAGS.goals.top.bgColor,
-      pointRadius: 0,
-    });
-    graphsDatas2[TAGS.page.tours.code] = new GraphData({
-      color: TAGS.page.tours.bgColor,
-      pointRadius: 0,
+    this.addGraphBlock({
+      title: "События",
+      parentBlock: body,
+      tags: [
+        TAGS.events.click_topBaner.code,
+        TAGS.events.click_bronirivat.code,
+        TAGS.events.click_copyPhone.code,
+        TAGS.events.tourFilter.code,
+      ],
+      data,
     });
 
-    data.forEach(
-      (item: {
-        _id: string;
-        data: Array<{ tagId: number; count: number }>;
-      }) => {
-        const date = new Date(item._id).getTime();
-
-        if (date < 1740834000000) return;
-
-        item.data.forEach((p) => {
-          const graphData = graphsDatas2[p.tagId];
-          if (graphData) {
-            graphData.points.set(date, {
-              value: p.count,
-              date: date,
-            });
-          }
-        });
-      },
-    );
-    graphsDatas2.forEach((graphData) => {
-      const points = graphData.points;
-      const m = Array.from(points.values());
-      const minDate = m[0]?.date || 0;
-      const maxDate = m[m.length - 1]?.date || 0;
-
-      const daysDiff = (maxDate - minDate) / DAY_IN_MS;
-      for (let day = 0; day < daysDiff; day++) {
-        const date = minDate + day * DAY_IN_MS;
-
-        if (!points.has(date)) {
-          points.set(date, { value: 0, date: date });
-        }
-      }
-    });
-    graphsDatas2.forEach((graphData) => {
-      graphs2.addGraph(graphData);
-    });
-    graphs2.refreshData();
-    graphs2.setStartPosition();
-
-    graphs2.render();
     //#endregion
 
     //---
 
-    const graphs = new CGraphs();
+    const graphs = new CGraphs({ title: "Глобальная посещаемость" });
     body.appendChild(graphs);
     graphs.init();
 
@@ -138,26 +164,21 @@ export class CStaticticsBlock extends HTMLElement {
 
     //{"_id":"2019-12-21","data":[{"tagId":10,"count":1}]}
 
-    data.forEach(
-      (item: {
-        _id: string;
-        data: Array<{ tagId: number; count: number }>;
-      }) => {
-        const date = new Date(item._id).getTime();
+    data.forEach((item: { _id: string; data: Array<ITagStat> }) => {
+      const date = new Date(item._id).getTime();
 
-        if (date < 1740834000000) return;
+      if (date < 1740834000000) return;
 
-        item.data.forEach((p) => {
-          const graphData = graphsDatas.get(p.tagId);
-          if (graphData) {
-            graphData.points.set(date, {
-              value: p.count,
-              date: date,
-            });
-          }
-        });
-      },
-    );
+      item.data.forEach((p) => {
+        const graphData = graphsDatas.get(p.tagId);
+        if (graphData) {
+          graphData.points.set(date, {
+            value: p.count,
+            date: date,
+          });
+        }
+      });
+    });
 
     graphsDatas.forEach((graphData) => {
       graphs.addGraph(graphData);
