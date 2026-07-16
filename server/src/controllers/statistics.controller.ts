@@ -234,6 +234,12 @@ export const StatisticsController = {
             case CLIENT_EVENTS.click.tourFilter.code:
               tags.add(TAGS.events.tourFilter.code);
               break;
+            case CLIENT_EVENTS.click.smallSearchTours.code:
+              tags.add(TAGS.events.smallSearchTours.code);
+              break;
+            case CLIENT_EVENTS.page.openTourDetails.code:
+              tags.add(TAGS.page.openTourDetails.code);
+              break;
           }
         });
 

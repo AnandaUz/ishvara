@@ -7,6 +7,15 @@ interface ITagItem {
 }
 
 export const TAGS = {
+  bot: {
+    bot: {
+      code: 2000,
+      name: "bot",
+      description: "Бот",
+      bgColor: "#748e99ff",
+      fontColor: "#ffffff",
+    },
+  },
   events: {
     click_topBaner: {
       code: 101,
@@ -35,6 +44,12 @@ export const TAGS = {
       description: "Клик фильтр тур",
       bgColor: "#01ccbbff",
       fontColor: "#d1e0ffff",
+    },
+    smallSearchTours: {
+      code: 105,
+      name: "Поиск туров малая форма",
+      bgColor: "#2ca09aff",
+      fontColor: "#021853ff",
     },
   },
   goals: {
@@ -68,6 +83,12 @@ export const TAGS = {
       name: "стр Туры",
       description: "Страница туры",
       bgColor: "#d8b281ff",
+    },
+    openTourDetails: {
+      code: 26,
+      name: "Переход в описание тура",
+      bgColor: "#019af3ff",
+      fontColor: "#d1fff9ff",
     },
   },
 } as const satisfies Record<string, Record<string, ITagItem>>;

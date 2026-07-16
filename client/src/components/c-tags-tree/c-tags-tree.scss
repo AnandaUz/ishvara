@@ -1,0 +1,150 @@
+c-tag-tree {
+  display: block;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.tag-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 480px;
+}
+
+.tag-picker__field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.tag-picker__placeholder {
+  color: #98a2b3;
+  align-self: center;
+  padding-left: 4px;
+}
+
+.tag-picker__chip {
+  --bg: #ccc;
+  --fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tag-picker__chip-remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.tag-picker__tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.tag-picker__group {
+  &+& {
+    border-top: 1px solid #f0f1f3;
+    padding-top: 6px;
+    margin-top: 2px;
+  }
+}
+
+.tag-picker__group-title {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  color: #344054;
+  padding: 4px 2px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::before {
+    content: "▶";
+    font-size: 9px;
+    color: #98a2b3;
+    transition: transform 0.15s ease;
+  }
+}
+
+details[open]>.tag-picker__group-title::before {
+  transform: rotate(90deg);
+}
+
+.tag-picker__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0 8px 4px;
+}
+
+.tag-picker__item {
+  --bg: #ccc;
+  --fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+  .tag-picker__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #e4e7ec;
+  }
+
+  &.is-selected {
+    background: var(--bg);
+    color: var(--fg);
+    border-color: rgba(0, 0, 0, 0.15);
+
+    .tag-picker__dot {
+      background: var(--fg);
+    }
+  }
+}

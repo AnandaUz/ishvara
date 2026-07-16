@@ -7,6 +7,7 @@ import { core } from "@/features/core";
 import { api } from "@/services/api";
 import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
 import { Tools } from "@/services/tools";
+import { CTagsTree } from "../c-tags-tree/c-tags-tree";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -83,6 +84,8 @@ export class CStaticticsBlock extends HTMLElement {
     graphs.render();
   }
   async init() {
+    const tagsTree = document.createElement("c-tag-tree");
+    document.body.appendChild(tagsTree);
     this.innerHTML = template;
 
     const body = this.querySelector(".body") as HTMLElement;
@@ -94,25 +97,36 @@ export class CStaticticsBlock extends HTMLElement {
     if (!projectId) return;
 
     // #region загрузка данных
-    const data = await api.statistics.countTags({
-      projectId: Number(projectId),
-      companyId: Number(companyId),
-      tags: [
-        TAGS.scroll.was.code,
-        TAGS.page.tours.code,
-        TAGS.goals.middle.code,
-        TAGS.goals.top.code,
+    const data: Array<{ _id: string; data: Array<ITagStat> }> =
+      await api.statistics.countTags({
+        projectId: Number(projectId),
+        companyId: Number(companyId),
+        tags: [
+          TAGS.scroll.was.code,
+          TAGS.page.tours.code,
+          TAGS.goals.middle.code,
+          TAGS.goals.top.code,
 
-        //events
-        TAGS.events.click_topBaner.code,
-        TAGS.events.click_bronirivat.code,
-        TAGS.events.click_copyPhone.code,
-        TAGS.events.tourFilter.code,
-      ],
-    });
+          //events
+          TAGS.events.click_topBaner.code,
+          TAGS.events.click_bronirivat.code,
+          TAGS.events.click_copyPhone.code,
+          TAGS.events.tourFilter.code,
+          TAGS.events.smallSearchTours.code,
+          TAGS.page.openTourDetails.code,
+        ],
+      });
     const dataBots = await api.statistics.countBots({
       projectId: Number(projectId),
       companyId: Number(companyId),
+    });
+    dataBots.forEach((bot: { _id: string; count: number }) => {
+      const d = data.find((item) => {
+        return item._id === bot._id;
+      });
+      if (d) {
+        d.data.push({ tagId: TAGS.bot.bot.code, count: bot.count });
+      }
     });
     //#endregion
 
@@ -125,124 +139,22 @@ export class CStaticticsBlock extends HTMLElement {
         TAGS.events.click_bronirivat.code,
         TAGS.events.click_copyPhone.code,
         TAGS.events.tourFilter.code,
+        TAGS.events.smallSearchTours.code,
+        TAGS.page.openTourDetails.code,
       ],
       data,
     });
 
     //#endregion
 
-    //---
-
-    const graphs = new CGraphs({ title: "Глобальная посещаемость" });
-    body.appendChild(graphs);
-    graphs.init();
-
-    //
-
-    const graphBots = new GraphData({ color: "#6d6d6dff", pointRadius: 0 });
-
-    // console.log(dataBots);
-    dataBots.forEach((item: { _id: string; count: number }) => {
-      const date = new Date(item._id).getTime();
-
-      graphBots.points.set(date, {
-        value: item.count,
-        date: date,
-      });
-    });
-    graphs.addGraph(graphBots);
-
-    const graphsDatas = new Map<number, GraphData>();
-    graphsDatas.set(
-      TAGS.scroll.was.code,
-      new GraphData({ color: TAGS.scroll.was.bgColor, pointRadius: 0 }),
-    );
-    graphsDatas.set(
-      TAGS.page.tours.code,
-      new GraphData({ color: TAGS.page.tours.bgColor, pointRadius: 0 }),
-    );
-
-    //{"_id":"2019-12-21","data":[{"tagId":10,"count":1}]}
-
-    data.forEach((item: { _id: string; data: Array<ITagStat> }) => {
-      const date = new Date(item._id).getTime();
-
-      if (date < 1740834000000) return;
-
-      item.data.forEach((p) => {
-        const graphData = graphsDatas.get(p.tagId);
-        if (graphData) {
-          graphData.points.set(date, {
-            value: p.count,
-            date: date,
-          });
-        }
-      });
+    this.addGraphBlock({
+      title: "Общие события",
+      parentBlock: body,
+      tags: [TAGS.scroll.was.code, TAGS.page.tours.code, TAGS.bot.bot.code],
+      data,
     });
 
-    graphsDatas.forEach((graphData) => {
-      graphs.addGraph(graphData);
-    });
-
-    // #region усреднёный график для тега скролл
-    const graphScrollMid = new GraphData({
-      color: "#009933ff",
-      strokeWidth: 3,
-    });
-
-    // console.log(dataBots);
-    const grScrollPoints = graphsDatas.get(TAGS.scroll.was.code)!.points;
-    const m = Array.from(grScrollPoints.values());
-    const minDate = m[0]?.date || 0;
-    const maxDate = m[m.length - 1]?.date || 0;
-    const predMidArray: number[] = [];
-    if (minDate && maxDate) {
-      const daysDiff = (maxDate - minDate) / DAY_IN_MS;
-      for (let day = 0; day < daysDiff; day++) {
-        const date = minDate + day * DAY_IN_MS;
-        const val = grScrollPoints.get(date);
-        if (val) {
-          predMidArray.push(val.value);
-        } else {
-          predMidArray.push(0);
-        }
-      }
-    }
-    const midArray: number[] = Tools.loess(predMidArray, 10);
-    midArray.forEach((value, i) => {
-      const date = minDate + i * DAY_IN_MS;
-
-      graphScrollMid.points.set(date, {
-        value: value,
-        date: date,
-      });
-    });
-    graphs.addGraph(graphScrollMid);
-
-    //#endregion
-
-    // ----------------------
-    // const graph1 = new GraphData("#013b1381", 2);
-
-    // const d1 = new Date("2025-01-2");
-    // d1.setHours(10, 0, 0, 0);
-    // graph1.points.set(d1, {
-    //   value: 0,
-    //   date: d1,
-    // });
-    // const d2 = new Date();
-    // d2.setHours(10, 0, 0, 0);
-    // graph1.points.set(d2, {
-    //   value: 100,
-    //   date: d2,
-    // });
-
-    // graphs.addGraph(graph1);
-
-    graphs.refreshData();
-    graphs.setStartPosition();
-
-    graphs.render();
+    // const midArray: number[] = Tools.loess(predMidArray, 10);
   }
   connectedCallback() {
     this.init();

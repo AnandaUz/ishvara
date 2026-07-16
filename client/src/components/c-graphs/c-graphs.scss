@@ -42,7 +42,7 @@ c-graphs {
 }
 
 .tooltip {
-  position: absolute;
+  position: fixed;
   /* Абсолютное позиционирование относительно .graph-wrapper */
   background: rgba(235, 253, 255, 0.8);
   color: #000000;

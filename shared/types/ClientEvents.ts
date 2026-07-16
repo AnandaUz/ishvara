@@ -37,6 +37,13 @@ export const CLIENT_EVENTS = {
       oldCode: "inner-routing",
     },
     pageShow: { code: 25, name: "Показал страницу", oldCode: 11 },
+    openTourDetails: {
+      code: 26,
+      name: "Переход в описание тура",
+      oldCode: "open-tour-details",
+      bgColor: "#019af3ff",
+      txColor: "#d1fff9ff",
+    },
   },
   click: {
     topBaner: {
@@ -68,6 +75,13 @@ export const CLIENT_EVENTS = {
       oldCode: "tour-filter",
       bgColor: "#01ccbbff",
       txColor: "#d1e0ffff",
+    },
+    smallSearchTours: {
+      code: 37,
+      name: "Поиск туров малая форма",
+      oldCode: "small-search-tours",
+      bgColor: "#2ca09aff",
+      txColor: "#021853ff",
     },
   },
 } as const satisfies Record<string, Record<string, IClientEventCodeItem>>;
