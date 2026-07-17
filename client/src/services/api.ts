@@ -82,10 +82,11 @@ export const api = {
       projectId: string,
       limit: number = 20,
       skip: number = 0,
+      tags: number[] = [],
     ) => {
       const response = await fetch(
         import.meta.env.VITE_API_URL +
-          `/api/guests/get?skip=${skip}&limit=${limit}&projectId=${projectId}`,
+          `/api/guests/get?skip=${skip}&limit=${limit}&projectId=${projectId}&tags=${tags.join(",")}`,
       );
       const text = await response.text();
       console.log(

@@ -17,7 +17,7 @@ import {
 import { api } from "@/services/api";
 import { CModal } from "../../c-modal/c-modal";
 import { core } from "@/features/core";
-import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
+import { TAGS_TOOLS } from "@shared/types/Tags";
 
 const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 export class CGuestsList extends HTMLElement {
@@ -43,8 +43,15 @@ export class CGuestsList extends HTMLElement {
     this.guestForm?.init(guestBlock, this.modalMenu!);
   }
   async loadNextGuests() {
+    const projectId = core.localPersistence.state.projectId!;
+    const tags = core.localPersistence.state.filterTags?.[projectId];
+
+    if (!projectId || !tags || tags.length === 0) {
+      return;
+    }
     const guests = await core.serverPersistence.loadNextGuests(
       Number(core.localPersistence.state.projectId!),
+      tags,
     );
     this.addGuestsBlocks(guests);
   }
@@ -80,10 +87,7 @@ export class CGuestsList extends HTMLElement {
     this.guests_list_block?.replaceChildren();
     this.guestsNotes = [];
 
-    const guests = await core.serverPersistence.loadNextGuests(
-      Number(core.localPersistence.state.projectId!),
-    );
-    this.addGuestsBlocks(guests);
+    await this.loadNextGuests();
   }
   addGuestsBlocks(data: IGuest[]) {
     if (!data) return;
@@ -92,13 +96,13 @@ export class CGuestsList extends HTMLElement {
       const guest = data[i];
       if (!guest) continue;
 
-      if (
-        !(
-          guest.tags?.includes(TAGS.goals.top.code) ||
-          guest.tags?.includes(TAGS.goals.middle.code)
-        )
-      )
-        continue;
+      // if (
+      //   !(
+      //     guest.tags?.includes(TAGS.goals.top.code) ||
+      //     guest.tags?.includes(TAGS.goals.middle.code)
+      //   )
+      // )
+      //   continue;
 
       let d = new Date(guest.lastChange || guest.createdAt!);
 

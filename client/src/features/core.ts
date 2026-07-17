@@ -57,17 +57,18 @@ class Core {
     this.tagsTreeMenu = tagsTreeMenu;
     document.body.appendChild(tagsTreeMenu);
     const projectId = core.localPersistence.state.projectId || "";
-    const tagsFilter = core.localPersistence.state.tagsFilter?.[projectId];
-    if (tagsFilter) {
-      tagsTreeMenu.setValue(tagsFilter);
+    const filterTags = core.localPersistence.state.filterTags?.[projectId];
+    if (filterTags) {
+      tagsTreeMenu.setValue(filterTags);
     }
     tagsTreeMenu.addEventListener("tags-change", (e: any) => {
-      if (!core.localPersistence.state.tagsFilter) {
-        core.localPersistence.state.tagsFilter = {};
+      if (!core.localPersistence.state.filterTags) {
+        core.localPersistence.state.filterTags = {};
       }
       const projectId = core.localPersistence.state.projectId || "";
-      core.localPersistence.state.tagsFilter[projectId] = e.detail.codes;
+      core.localPersistence.state.filterTags[projectId] = e.detail.codes;
       core.localPersistence.save();
+      core.cGuestList.render();
     });
   }
 }

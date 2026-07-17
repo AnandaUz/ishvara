@@ -7,9 +7,17 @@ export class ServerPersistence {
   init() {
     this.skip = 0;
   }
-  async loadNextGuests(projectId: number): Promise<IGuest[]> {
+  async loadNextGuests(
+    projectId: number,
+    filtersTags: number[] = [],
+  ): Promise<IGuest[]> {
     const from = this.skip;
     this.skip += LIMIT;
-    return await api.guest.loadNext(projectId.toString(), LIMIT, from);
+    return await api.guest.loadNext(
+      projectId.toString(),
+      LIMIT,
+      from,
+      filtersTags,
+    );
   }
 }

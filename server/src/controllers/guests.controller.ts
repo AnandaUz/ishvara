@@ -6,7 +6,7 @@ import { pixels_configs } from "../pixels_configs.js";
 // import { IPixelEventData } from "../../../shared/types/Is.js";
 
 export async function getGuests(req: Request, res: Response) {
-  const { projectId, limit, skip } = req.query;
+  const { projectId, limit, skip, tags } = req.query;
 
   const match: Record<string, any> = {};
 
@@ -15,6 +15,11 @@ export async function getGuests(req: Request, res: Response) {
   if (projectId) {
     match.projectId = Number(projectId);
   }
+  if (tags && typeof tags === "string") {
+    const filtersTags = tags.split(",").map(Number);
+    match.tags = { $in: filtersTags };
+  }
+
   const guests = await Guest.aggregate([
     { $match: match },
     {

@@ -4,7 +4,7 @@ interface IPageData {
   companiesIds?: Record<string, string>;
   adsets?: string;
   viewports?: string;
-  tagsFilter?: Record<string, number[]>;
+  filterTags?: Record<string, number[]>;
 }
 export class LocalPersistence {
   state: IPageData = {} as IPageData;
