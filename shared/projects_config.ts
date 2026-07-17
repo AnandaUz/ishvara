@@ -85,6 +85,13 @@ export const bigProjects: IBigProjectConfig[] = [
             viewText: "🐞",
             ads: [{ name: "v", id: 1 }],
           },
+          {
+            id: 4,
+            name: "сар. радио",
+            createdAt: "17.07.26",
+            viewText: "👗",
+            ads: [{ name: "v", id: 1 }],
+          },
         ],
       },
       {
