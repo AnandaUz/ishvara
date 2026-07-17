@@ -6,8 +6,6 @@ import { CGraphs, GraphData } from "@/components/c-graphs/c-graphs";
 import { core } from "@/features/core";
 import { api } from "@/services/api";
 import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
-import { Tools } from "@/services/tools";
-import { CTagsTree } from "../c-tags-tree/c-tags-tree";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -84,8 +82,6 @@ export class CStaticticsBlock extends HTMLElement {
     graphs.render();
   }
   async init() {
-    const tagsTree = document.createElement("c-tag-tree");
-    document.body.appendChild(tagsTree);
     this.innerHTML = template;
 
     const body = this.querySelector(".body") as HTMLElement;

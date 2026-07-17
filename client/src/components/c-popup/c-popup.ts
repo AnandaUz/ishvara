@@ -14,8 +14,15 @@ export class CPopup extends HTMLElement {
     if (anchor) {
       const rect = anchor.getBoundingClientRect();
       this.style.position = "fixed";
-      this.style.top = `${rect.bottom + 6}px`;
-      this.style.left = `${rect.left}px`;
+      let y = rect.bottom + 6;
+      let x = rect.left;
+
+      if (x + this.offsetWidth > window.innerWidth)
+        x = window.innerWidth - this.offsetWidth;
+      if (y + this.offsetHeight > window.innerHeight)
+        y = window.innerHeight - this.offsetHeight;
+      this.style.top = `${y}px`;
+      this.style.left = `${x}px`;
     }
     this.onOpen(this.targetElement);
 
@@ -35,6 +42,9 @@ export class CPopup extends HTMLElement {
       this.targetElement = targetElement;
     }
     this.hasAttribute("open") ? this.close() : this.open(anchor);
+  }
+  connectedCallback() {
+    this.classList.add("c-popup");
   }
 }
 

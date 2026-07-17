@@ -1,7 +1,17 @@
 import "./c-tags-tree.scss";
 import template from "./c-tags-tree.html?raw";
-import { TAGS } from "@shared/types/Tags"; 
+import { TAGS } from "@shared/types/Tags";
+import { CPopup } from "../c-popup/c-popup";
 
+/**
+ * const picker = document.querySelector("c-tag-picker") as CTagPicker;
+picker.onChange = (items) => console.log(items.map(i => i.code));
+// или
+picker.addEventListener("tags-change", (e: any) => console.log(e.detail.codes));
+
+// программная установка
+picker.setValue([101, 2000]);
+ */
 interface ITagItem {
   code: number;
   name: string;
@@ -13,7 +23,7 @@ interface ITagItem {
 type TagsGroup = Record<string, ITagItem>;
 type TagsTree = Record<string, TagsGroup>;
 
-export class CTagsTree extends HTMLElement {
+export class CTagsTree extends CPopup {
   private tags: TagsTree = TAGS as unknown as TagsTree;
   private selected = new Map<number, ITagItem>();
 
@@ -23,6 +33,7 @@ export class CTagsTree extends HTMLElement {
   onChange: (selected: ITagItem[]) => void = () => {};
 
   connectedCallback() {
+    super.connectedCallback();
     this.innerHTML = template;
     this.fieldEl = this.querySelector("[data-field]")!;
     this.treeEl = this.querySelector("[data-tree]")!;
@@ -50,6 +61,8 @@ export class CTagsTree extends HTMLElement {
 
       for (const itemKey in group) {
         const item = group[itemKey];
+
+        if (!item) continue;
 
         const itemEl = document.createElement("button");
         itemEl.type = "button";
@@ -160,7 +173,7 @@ export class CTagsTree extends HTMLElement {
     const result: ITagItem[] = [];
     for (const groupKey in this.tags) {
       for (const itemKey in this.tags[groupKey]) {
-        result.push(this.tags[groupKey][itemKey]);
+        result.push(this.tags[groupKey][itemKey] as ITagItem);
       }
     }
     return result;

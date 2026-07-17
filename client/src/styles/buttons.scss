@@ -2,6 +2,13 @@ button {
   font-family: "Montserrat", sans-serif;
 }
 
+:root {
+  --grBottom: linear-gradient(0deg, #001b2430 0%, #00000000 50%);
+  --ico: url("@/assets/ico-filter.svg");
+  --ico-h: url("@/assets/ico-filter-h.svg");
+
+}
+
 .btn {
   border: none;
   cursor: pointer;
@@ -37,6 +44,43 @@ button {
   --w: 16px;
   width: var(--w);
   height: var(--w);
+}
+
+.tools-btns {
+  --w: 22px;
+  --bgColor: rgb(215, 225, 238);
+  --color: #1477a8;
+  background: var(--grBottom) center bottom repeat-x, var(--bgColor);
+
+  border-radius: 5px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color);
+  padding: 2px 5px;
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3);
+  transition: filter 0.15s ease;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: var(--w);
+    height: var(--w);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: var(--ico);
+  }
+
+  &:hover {
+    filter: brightness(0.9);
+
+    &::before {
+      background-image: var(--ico-h);
+    }
+  }
+
+
 }
 
 .btn-delete {

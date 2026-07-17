@@ -6,6 +6,7 @@ import type { CGuestsList } from "@/components/c-guests/c-guests-list/c-guests-l
 import { ProjectsManager } from "@features/projectsManager";
 import { ServerPersistence } from "./server-persistence";
 import { LocalPersistence } from "./local-persistence";
+import { CTagsTree } from "@/components/c-tags-tree/c-tags-tree";
 
 class Core {
   options = {
@@ -16,6 +17,7 @@ class Core {
   projectsManager!: ProjectsManager;
   serverPersistence!: ServerPersistence;
   localPersistence!: LocalPersistence;
+  tagsTreeMenu!: CTagsTree;
   protected unsubscribers: Array<() => void> = [];
 
   store = new Store();
@@ -50,6 +52,23 @@ class Core {
     //- options ------
     const d = localStorage.getItem("guests-show-timeline");
     if (d !== null) this.options.isShowTimeLine = d === "true";
+
+    const tagsTreeMenu = document.createElement("c-tag-tree") as CTagsTree;
+    this.tagsTreeMenu = tagsTreeMenu;
+    document.body.appendChild(tagsTreeMenu);
+    const projectId = core.localPersistence.state.projectId || "";
+    const tagsFilter = core.localPersistence.state.tagsFilter?.[projectId];
+    if (tagsFilter) {
+      tagsTreeMenu.setValue(tagsFilter);
+    }
+    tagsTreeMenu.addEventListener("tags-change", (e: any) => {
+      if (!core.localPersistence.state.tagsFilter) {
+        core.localPersistence.state.tagsFilter = {};
+      }
+      const projectId = core.localPersistence.state.projectId || "";
+      core.localPersistence.state.tagsFilter[projectId] = e.detail.codes;
+      core.localPersistence.save();
+    });
   }
 }
 

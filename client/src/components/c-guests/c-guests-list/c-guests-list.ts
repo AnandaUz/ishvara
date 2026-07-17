@@ -240,6 +240,15 @@ export class CGuestsList extends HTMLElement {
         core.options.isShowTimeLine = checked;
         core.store.emit(EVENTS.options.Changed, { isShowTimeLine: checked });
       });
+
+    const filterBtn = document.querySelector(
+      ".tools-btns.i-filter",
+    ) as HTMLElement;
+    if (filterBtn) {
+      filterBtn.addEventListener("click", () => {
+        core.tagsTreeMenu?.toggle(filterBtn);
+      });
+    }
   }
 }
 
