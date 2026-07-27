@@ -46,7 +46,7 @@ export class CGuestsList extends HTMLElement {
     const projectId = core.localPersistence.state.projectId!;
     const tags = core.localPersistence.state.filterTags?.[projectId];
 
-    if (!projectId || !tags || tags.length === 0) {
+    if (!projectId) {
       return;
     }
     const guests = await core.serverPersistence.loadNextGuests(

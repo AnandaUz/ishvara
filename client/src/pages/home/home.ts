@@ -165,6 +165,7 @@ export const homePage: Page = () => {
       const v1 = viewports?.querySelector(".v-statistics") as HTMLElement;
       const v2 = viewports?.querySelector(".v-guests") as HTMLElement;
       let cGuestList: CGuestsList | null = null;
+
       let cStaticticsBlock: CStaticticsBlock | null = null;
       const viewportsRender = () => {
         v1.style.display = "none";
@@ -186,6 +187,7 @@ export const homePage: Page = () => {
             v2.appendChild(cGuestList);
           }
           cGuestList.render();
+          core.cGuestList = cGuestList;
         }
       };
       viewportsRender();

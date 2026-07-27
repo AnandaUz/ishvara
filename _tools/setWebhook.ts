@@ -2,7 +2,7 @@ import "../_base/server/config";
 import { TG_MODES } from "../server/src/controllers/tgbots/TgBots.js";
 import { setWebhook2, Links } from "../_base/_tools/setWebhook.js";
 
-const ngrokUrl = "4859-92-253-194-231";
+const ngrokUrl = "b19e-92-253-194-211";
 
 const apiUrl = "/tgbots_user_webhook";
 
@@ -66,6 +66,6 @@ const links: Links = {
 // setWebhook2("подключить клиент MEDITATION PROD к API", links);
 
 // setWebhook2("подключить клиент Ananda_bot (как админ) к NGROK", links);
-// setWebhook2("подключить клиент DEV к NGROK", links);
+setWebhook2("подключить клиент DEV к NGROK", links);
 
-setWebhook2("подключить клиент TGBOT_ADMIN к PROD", links);
+// setWebhook2("подключить клиент TGBOT_ADMIN к PROD", links);
