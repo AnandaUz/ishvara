@@ -33,6 +33,7 @@ export interface IGuest {
   tags?: number[];
   notes?: string;
   b?: boolean;
+  pages?: number[];
   chat?: {
     id: number;
     tgbotName: string;

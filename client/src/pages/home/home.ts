@@ -11,6 +11,7 @@ import type { CGuestsList } from "@/components/c-guests/c-guests-list/c-guests-l
 import { EVENTS } from "@/features/store";
 import "@/components/c-statictics-block/c-statictics-block";
 import type { CStaticticsBlock } from "@/components/c-statictics-block/c-statictics-block";
+import { api } from "@/services/api";
 
 interface ITabData {
   companyId?: number;
@@ -22,8 +23,8 @@ export const homePage: Page = () => {
     html: html,
     pageClass: "home-page",
 
-    init() {
-      core.init();
+    async init() {
+      await core.init();
       const companyTabs_block = document.querySelector(
         ".company-tabs-block",
       ) as HTMLElement;
@@ -146,6 +147,11 @@ export const homePage: Page = () => {
           name: `активность`,
           bgColor: "rgba(79, 204, 135, 1)",
         } as ITab);
+        c.push({
+          id: 3,
+          name: `визиты на страницы`,
+          bgColor: "rgba(0, 186, 233, 1)",
+        } as ITab);
         viewTypeTabs.init(c);
         let activeViewType = core.localPersistence.state.viewports;
         if (activeViewType) {
@@ -161,33 +167,76 @@ export const homePage: Page = () => {
       });
       // #endregion viewTypeTabs
       // #region viewports
-      const viewports = document.querySelector(".viewports-block");
-      const v1 = viewports?.querySelector(".v-statistics") as HTMLElement;
-      const v2 = viewports?.querySelector(".v-guests") as HTMLElement;
+      const viewportsBl = document.querySelector(".viewports-block");
+      const viewportsEl = viewportsBl?.querySelectorAll(
+        ".viewport",
+      ) as NodeListOf<HTMLElement>;
+      // const v1 = viewports?.querySelector(".v-statistics") as HTMLElement;
+      // const v2 = viewports?.querySelector(".v-guests") as HTMLElement;
       let cGuestList: CGuestsList | null = null;
 
       let cStaticticsBlock: CStaticticsBlock | null = null;
-      const viewportsRender = () => {
-        v1.style.display = "none";
-        v2.style.display = "none";
+      const viewportsRender = async () => {
+        viewportsEl.forEach((el) => {
+          el.style.display = "none";
+        });
         let activeViewportId = core.localPersistence.state.viewports;
-        if (activeViewportId === "1") {
-          v1.style.display = "block";
-          if (!cStaticticsBlock) {
-            cStaticticsBlock = document.createElement(
-              "c-statictics-block",
-            ) as CStaticticsBlock;
-            v1.appendChild(cStaticticsBlock);
+        if (activeProjectId) {
+          const activBlock = viewportsEl?.[Number(activeViewportId) - 1];
+          if (!activBlock) return;
+          activBlock.style.display = "block";
+
+          if (activeViewportId === "1") {
+            if (!cStaticticsBlock) {
+              cStaticticsBlock = document.createElement(
+                "c-statictics-block",
+              ) as CStaticticsBlock;
+              activBlock.appendChild(cStaticticsBlock);
+            }
+          } else if (activeViewportId === "2") {
+            // guest list
+            if (!cGuestList) {
+              cGuestList = document.createElement(
+                "c-guests-list",
+              ) as CGuestsList;
+              activBlock.appendChild(cGuestList);
+            }
+            cGuestList.render();
+            core.cGuestList = cGuestList;
+          } else if (activeViewportId === "3") {
+            // visits
+            const visitsList = activBlock.querySelector(
+              ".visits-list",
+            ) as HTMLElement;
+            visitsList.innerHTML = "";
+            const data = await api.statistics.pageVisitsForMonth({
+              projectId: Number(core.localPersistence.state.projectId),
+            });
+
+            for (let i = 0; i < 100; i++) {
+              const item = data[i] as { _id: number; count: number };
+              const page = core.pagesURLData.getPathById(item._id);
+
+              let segments = page?.split("/").filter(Boolean);
+
+              if (segments?.length == 0) segments = ["🏠"];
+              let eventName = segments
+                ?.map((segment, i) => {
+                  let cls = `s${i + 1}`;
+
+                  // if (i === segments.length - 1) cls = "ss";
+
+                  return `<span class="${cls}">${segment}</span>`;
+                })
+                .join("");
+
+              visitsList.innerHTML += `<div class="line">
+                <div class="count">${item.count}</div>
+                <div class="id">${item._id}</div>
+                <div class="events"><a href="https://world-travel.uz${page}" target="_blank">${eventName}</a></div>
+              </div>`;
+            }
           }
-        } else if (activeViewportId === "2") {
-          // guest list
-          v2.style.display = "block";
-          if (!cGuestList) {
-            cGuestList = document.createElement("c-guests-list") as CGuestsList;
-            v2.appendChild(cGuestList);
-          }
-          cGuestList.render();
-          core.cGuestList = cGuestList;
         }
       };
       viewportsRender();

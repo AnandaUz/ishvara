@@ -7,6 +7,7 @@ import { ProjectsManager } from "@features/projectsManager";
 import { ServerPersistence } from "./server-persistence";
 import { LocalPersistence } from "./local-persistence";
 import { CTagsTree } from "@/components/c-tags-tree/c-tags-tree";
+import { PagesURLData } from "./PagesURLData";
 
 class Core {
   options = {
@@ -19,16 +20,19 @@ class Core {
   localPersistence!: LocalPersistence;
   tagsTreeMenu!: CTagsTree;
   protected unsubscribers: Array<() => void> = [];
+  pagesURLData!: PagesURLData;
 
   store = new Store();
 
-  init() {
+  async init() {
     this.projectsManager = new ProjectsManager();
     this.serverPersistence = new ServerPersistence();
     this.localPersistence = new LocalPersistence();
 
     this.localPersistence.init();
     this.projectsManager.init();
+    this.pagesURLData = new PagesURLData();
+    await this.pagesURLData.init();
 
     document.addEventListener("DOMContentLoaded", () => {
       core.store.emit(EVENTS.page.loaded, null);

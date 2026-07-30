@@ -42,6 +42,7 @@ const GuestSchema = new Schema<IGuestDocument>(
       id: { type: Number },
       tgbotName: { type: String },
     },
+    pages: { type: [Number], default: undefined },
   },
   // {
   //   // Важно включить, чтобы алиасы корректно преобразовывались в .toJSON() и .toObject()

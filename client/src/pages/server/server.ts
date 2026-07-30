@@ -2,6 +2,7 @@ import { api } from "@/services/api";
 import type { Page } from "../../types";
 import tpl from "./server.html?raw";
 import "./server.scss";
+import { core } from "@/features/core";
 // import { TAGS } from "@shared/types/Tags";
 
 export const serverPage: Page = () => ({
@@ -31,5 +32,6 @@ export const serverPage: Page = () => ({
       textEl.innerHTML = "";
       api.eventSourceAsync("/api/statistics/set-tags", textEl);
     });
+    //---------------------------------
   },
 });

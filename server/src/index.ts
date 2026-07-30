@@ -3,11 +3,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "../../_base/server/db.js";
 import compression from "compression";
-// import userRoutes from './routes/user.routes.js';
-// import authRoutes from './routes/auth.routes.js';
-
-// import telegramRoutes from './routes/telegram.routes.js';
-// import { bot } from './bot.js';
+import pagesRouter from "./routers/pages.routers.js";
 
 import trackerRouter from "./routers/tracker.routers.js";
 import guestsRouter from "./routers/guests.routers.js";
@@ -45,6 +41,7 @@ app.use("/api/guests", guestsRouter);
 app.use("/api/chats", chatsRouter);
 app.use("/api/statistics", statisticsRouter);
 app.use("/api/server", serverRouter);
+app.use("/api/pages", pagesRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

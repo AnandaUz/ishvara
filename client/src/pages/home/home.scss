@@ -68,3 +68,57 @@
      }
 
 }
+
+.visits-list {
+     a {
+          &:hover {
+               background: #0785d883;
+          }
+     }
+
+     span {
+          font-size: 13px;
+          display: inline-block;
+          background: #e3b8e0;
+          padding: 2px 3px;
+          border-radius: 5px;
+          margin-right: 2px;
+          line-height: 1;
+          // overflow: hidden;
+          // white-space: nowrap;
+          // text-overflow: ellipsis;
+          // max-width: 110px;
+
+          &.s1 {
+               font-weight: bold;
+          }
+
+          &.s2 {
+               background: #c1d3fd;
+          }
+
+          &.s3 {
+               background: #f9e6de;
+               font-weight: normal;
+
+          }
+     }
+}
+
+.line {
+     display: flex;
+     flex-direction: row;
+     gap: 10px;
+
+     .count {
+          min-width: 50px;
+          text-align: right;
+     }
+
+     .id {
+          min-width: 50px;
+          text-align: right;
+          color: #859d94;
+     }
+
+}

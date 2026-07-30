@@ -10,6 +10,9 @@ import { TAGS } from "../../../shared/types/Tags.js";
 
 import { Request, Response } from "express";
 import { guestObj } from "./guests.controller.js";
+import { IPages } from "../../../shared/types/IPages.js";
+
+import Pages from "../models/Pages.js";
 
 // const ToolsForBase = {
 //   arhivGuest: async (guest: IGuest) => {
@@ -32,6 +35,43 @@ import { guestObj } from "./guests.controller.js";
 //     return guest;
 //   },
 // };
+
+class PagesStatistics {
+  pagesMap = new Map<string, number>();
+  maxId = 0;
+  newPages: IPages[] = [];
+  // загружаем один раз
+  allPages: IPages[] = [];
+  res?: Response;
+  req?: Request;
+
+  async init(res: Response) {
+    this.res = res;
+    this.allPages = await Pages.find();
+
+    this.allPages.forEach((p) => {
+      this.pagesMap.set(p.path || "", (p._id as number) || 1);
+      if ((p._id as number) > this.maxId) this.maxId = p._id as number;
+    });
+  }
+
+  findOrCreatePage(path: string) {
+    if (this.pagesMap.has(path)) return this.pagesMap.get(path)!;
+
+    this.maxId++;
+    this.pagesMap.set(path, this.maxId);
+    this.newPages.push({ _id: this.maxId, path }); // копим новые
+    return this.maxId;
+  }
+
+  async saveNewPages() {
+    await Pages.bulkWrite(
+      this.newPages.map((p) => ({
+        insertOne: { document: p },
+      })),
+    );
+  }
+}
 
 export const StatisticsController = {
   findUnregistredEvents: async (req: Request, res: Response) => {
@@ -150,8 +190,11 @@ export const StatisticsController = {
 
     const guests = await Guest.find({ b: { $exists: false } })
       .sort({ createdAt: -1 })
-      // .limit(100)
+      // .limit(30)
       .lean();
+
+    const pagesStatistics = new PagesStatistics();
+    await pagesStatistics.init(res);
 
     res.write(`data: ${guests.length} ...\n\n`);
     res.flush();
@@ -163,19 +206,45 @@ export const StatisticsController = {
 
     let tt = 0;
     let ttt = 0;
+    let fRefEventString = false;
     for (let i = 0; i < guests.length; i++) {
       tt++;
       const guest = guests[i] as unknown as IGuest;
       if (!guest) continue;
       const e = guest.events;
 
+      fRefEventString = false;
+
+      const pageIds: number[] = [];
+
       let events: Array<number | string> = [];
       if (e && e.length > 0) {
         //{"events":[["t1782360861713","/tours"],[8.9,2],[49,3],[86.9,4],[113.8,5],[158.3,"c"],[160.2,"open-tour-details"],[160.2,"c"],[160.4,"open-tour-details"],[160.4,"c"],[160.6,9],
 
         e.forEach((val) => {
-          // const v0 = val[0];
+          const v0 = val[0];
           const v1 = val[1];
+
+          // собираю информацию о страницах, чтобы потом сохранить их отдельно
+          if (v0 && typeof v0 === "string" && v0.startsWith("t")) {
+            let ind: number | null = null;
+            if (v1 && typeof v1 === "string") {
+              fRefEventString = true;
+              ind = pagesStatistics.findOrCreatePage(v1 as string);
+
+              val[1] = ind;
+            } else {
+              ind = v1 as number;
+            }
+            if (ind !== null && typeof ind === "number") {
+              const ex = pageIds.find((el) => {
+                return el === ind;
+              });
+              if (!ex) {
+                pageIds.push(ind);
+              }
+            }
+          }
 
           const ex = events.find((el) => {
             return el === v1;
@@ -261,6 +330,21 @@ export const StatisticsController = {
             res.flush();
           }
         }
+
+        const isHasSameEvents = ServerTools.arrays.isSubset(
+          pageIds,
+          guest.pages || [],
+        );
+        if (fRefEventString || !isHasSameEvents) {
+          const update = {} as IGuest;
+
+          if (!isHasSameEvents) {
+            update.pages = pageIds;
+          }
+          update.events = guest.events ?? [];
+
+          await guestObj.patchOneGuest(guest._id || "", update);
+        }
         // if (tt > 100) {
         //   res.write(
         //     `data: ${i} : ${((i / guests.length) * 100).toFixed(2)} % : Изменений ${ttt}\n\n`,
@@ -279,6 +363,18 @@ export const StatisticsController = {
     }
 
     // clearInterval(heartbeat);
+    if (pagesStatistics.newPages.length) {
+      pagesStatistics.newPages.forEach((p) => {
+        res.write(`data: ${JSON.stringify(p.path)} \n\n`);
+      });
+
+      res.write(
+        `data: <b style="color:#ff4400"> Всего новых страниц ${pagesStatistics.newPages.length}</b> \n\n`,
+      );
+
+      res.flush();
+      await pagesStatistics.saveNewPages();
+    }
 
     res.write(`data: КОНЕЦ ПОТОКА. Изменений ${ttt} \n\n`);
 
@@ -364,5 +460,55 @@ export const StatisticsController = {
     ]);
 
     res.json(bStats);
+  },
+  stat_pageVisitsForMonth: async (req: Request, res: Response) => {
+    const { projectId } = req.query;
+    const now = new Date();
+    const startOfMonth = new Date();
+    startOfMonth.setMonth(now.getMonth() - 1);
+
+    const stats = await Guest.aggregate([
+      { $match: { projectId: Number(projectId) } },
+      { $match: { pages: { $exists: true, $ne: [] } } },
+      { $unwind: "$pages" },
+      {
+        $group: {
+          _id: "$pages",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    res.json(stats);
+  },
+  stat_pageVisitsForWeeks: async (req: Request, res: Response) => {
+    const { projectId } = req.query;
+
+    const now = new Date();
+
+    const getStats = async (weeksAgo: number) => {
+      const from = new Date(now.getTime() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+      const to = new Date(
+        now.getTime() - (weeksAgo - 1) * 7 * 24 * 60 * 60 * 1000,
+      );
+
+      return Guest.aggregate([
+        { $match: { projectId: Number(projectId) } },
+        { $match: { pages: { $exists: true, $ne: [] } } },
+        { $match: { createdAt: { $gte: from, $lt: to } } },
+        { $unwind: "$pages" },
+        { $group: { _id: "$pages", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]);
+    };
+
+    const [week1, week2, week3, week4] = await Promise.all([
+      getStats(1),
+      getStats(2),
+      getStats(3),
+      getStats(4),
+    ]);
+    res.json({ week1, week2, week3, week4 });
   },
 };

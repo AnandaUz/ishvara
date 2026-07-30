@@ -92,21 +92,65 @@ export async function sendMetaEvent(req: Request, res: Response) {
   }
 }
 
-async function addTags(_id: string, tags: number[]) {
-  try {
-    await Guest.updateOne({ _id }, { $addToSet: { tags: { $each: tags } } });
-  } catch (error) {
-    console.log("addTags error:", error);
-  }
-}
 export const guestObj = {
-  addTags,
+  addTags: async (_id: string, tags: number[]) => {
+    try {
+      await Guest.updateOne({ _id }, { $addToSet: { tags: { $each: tags } } });
+    } catch (error) {
+      console.log("addTags error:", error);
+    }
+  },
+  patchEvents: async (
+    _id: string,
+    events: [number | string, number | string][],
+  ) => {
+    try {
+      await Guest.updateOne({ _id }, { $set: { events } });
+    } catch (error) {
+      console.log("patchEvents error:", error);
+    }
+  },
+  async patchOneGuest(id: string, update: IGuest) {
+    try {
+      const updateQuery: any = {};
+      const toSet: any = {};
+      const toUnset: any = {};
+
+      // Пробегаемся по телу запроса
+      for (const key of Object.keys(update) as (keyof IGuest)[]) {
+        if (update[key] === null) {
+          toUnset[key] = "";
+        } else if (key !== "_id") {
+          toSet[key] = update[key];
+        }
+      }
+
+      // Формируем финальный запрос, только если в них есть ключи
+      if (Object.keys(toSet).length > 0) updateQuery.$set = toSet;
+      if (Object.keys(toUnset).length > 0) updateQuery.$unset = toUnset;
+
+      // Если объект запроса пустой, сразу отвечаем
+      if (Object.keys(updateQuery).length === 0) {
+        return false;
+      }
+
+      await Guest.updateOne(
+        { _id: new mongoose.Types.ObjectId(id) },
+        updateQuery,
+      );
+
+      return true;
+    } catch (error) {
+      console.log("patchOneGuest error:", error);
+      return false;
+    }
+  },
 };
 
 export async function post_addTag(_req: Request, res: Response) {
   const { _id, tag } = _req.body;
   try {
-    await addTags(_id, [tag]);
+    await guestObj.addTags(_id, [tag]);
     res.json({ ok: true });
   } catch (error) {
     res.status(500).json({ error: "error" });

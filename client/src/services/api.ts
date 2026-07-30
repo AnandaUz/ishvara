@@ -35,6 +35,11 @@ export const api = {
       });
     });
   },
+  pages: {
+    getAll: async () => {
+      return fetch(import.meta.env.VITE_API_URL + "/api/pages/get");
+    },
+  },
   server: {
     arhive1: async () => {
       return fetch(import.meta.env.VITE_API_URL + "/api/server/arhive1");
@@ -72,6 +77,34 @@ export const api = {
       const result = await fetch(
         import.meta.env.VITE_API_URL +
           `/api/statistics/stat-count-bots?projectId=${projectId}&companyId=${companyId}`,
+      );
+      const data = await result.json();
+      return data;
+    },
+    pageVisitsForMonth: async ({
+      projectId,
+      companyId,
+    }: {
+      projectId: number;
+      companyId?: number;
+    }) => {
+      const result = await fetch(
+        import.meta.env.VITE_API_URL +
+          `/api/statistics/stat-page-visits-for-month?projectId=${projectId}&companyId=${companyId}`,
+      );
+      const data = await result.json();
+      return data;
+    },
+    pageVisitsForWeeks: async ({
+      projectId,
+      companyId,
+    }: {
+      projectId: number;
+      companyId?: number;
+    }) => {
+      const result = await fetch(
+        import.meta.env.VITE_API_URL +
+          `/api/statistics/stat-page-visits-for-weeks?projectId=${projectId}&companyId=${companyId}`,
       );
       const data = await result.json();
       return data;
