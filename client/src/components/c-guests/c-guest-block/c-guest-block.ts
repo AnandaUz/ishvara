@@ -165,7 +165,7 @@ export class CGuestBlock extends HTMLElement {
         })
         .join("") || "";
 
-    tagsEl.innerHTML += `[ ${data.pages?.join(",")} ]`;
+    // tagsEl.innerHTML += `[ ${data.pages?.join(",")} ]`;
 
     this.data = data;
     this.owner = owner;
