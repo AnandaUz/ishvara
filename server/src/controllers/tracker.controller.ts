@@ -61,6 +61,8 @@ export const start = async (req: Request, res: Response) => {
     let adsetId: number | undefined = undefined;
     let adId: number | undefined = undefined;
 
+    let guestName: string | undefined = undefined;
+
     if (urlParamsString) {
       const urlParams = new URLSearchParams(urlParamsString);
 
@@ -73,6 +75,8 @@ export const start = async (req: Request, res: Response) => {
       if (a) adsetId = Number(a);
       const b = fMainKey?.[2];
       if (b) adId = Number(b);
+
+      guestName = urlParams.get("n")?.toString();
     }
 
     if (f) {
@@ -104,10 +108,29 @@ export const start = async (req: Request, res: Response) => {
         // ...(instagram && { instagram }),
         ...(paramsString && { paramsString }),
         ...(oldEvents && { events: oldEvents }),
+        ...(guestName && { name: guestName }),
       };
       const guest = await Guest.create(guestData);
       res.status(200).json({ _id: guest._id });
     } else {
+      const updatePayload: Partial<IGuest> = {};
+
+      if (guestName && guestName !== oldGuest?.name) {
+        updatePayload.name = guestName;
+      }
+      if (companyId && companyId !== oldGuest?.companyId) {
+        updatePayload.companyId = companyId;
+      }
+      if (adsetId && adsetId !== oldGuest?.adsetId) {
+        updatePayload.adsetId = adsetId;
+      }
+      if (adId && adId !== oldGuest?.adId) {
+        updatePayload.adId = adId;
+      }
+
+      if (Object.keys(updatePayload).length > 0) {
+        await Guest.updateOne({ _id }, { $set: updatePayload });
+      }
       res.status(200).json({ _id: _idGuest.toString() });
     }
   } catch (error) {

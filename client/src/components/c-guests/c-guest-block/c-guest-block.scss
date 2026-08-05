@@ -457,6 +457,34 @@ c-guest-block {
           }
         }
 
+        &.up,
+        &.down {
+          background: #4e9b74;
+          border-radius: 6px;
+          width: 8px;
+          height: 8px;
+          font-size: 0;
+
+          &::before {
+            background: url("@assets/ico-str-up-down.svg");
+            background-size: 8px 13px;
+            width: 7px;
+            height: 7px;
+            display: inline-block;
+            background-position: 0 6px;
+            margin: 2px 0 0 0px;
+          }
+        }
+
+        &.down {
+          background: #062081;
+
+          &::before {
+            background-position: 0 -2px;
+
+          }
+        }
+
       }
 
       &.click {

@@ -53,7 +53,11 @@ export class CGuestsList extends HTMLElement {
       Number(core.localPersistence.state.projectId!),
       tags,
     );
-    this.addGuestsBlocks(guests);
+    if (guests.length > 0) {
+      this.addGuestsBlocks(guests);
+    } else {
+      this.observer.disconnect();
+    }
   }
   constructor() {
     super();

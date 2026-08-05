@@ -17,8 +17,8 @@ const Color = {
 } as const;
 export const CLIENT_EVENTS = {
   scroll: {
-    up: { code: 11, name: "скрол наверх" },
-    down: { code: 12, name: "скрол вниз" },
+    up: { code: 11, name: "скрол наверх", oldCode: "U" },
+    down: { code: 12, name: "скрол вниз", oldCode: "D" },
     scroll1: { code: 13, name: "скрол 1", oldCode: 1 },
     scroll2: { code: 14, name: "скрол 2", oldCode: 2 },
     scroll3: { code: 15, name: "скрол 3", oldCode: 3 },

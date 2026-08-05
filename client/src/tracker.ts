@@ -1,6 +1,8 @@
 const API_URL =
   "https://ishvara-api-7097239392.europe-west1.run.app" + "/api/tracker";
 
+// const API_URL = "http://localhost:1020" + "/api/tracker";
+
 const STORAGE_ID = "guestID";
 
 function getCookie(name: string): string {
@@ -14,7 +16,7 @@ interface IEventCodeItem {
   color?: string;
   class?: string;
 }
-export const EVENT_CODE = {
+const EVENT_CODE = {
   scroll0: { code: 1 },
   scroll1: { code: 2 },
   scroll2: { code: 3 },
@@ -48,12 +50,7 @@ class Guest {
   scrollLever: number = 0;
 
   constructor() {
-    if (!EVENT_CODE) {
-      console.error("EVENT_CODE is not defined");
-      return;
-    }
-    setInterval(() => this.flush(), 3_000);
-
+    setInterval(() => this.flush(), 2_000);
     //---------------------
 
     document.addEventListener("visibilitychange", () => {
@@ -84,10 +81,6 @@ class Guest {
     });
     //---------------------
     this.setBaseEvents();
-
-    // window.addEventListener("pagerendered", () => {
-    //   this.onInPage();
-    // });
   }
   onInPage() {
     if (this.isFirstInPage) {
@@ -99,6 +92,8 @@ class Guest {
   }
 
   setBaseEvents() {
+    let scrollInd = 0;
+    const yShag = 300;
     window.addEventListener("scroll", () => {
       let i = Math.round(
         (window.scrollY /
@@ -111,6 +106,16 @@ class Guest {
         this.scrollLever = i;
         const key = `scroll${i}` as keyof typeof EVENT_CODE;
         if (EVENT_CODE[key]) this.track(EVENT_CODE[key]!.code);
+      }
+
+      const y = Math.ceil(window.scrollY / yShag);
+      if (y !== scrollInd) {
+        if (y > scrollInd) {
+          this.track("D");
+        } else {
+          this.track("U");
+        }
+        scrollInd = y;
       }
     });
     let count = 0;
@@ -156,6 +161,16 @@ class Guest {
 
   async init() {
     const urlParams = new URLSearchParams(window.location.search);
+    /* если в строке есть параметры
+    g={ObjectId} - устанавливает этот айди для пользователя на этом устройстве
+    это нужно, когда пользователь заходит с разных устройств. Если он на одном зарегался,
+    то можно послыть ссылку на др. страницы, не волнуясь что на неё он пройдёт с др. устройства.
+    k=3-2-1 - так можно указать к какой компании (реализованно на сервере)
+    первое число, это id компании
+    второе - adsets - тут указывает название разных эддсетов. Добавив эдсет "из инстаграмма"
+    можно видеть кто прошёл именно отуда
+    n={string} - задать имя гостю в базе по этому id (реализованно на сервере)
+    */
     let guestID = urlParams.get("g");
     if (!guestID) guestID = localStorage.getItem(STORAGE_ID);
 

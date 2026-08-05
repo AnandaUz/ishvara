@@ -454,6 +454,12 @@ export class CGuestBlock extends HTMLElement {
         case CLIENT_EVENTS.scroll.scroll7.oldCode:
           eventElement.classList.add("scroll", "s7");
           break;
+        case CLIENT_EVENTS.scroll.up.oldCode:
+          eventElement.classList.add("scroll", "up");
+          break;
+        case CLIENT_EVENTS.scroll.down.oldCode:
+          eventElement.classList.add("scroll", "down");
+          break;
         case CLIENT_EVENTS.page.innerRouting.oldCode:
         case CLIENT_EVENTS.page.showTours.oldCode:
           // eventElement.classList.add("page-in");
