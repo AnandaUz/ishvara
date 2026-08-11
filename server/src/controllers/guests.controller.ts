@@ -20,6 +20,8 @@ export async function getGuests(req: Request, res: Response) {
     match.tags = { $in: filtersTags };
   }
 
+  // console.log("match", match);
+
   const guests = await Guest.aggregate([
     { $match: match },
     {

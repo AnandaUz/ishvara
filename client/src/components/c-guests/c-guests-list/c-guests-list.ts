@@ -236,7 +236,8 @@ export class CGuestsList extends HTMLElement {
       const res = await api.guest.clearEvents(guest.data._id!);
       if (res.ok) {
         guest.data.events = [];
-        guest.querySelector(".events-bl")!.innerHTML = "";
+        guest.querySelector(".time-line-block")!.innerHTML = "";
+        this.menu?.close();
       }
     });
 

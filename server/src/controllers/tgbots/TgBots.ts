@@ -1,4 +1,6 @@
 import { Telegraf } from "telegraf";
+import { IGuest } from "../../../../shared/types/IGuest.js";
+import { updateGuest } from "../guests.controller.js";
 
 export interface BotConfig {
   mode: string;
@@ -7,6 +9,7 @@ export interface BotConfig {
 export const TG_MODES = {
   mastermind: "mastermind",
   meditation: "meditation",
+  vmeste: "vmeste",
   admin: "admin",
 };
 export const botConfigs: BotConfig[] = [
@@ -21,6 +24,10 @@ export const botConfigs: BotConfig[] = [
   {
     mode: TG_MODES.admin,
     token: process.env.TGBOT_ADMIN_TOKEN || "",
+  },
+  {
+    mode: TG_MODES.vmeste,
+    token: process.env.TGBOT_ANANDA_BOT_TOKEN || "",
   },
 ];
 interface IUserInfo {
@@ -50,9 +57,25 @@ class TgBots {
   }
   getStartMessages(payload: string, userID: string) {
     let typeText = "";
+    let clientMsg = "";
     switch (payload) {
+      case TG_MODES.vmeste:
+        typeText = "на ВМЕСТЕ";
+        clientMsg = `✅ Я рад вашему желанию встретиться и пообщаться! 
+В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы подберём удобное для вас время он-лайн звонка.
+`;
+
+        break;
       case "meditation":
         typeText = "на КОЛЛЕКТИВНУЮ МЕДИТАЦИЮ";
+        clientMsg = `✅ Я благодарю вас за регистрацию на коллективную медитацию!
+      
+      Рад сообщеить, что мы теперь проводим и асана-класс (физ. упражения) до медитации с 9:20.
+
+В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы завершим регистрацию.
+
+Информацию о расписании, локации и прочем вы можете получить по ссылке:
+https://m.esho.uz/location?g=${userID}`;
         break;
       case "mastermind":
         typeText = "на МАСТЕРМАЙНД";
@@ -62,43 +85,26 @@ class TgBots {
         break;
       case "meet":
         typeText = "на бесплатную встречу";
-        break;
-      case "question":
-        typeText = "на вопрос";
-        break;
-    }
-
-    const suffix = typeText ? ` ${typeText}` : "";
-
-    let clientMsg = `✅ Я благодарю вас за регистрацию!
-Ваша заявка${suffix} отправлена! В самое ближайшее время я (Ананда @ananda_uz) отвечу вам`;
-
-    if (payload === "question") {
-      clientMsg = `✅ Я рад вашему сообщению! 
-В самое ближайшее время я (Ананда @ananda_uz) напишу вам в личном сообщении, и вы сможете задать свой вопрос`;
-    }
-    if (payload === "meet") {
-      clientMsg = `✅ Я благодарю вас за регистрацию! 
+        clientMsg = `✅ Я благодарю вас за регистрацию! 
 В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы подберём удобное для вас время.
 
 И я рад поделиться с вами гайдом "Трансформация без саботажа", вы сможете почитать его пока я вам отвечаю.
 
 https://esho.uz/guide?g=${userID}`;
+        break;
+      case "question":
+        clientMsg = `✅ Я рад вашему сообщению! 
+В самое ближайшее время я (Ананда @ananda_uz) напишу вам в личном сообщении, и вы сможете задать свой вопрос`;
+        break;
     }
-    if (payload === "meditation") {
-      clientMsg = `✅ Я благодарю вас за регистрацию на коллективную медитацию!
-      
-      Рад сообщеить, что мы теперь проводим и асана-класс (физ. упражения) до медитации с 9:20.
-
-В самое ближайшее время я (Ананда @ananda_uz) напишу вам, и мы завершим регистрацию.
-
-Информацию о расписании, локации и прочем вы можете получить по ссылке:
-https://m.esho.uz/location?g=${userID}`;
+    if (clientMsg == "") {
+      clientMsg = `✅ Я благодарю вас за регистрацию!
+Ваша заявка${typeText} отправлена! В самое ближайшее время я (Ананда @ananda_uz) отвечу вам`;
     }
 
     return {
       forGuest: clientMsg,
-      forAdmin: suffix,
+      forAdmin: typeText,
     };
   }
   getUserData(ctx: any) {
@@ -137,22 +143,22 @@ BaseID: ${userID || "---"} `;
       this.sendMesToAdmin(adminMsg);
       await ctx.reply(forGuest);
 
-      //  if (userID) {
-      //    await chats.createNewChatFor(userID, tgbotName);
-      //    try {
-      //      const guestData: IGuest = {
-      //        tg: {
-      //          first_name: firstName,
-      //          last_name: lastName || "",
-      //          id: ctx.from.id.toString(),
-      //          username: username || "",
-      //        },
-      //      };
-      //      await updateGuest(userID, guestData);
-      //    } catch (error) {
-      //      console.log(error);
-      //    }
-      //  }
+      if (userID) {
+        // await chats.createNewChatFor(userID, tgbotName);
+        try {
+          const guestData: IGuest = {
+            tg: {
+              first_name: userInfo.firstName,
+              last_name: userInfo.lastName || "",
+              id: userInfo.id,
+              username: userInfo.username || "",
+            },
+          };
+          await updateGuest(userID, guestData);
+        } catch (error) {
+          console.log(error);
+        }
+      }
     });
     bot.on("message", async (ctx) => {
       if (tgbotName === TG_MODES.admin) {

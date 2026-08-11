@@ -72,7 +72,7 @@
 .visits-list {
      a {
           &:hover {
-               background: #0785d883;
+               background: #0784d842;
           }
      }
 
@@ -84,17 +84,14 @@
           border-radius: 5px;
           margin-right: 2px;
           line-height: 1;
-          // overflow: hidden;
-          // white-space: nowrap;
-          // text-overflow: ellipsis;
-          // max-width: 110px;
+          color: #000;
 
           &.s1 {
                font-weight: bold;
           }
 
           &.s2 {
-               background: #c1d3fd;
+               background: #c1d3fd42;
           }
 
           &.s3 {

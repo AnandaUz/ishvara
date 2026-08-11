@@ -359,23 +359,29 @@ export class CGuestBlock extends HTMLElement {
           timeLineBlock.appendChild(blBR);
         }
 
-        let segments = event![1].toString().split("/").filter(Boolean);
-        if (segments.length == 0) segments = ["🏠"];
-        let eventName = segments
-          .map((segment, i) => {
-            let cls = `s${i + 1}`;
+        let urlStr = "";
 
-            // if (i === segments.length - 1) cls = "ss";
+        if (typeof event[1] === "string") {
+          let segments = event![1].toString().split("/").filter(Boolean);
+          if (segments.length == 0) segments = ["🏠"];
+          urlStr = segments
+            .map((segment, i) => {
+              let cls = `s${i + 1}`;
 
-            return `<b class="${cls}">${segment}</b>`;
-          })
-          .join("");
+              // if (i === segments.length - 1) cls = "ss";
 
-        if (segments.length === 1) {
-          if (segments[0] == "tours") this.flags.isTour = true;
+              return `<b class="${cls}">${segment}</b>`;
+            })
+            .join("");
+        } else {
+          urlStr = core.pagesURLData.getUrlStrById(Number(event[1])) || "?";
         }
 
-        eventElement.innerHTML = eventName;
+        // if (segments.length === 1) {
+        //   if (segments[0] == "tours") this.flags.isTour = true;
+        // }
+
+        eventElement.innerHTML = urlStr;
         eventElement.classList.add("url");
         if (newStarTime) {
           const d = `${newStarTime.getDate().toString().padStart(2, "0")}.${(newStarTime.getMonth() + 1).toString().padStart(2, "0")}`;

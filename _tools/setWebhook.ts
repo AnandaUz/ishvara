@@ -1,15 +1,22 @@
 import "../_base/server/config";
 import { TG_MODES } from "../server/src/controllers/tgbots/TgBots.js";
-import { setWebhook2, Links } from "../_base/_tools/setWebhook.js";
+import { setWebhook3 } from "../_base/_tools/setWebhook.js";
 
-const ngrokUrl = "b19e-92-253-194-211";
+const ngrokUrl = "a6a8-92-253-194-211";
 
 const apiUrl = "/tgbots_user_webhook";
 
 // const ppServerBase = "https://liner-api-7097239392.asia-south2.run.app";
-const serverBase = "https://ishvara-api-7097239392.europe-west1.run.app";
+// const serverBase = "https://ishvara-api-7097239392.europe-west1.run.app";
 
 const fullNgrokUrl = `https://${ngrokUrl}.ngrok-free.app`;
+
+setWebhook3({
+  name: "подключить клиент Ananda_bot к ngrok",
+  BOT_TOKEN: process.env.TGBOT_ANANDA_BOT_TOKEN || "",
+  SERVER_URL: fullNgrokUrl,
+  apiURL: apiUrl + "?mode=" + TG_MODES.vmeste,
+});
 // есть два вида бота
 //- клиентский бот
 //-- дев
@@ -18,6 +25,7 @@ const fullNgrokUrl = `https://${ngrokUrl}.ngrok-free.app`;
 //-- пока один
 
 //+'?mode=meditation',
+/*
 const links: Links = {
   "подключить клиент MEET DEV к NGROK": {
     BOT_TOKEN: process.env.TGBOT_MM_TOKEN || "",
@@ -66,6 +74,7 @@ const links: Links = {
 // setWebhook2("подключить клиент MEDITATION PROD к API", links);
 
 // setWebhook2("подключить клиент Ananda_bot (как админ) к NGROK", links);
-setWebhook2("подключить клиент DEV к NGROK", links);
+// setWebhook2("подключить клиент DEV к NGROK", links);
 
 // setWebhook2("подключить клиент TGBOT_ADMIN к PROD", links);
+*/
