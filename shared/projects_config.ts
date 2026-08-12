@@ -41,6 +41,7 @@ export interface IBigProjectConfig {
   pixel?: string;
   city?: string;
   country?: string;
+  url?: string;
 }
 export const bigProjects: IBigProjectConfig[] = [
   {
@@ -54,6 +55,7 @@ export const bigProjects: IBigProjectConfig[] = [
     pixel: "masterMind",
     city: "tashkent",
     country: "uz",
+
     companys: [
       {
         id: 3,

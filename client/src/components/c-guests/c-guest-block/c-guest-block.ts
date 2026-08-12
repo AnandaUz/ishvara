@@ -28,10 +28,10 @@ export class CGuestBlock extends HTMLElement {
   private isRendered: boolean = false;
   private body!: HTMLDivElement;
   private timeLineBlock!: HTMLDivElement;
-  private projectConfig?: any;
-  private companyConfig?: any;
-  private adsetConfig?: any;
-  private adConfig?: any;
+  // private projectConfig!: any;
+  private companyConfig!: any;
+  private adsetConfig!: any;
+  private adConfig!: any;
   private isVisible: boolean = false;
   unsubscribers: Array<() => void> = [];
   flags = {
@@ -42,13 +42,19 @@ export class CGuestBlock extends HTMLElement {
   async sendLevel_and_MetaEvent(level: number) {
     if (this.data.level === level) return true;
 
-    this.data.level = level;
+    const userData = this.data;
 
-    const activeProject = core.projectsManager.activeProject;
+    const projectId = Number(core.localPersistence.state.projectId);
+    const companyId = Number(core.localPersistence.state.companiesIds);
+    const adset = Number(core.localPersistence.state.adsets);
+
+    // const activeProject = core.projectsManager.activeProject;
     // if (!activeProject?.config.companyPageURL) return false;
-    const config = activeProject?.config;
-    const pixel = config?.pixel;
-    // const companyPageURL = config?.companyPageURL;
+    const projectConfig = bigProjectsGet.projectById(projectId);
+    const companyConfig = bigProjectsGet.companyById(projectId, companyId);
+    const adsetConfig = bigProjectsGet.adsetById(projectId, companyId, adset);
+    const pixel = companyConfig?.pixel || projectConfig?.pixel;
+    // const companyPageURL = companyConfig?.companyPageURL;
 
     let res = null;
     if (pixel) {
@@ -56,11 +62,10 @@ export class CGuestBlock extends HTMLElement {
       const eventTime = Math.floor(Date.now() / 1000); //this.data.lastChange;
       const eventObj = META_EVENT_BY_CODE[level]!;
 
-      const userData = this.data;
       const data: IPixelEventData = {
         event_name: eventName,
         event_time: eventTime,
-        event_source_url: this.companyConfig.companyPageURL,
+        event_source_url: companyConfig?.companyPageURL || "",
         action_source: "website",
         user_data: {},
         event_id: `eventId_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -73,8 +78,8 @@ export class CGuestBlock extends HTMLElement {
         data.user_data.client_ip_address = userData.ip;
       }
 
-      const city = this.adsetConfig?.city || this.projectConfig?.city;
-      const country = this.adsetConfig?.country || this.projectConfig?.country;
+      const city = adsetConfig?.city || companyConfig?.city || "";
+      const country = adsetConfig?.country || companyConfig?.country || "";
       if (city) {
         data.user_data.ct = await Tools.hashSHA256(city); // хешируется, lowercase
       }
@@ -97,7 +102,7 @@ export class CGuestBlock extends HTMLElement {
         data.custom_data = {
           currency: "USD",
           value: eventObj.value,
-          content_name: this.companyConfig?.name || "",
+          content_name: companyConfig?.name || "",
         };
       }
       if (userData?.instagram?.fbp) data.user_data.fbp = userData.instagram.fbp;
@@ -106,16 +111,19 @@ export class CGuestBlock extends HTMLElement {
       if (userData?.userAgentString)
         data.user_data.client_user_agent = userData.userAgentString;
 
-      const pixelData = this.companyConfig.pixel || this.projectConfig.pixel;
+      // const pixelData = pixel;
 
-      res = await api.guest.sendMetaEvent([data], pixelData);
+      console.log(data);
+      // res = await api.guest.sendMetaEvent([data], pixel);
     }
-
+    return false;
     if ((pixel && res && res.ok) || !pixel) {
       const res2 = await api.guest.patchOne(this.data._id || "dfdf", this.data);
       if (res2.ok) {
         // this._levelBehavior = tag;
+        this.data.level = level;
         this.render();
+
         return true;
       }
     }
@@ -532,7 +540,7 @@ export class CGuestBlock extends HTMLElement {
     //   // chat.initForGuest(this.data);
     // });
 
-    this.projectConfig = bigProjectsGet.projectById(data.projectId!);
+    // this.projectConfig = bigProjectsGet.projectById(data.projectId!);
     this.companyConfig = bigProjectsGet.companyById(
       data.projectId!,
       data.companyId!,

@@ -12,6 +12,7 @@ import { EVENTS } from "@/features/store";
 import "@/components/c-statictics-block/c-statictics-block";
 import type { CStaticticsBlock } from "@/components/c-statictics-block/c-statictics-block";
 import { api } from "@/services/api";
+import { sBlock_dinamic } from "./sBlock_dinamic";
 
 interface ITabData {
   companyId?: number;
@@ -152,6 +153,11 @@ export const homePage: Page = () => {
           name: `визиты на страницы`,
           bgColor: "rgba(0, 186, 233, 1)",
         } as ITab);
+        c.push({
+          id: 4,
+          name: `динамика страниц`,
+          bgColor: "rgb(204 161 229)",
+        } as ITab);
         viewTypeTabs.init(c);
         let activeViewType = core.localPersistence.state.viewports;
         if (activeViewType) {
@@ -236,6 +242,8 @@ export const homePage: Page = () => {
                 <div class="events"><a href="https://world-travel.uz${page}" target="_blank">${eventName}</a></div>
               </div>`;
             }
+          } else if (activeViewportId === "4") {
+            sBlock_dinamic();
           }
         }
       };

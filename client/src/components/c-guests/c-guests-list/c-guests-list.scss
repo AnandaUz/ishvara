@@ -19,6 +19,7 @@ c-guests-list {
     height: 20px;
     border-radius: 4px;
     padding: 2px 6px;
+    color: #0b2830;
 
     .desc {
       font-size: 12px;
@@ -34,6 +35,7 @@ c-guests-list {
     &[disabled] {
       pointer-events: none;
       background: none;
+      color: #a0a0a0;
     }
   }
 

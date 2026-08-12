@@ -9,6 +9,23 @@
      c-chats {
           grid-column: 2;
      }
+
+     .big-text {
+          background: #ffffffe6;
+          border-radius: 10px;
+     }
+
+     h1 {
+          padding: 5px;
+          font-size: 22px;
+     }
+
+     .summary {
+          padding: 0 9px 0px;
+          font-size: 14px;
+          text-align: right;
+          color: #056b83;
+     }
 }
 
 .projects-tabs-block {
@@ -57,6 +74,16 @@
           margin: 0;
           padding: 2px 11px;
           height: min-content;
+
+          &.active {
+               outline: 2px solid #056b83;
+
+               &:before {
+                    content: "▶ ";
+               }
+          }
+
+
      }
 }
 
@@ -69,35 +96,36 @@
 
 }
 
-.visits-list {
+.url-list {
      a {
           &:hover {
                background: #0784d842;
           }
-     }
 
-     span {
-          font-size: 13px;
-          display: inline-block;
-          background: #e3b8e0;
-          padding: 2px 3px;
-          border-radius: 5px;
-          margin-right: 2px;
-          line-height: 1;
-          color: #000;
 
-          &.s1 {
-               font-weight: bold;
-          }
+          span {
+               font-size: 13px;
+               display: inline-block;
+               background: #e3b8e0;
+               padding: 2px 3px;
+               border-radius: 5px;
+               margin-right: 2px;
+               line-height: 1;
+               color: #000;
 
-          &.s2 {
-               background: #c1d3fd42;
-          }
+               &.s1 {
+                    font-weight: bold;
+               }
 
-          &.s3 {
-               background: #f9e6de;
-               font-weight: normal;
+               &.s2 {
+                    background: #c1d3fd42;
+               }
 
+               &.s3 {
+                    background: #f9e6de;
+                    font-weight: normal;
+
+               }
           }
      }
 }
@@ -116,6 +144,41 @@
           min-width: 50px;
           text-align: right;
           color: #859d94;
+     }
+
+     &.description {
+          background: #008d1f24;
+     }
+
+     &.m1 {
+          .count {
+               display: flex;
+               flex-direction: row;
+               gap: 10px;
+               padding: 0 0 0 15px;
+               align-items: center;
+
+               span {
+                    color: #5d5d5d;
+                    font-size: 10px;
+                    width: 50px;
+                    display: inline-block;
+
+               }
+
+               i {
+                    font-size: 10px;
+                    width: 23px;
+                    display: inline-block;
+                    color: #008d1f;
+
+                    &.minus {
+                         color: #ff6b15;
+                    }
+               }
+
+
+          }
      }
 
 }
