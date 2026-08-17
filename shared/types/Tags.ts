@@ -131,6 +131,32 @@ export const TAGS = {
       fontColor: "#114b66ff",
     },
   },
+  starTags: {
+    s1: {
+      code: 50,
+      name: "S1",
+      bgColor: "#c4cddaff",
+      fontColor: "#631166ff",
+    },
+    s2: {
+      code: 51,
+      name: "S2",
+      bgColor: "#c4cddaff",
+      fontColor: "#631166ff",
+    },
+    s3: {
+      code: 52,
+      name: "S3",
+      bgColor: "#c4cddaff",
+      fontColor: "#631166ff",
+    },
+    s4: {
+      code: 53,
+      name: "S4",
+      bgColor: "#c4cddaff",
+      fontColor: "#631166ff",
+    },
+  },
 } as const satisfies Record<string, Record<string, ITagItem>>;
 
 function flattenTags(tags: typeof TAGS): ITagItem[] {

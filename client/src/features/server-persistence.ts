@@ -7,6 +7,9 @@ export class ServerPersistence {
   init() {
     this.skip = 0;
   }
+  clear() {
+    this.skip = 0;
+  }
   async loadNextGuests(
     projectId: number,
     filtersTags: number[] = [],

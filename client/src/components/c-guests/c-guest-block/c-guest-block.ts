@@ -211,6 +211,32 @@ export class CGuestBlock extends HTMLElement {
       return el;
     };
 
+    // set-tags buttons
+    const setTagsBlock = this.querySelector(
+      ".set-tags-block",
+    ) as HTMLDivElement;
+    for (let i = 0; i <= 5; i++) {
+      const btn = document.createElement("button");
+      let isActive = false;
+      btn.classList.add("btn", "sml-btn", "tag-" + i);
+      const tagCode = TAGS.starTags.s1.code + i;
+      setTagsBlock.appendChild(btn);
+      if (this.data.tags?.includes(tagCode)) {
+        isActive = true;
+        btn.classList.add("active");
+      }
+      btn.addEventListener("click", () => {
+        if (isActive) {
+          btn.classList.remove("active");
+          isActive = false;
+        } else {
+          btn.classList.add("active");
+          isActive = true;
+          api.guest.addTag(this.data._id || "", tagCode);
+        }
+      });
+    }
+
     if (typeof this.data.companyId === "number") {
       setBlock(
         ".company-string",

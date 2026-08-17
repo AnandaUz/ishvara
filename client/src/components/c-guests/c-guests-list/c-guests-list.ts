@@ -91,6 +91,8 @@ export class CGuestsList extends HTMLElement {
     this.guests_list_block?.replaceChildren();
     this.guestsNotes = [];
 
+    core.serverPersistence.clear();
+
     await this.loadNextGuests();
   }
   addGuestsBlocks(data: IGuest[]) {
