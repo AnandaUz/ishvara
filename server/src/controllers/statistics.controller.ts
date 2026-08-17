@@ -221,6 +221,12 @@ export const StatisticsController = {
       if (e && e.length > 0) {
         //{"events":[["t1782360861713","/tours"],[8.9,2],[49,3],[86.9,4],[113.8,5],[158.3,"c"],[160.2,"open-tour-details"],[160.2,"c"],[160.4,"open-tour-details"],[160.4,"c"],[160.6,9],
 
+        // console.log(guest._id, e);
+
+        // if (guest._id?.toString() === "6a7f0c90b8260512ef9ff4bd") {
+        //   console.log("stop");
+        // }
+
         e.forEach((val) => {
           const v0 = val[0];
           const v1 = val[1];
@@ -244,16 +250,16 @@ export const StatisticsController = {
                 pageIds.push(ind);
               }
             }
-          }
-
-          const ex = events.find((el) => {
-            return el === v1;
-          });
-          if (!ex) {
-            if (!v1) {
-              console.log("Не нашёл объект");
-            } else if (!/\//.test(v1.toString())) {
-              events.push(v1);
+          } else {
+            const isExists = events.find((el) => {
+              return el === v1;
+            });
+            if (!isExists) {
+              if (!v1) {
+                console.log("Не нашёл объект");
+              } else if (!/\//.test(v1.toString())) {
+                events.push(v1);
+              }
             }
           }
         });
@@ -277,7 +283,6 @@ export const StatisticsController = {
             case CLIENT_EVENTS.scroll.down.code:
               tags.add(TAGS.scroll.was.code);
               break;
-
             case CLIENT_EVENTS.page.showTours.code:
               tags.add(TAGS.page.tours.code);
               break;

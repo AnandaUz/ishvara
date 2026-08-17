@@ -5,6 +5,7 @@ import { TAGS } from "../../../shared/types/Tags.js";
 import { ServerTools } from "../utils/ServerTools.js";
 
 import { Request, Response } from "express";
+// import { CLIENT_EVENTS } from "../../../shared/types/ClientEvents.js";
 
 const ToolsForBase = {
   arhivGuest: (guest: IGuest) => {
@@ -42,9 +43,11 @@ export const ServerController = {
     res.write(`data: Архивинование 1го уровня - загружаю данные ...\n\n`);
     res.flush();
 
+    let neUdalennie = 0;
+
     const guests = await Guest.find({ b: { $exists: false } })
       .sort({ createdAt: -1 })
-      // .limit(100)
+      // .limit(1000)
       .lean();
 
     res.write(`data: ${guests.length} ...\n\n`);
@@ -61,12 +64,68 @@ export const ServerController = {
 
       let isEmpty = true;
 
+      // if (guest._id?.toString() === "6a7e89b83efae06d5cd218ac") {
+      //   const f = ServerTools.arrays.hasIntersection(
+      //     [TAGS.page.tours.code],
+      //     tags as number[],
+      //   );
+      //   const f2 = ServerTools.arrays.hasIntersection(
+      //     [TAGS.scroll.was.code],
+      //     tags as number[],
+      //   );
+
+      //   if (f) {
+      //     console.log(f, f2, guest.tags);
+      //     // console.log("Found in tours", guest);
+      //   }
+      // }
+
       if (Array.isArray(tags)) {
-        isEmpty = !ServerTools.arrays.hasIntersection(
+        let f = ServerTools.arrays.hasIntersection(
           [TAGS.scroll.was.code, TAGS.page.tours.code],
           tags as number[],
         );
+
+        if (f) {
+          isEmpty = false;
+        }
+
+        /*
+        // проверяю если это есть ли событие скролла (пока не понимаю как проскакивают они)
+        if (f) {
+          let wasRealScroll = false;
+          guest.events?.some((event) => {
+            const code = event[1];
+            const fParam = event[0];
+            if (
+              code === CLIENT_EVENTS.scroll.down.oldCode ||
+              code === CLIENT_EVENTS.scroll.up.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll1.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll2.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll3.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll4.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll5.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll6.oldCode ||
+              code === CLIENT_EVENTS.scroll.scroll7.oldCode
+            ) {
+              if (typeof fParam !== "string") {
+                wasRealScroll = true;
+                return true;
+              }
+            }
+            return false;
+          });
+
+          if (wasRealScroll) {
+            isEmpty = false;
+          } else {
+            neUdalennie++;
+            console.log(neUdalennie, "с тегом но без события", guest.events);
+          }
+        }
+        */
       }
+
       if (!!guest.level && guest.level > 0) isEmpty = false;
 
       if (isEmpty) {
@@ -75,6 +134,8 @@ export const ServerController = {
         g.b = true;
 
         if (guest._id) {
+          // console.log("типо удалил", guest.events);
+
           await Guest.replaceOne({ _id: guest._id }, g);
         }
 
@@ -83,6 +144,7 @@ export const ServerController = {
         if (guest.level) res.write(`data: ${JSON.stringify(guest.level)} \n\n`);
         res.write(`data: ${Math.round((i / guests.length) * 100)}% \n\n`);
         res.write(`data: Удалено ${delCount} записей \n\n`);
+        res.write(`data: Неудалённых по скроллу ${neUdalennie} записей \n\n`);
         res.flush();
       }
 

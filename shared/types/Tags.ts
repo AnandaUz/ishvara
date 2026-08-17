@@ -16,6 +16,7 @@ export const TAGS = {
       fontColor: "#ffffff",
     },
   },
+
   events: {
     click_topBaner: {
       code: 101,
@@ -52,22 +53,7 @@ export const TAGS = {
       fontColor: "#021853ff",
     },
   },
-  goals: {
-    middle: {
-      code: 31,
-      name: "middle",
-      description: "Достижение средней цели",
-      bgColor: "#ff56daff",
-      fontColor: "#ffffff",
-    },
-    top: {
-      code: 32,
-      name: "top",
-      description: "Достижение главной цели",
-      bgColor: "#ff5f38ff",
-      fontColor: "#ffffff",
-    },
-  },
+
   scroll: {
     was: {
       code: 10,
@@ -89,6 +75,60 @@ export const TAGS = {
       name: "Переход в описание тура",
       bgColor: "#019af3ff",
       fontColor: "#d1fff9ff",
+    },
+  },
+  goals: {
+    middle: {
+      code: 31,
+      name: "middle",
+      description: "Достижение средней цели",
+      bgColor: "#ff56daff",
+      fontColor: "#ffffff",
+    },
+    top: {
+      code: 32,
+      name: "top",
+      description: "Достижение главной цели",
+      bgColor: "#ff5f38ff",
+      fontColor: "#ffffff",
+    },
+  },
+  metaLevels: {
+    level1: {
+      code: 40,
+      name: "L 1",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
+    },
+    level2: {
+      code: 41,
+      name: "L 2",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
+    },
+    level3: {
+      code: 42,
+      name: "L 3",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
+    },
+    level4: {
+      code: 43,
+      name: "L 4",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
+    },
+    level5: {
+      code: 44,
+      name: "L 5",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
+    },
+    level6: {
+      code: 45,
+      name: "L 6",
+      bgColor: "#c4cddaff",
+      fontColor: "#114b66ff",
     },
   },
 } as const satisfies Record<string, Record<string, ITagItem>>;

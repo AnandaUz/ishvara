@@ -2,7 +2,7 @@ import type { IGuest } from "@shared/types/IGuest";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
 import { bigProjectsGet } from "@shared/projects_config";
-import { TAGS_TOOLS } from "@shared/types/Tags";
+import { TAGS, TAGS_TOOLS } from "@shared/types/Tags";
 import { CLIENT_EVENTS, CLIENT_EVENTS_TOOLS } from "@shared/types/ClientEvents";
 
 import { Tools } from "@/services/tools";
@@ -113,15 +113,39 @@ export class CGuestBlock extends HTMLElement {
 
       // const pixelData = pixel;
 
-      console.log(data);
-      // res = await api.guest.sendMetaEvent([data], pixel);
+      // console.log(data);
+      res = await api.guest.sendMetaEvent([data], pixel);
     }
-    return false;
+    // return false;
     if ((pixel && res && res.ok) || !pixel) {
-      const res2 = await api.guest.patchOne(this.data._id || "dfdf", this.data);
+      let tag = 0;
+      switch (level) {
+        case 1:
+          tag = TAGS.metaLevels.level1.code;
+          break;
+        case 2:
+          tag = TAGS.metaLevels.level2.code;
+          break;
+        case 3:
+          tag = TAGS.metaLevels.level3.code;
+          break;
+        case 4:
+          tag = TAGS.metaLevels.level4.code;
+          break;
+        case 5:
+          tag = TAGS.metaLevels.level5.code;
+          break;
+        case 6:
+          tag = TAGS.metaLevels.level6.code;
+          break;
+      }
+      if (this.data.tags && !this.data.tags.includes(tag)) {
+        this.data.tags.push(tag);
+      }
+      this.data.level = level;
+      const res2 = await api.guest.patchOne(this.data._id || "", this.data);
       if (res2.ok) {
         // this._levelBehavior = tag;
-        this.data.level = level;
         this.render();
 
         return true;
@@ -233,7 +257,7 @@ export class CGuestBlock extends HTMLElement {
         `
         ${isOldGuest}
         ${fbc_fbpString}
-        ${isBotMark}`,
+        ${isBotMark}`, // + data._id,
       );
     }
 

@@ -3,7 +3,6 @@ import Guest from "../models/Guest.js";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { pixels_configs } from "../pixels_configs.js";
-// import { IPixelEventData } from "../../../shared/types/Is.js";
 
 export async function getGuests(req: Request, res: Response) {
   const { projectId, limit, skip, tags } = req.query;
@@ -66,10 +65,11 @@ export async function sendMetaEvent(req: Request, res: Response) {
       res.status(400).json({ error: "data is required" });
       return;
     }
-    // console.log(data, PIXEL_ID, PIXEL_TOKEN);
-    // res.status(400).json({ error: "data is required" });
-    // return;
-
+    /*
+    console.log(data, PIXEL_ID, PIXEL_TOKEN);
+    res.status(200).json({ error: "data is required" });
+    return;
+*/
     const result = await fetch(
       `https://graph.facebook.com/v19.0/${PIXEL_ID}/events?access_token=${PIXEL_TOKEN}`,
       {

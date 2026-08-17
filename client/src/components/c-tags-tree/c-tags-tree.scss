@@ -61,7 +61,7 @@ c-tag-tree {
 .tag-picker__tree {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  // gap: 4px;
   border: 1px solid #eaecf0;
   border-radius: 8px;
   padding: 8px;
@@ -107,8 +107,8 @@ details[open]>.tag-picker__group-title::before {
 .tag-picker__items {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px 0 8px 4px;
+  gap: 4px;
+  padding: 0px 0 0px 4px;
 }
 
 .tag-picker__item {
@@ -117,8 +117,8 @@ details[open]>.tag-picker__group-title::before {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
+  padding: 0px 5px;
+  border-radius: 5px;
   border: 1.5px solid transparent;
   background: #f2f4f7;
   color: #344054;
