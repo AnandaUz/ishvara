@@ -117,6 +117,8 @@ export class CGuestCard extends HTMLElement {
     initTextBlock("ip", () => guest.ip || "");
     initTextBlock("user-agent-string", () => guest.userAgentString || "");
 
+    initTextBlock("user-id", () => this._id);
+
     let btn = this.querySelector(".btn-big") as HTMLButtonElement;
     btn.addEventListener("click", async () => {
       await api.guest.patchOne(this._id, guest);

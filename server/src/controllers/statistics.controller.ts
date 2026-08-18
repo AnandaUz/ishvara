@@ -190,7 +190,7 @@ export const StatisticsController = {
 
     const guests = await Guest.find({ b: { $exists: false } })
       .sort({ createdAt: -1 })
-      // .limit(30)
+      // .limit(1000)
       .lean();
 
     const pagesStatistics = new PagesStatistics();
@@ -314,18 +314,30 @@ export const StatisticsController = {
             case CLIENT_EVENTS.page.openTourDetails.code:
               tags.add(TAGS.page.openTourDetails.code);
               break;
+            case CLIENT_EVENTS.click.advTourClick.code:
+              tags.add(TAGS.events.advTourClick.code);
+              break;
           }
         });
 
-        const t = Array.from(tags);
+        let t = Array.from(tags);
         if (t.length > 0) {
+          /** Фикс: Есть гости что заходят только на туры, но ничего не делали, если так
+           * то им я задаю emptyTours
+           */
+          if (t.includes(TAGS.page.tours.code) && t.length === 1) {
+            t = [TAGS.page.emptyTours.code];
+            // console.log("Found in tours", guest);
+          }
+
+          /* **/
           const isHasSameTags = ServerTools.arrays.isSubset(
             t,
             guest.tags || [],
           );
 
           if (!isHasSameTags) {
-            await guestObj.addTags(guest._id || "", t);
+            await guestObj.patchOneGuest(guest._id || "", { tags: t });
 
             ttt++;
             res.write(`data: tags ${JSON.stringify(t)} \n\n`);
@@ -472,8 +484,26 @@ export const StatisticsController = {
     const startOfMonth = new Date();
     startOfMonth.setMonth(now.getMonth() - 1);
 
+    const includeTags: number[] = [];
+    const excludeTags: number[] = [TAGS.page.emptyTours.code];
+
+    const matchStage: any = {
+      projectId: Number(projectId),
+    };
+
+    if (includeTags.length > 0) {
+      matchStage.tags = { $in: includeTags }; // или
+    }
+
+    if (excludeTags.length > 0) {
+      matchStage.tags = {
+        ...matchStage.tags,
+        $nin: excludeTags, // не должно быть НИ ОДНОГО из этих тегов
+      };
+    }
+
     const stats = await Guest.aggregate([
-      { $match: { projectId: Number(projectId) } },
+      { $match: matchStage },
       { $match: { pages: { $exists: true, $ne: [] } } },
       { $unwind: "$pages" },
       {
@@ -492,6 +522,24 @@ export const StatisticsController = {
 
     const now = new Date();
 
+    const includeTags: number[] = [];
+    const excludeTags: number[] = [TAGS.page.emptyTours.code];
+
+    const matchStage: any = {
+      projectId: Number(projectId),
+    };
+
+    if (includeTags.length > 0) {
+      matchStage.tags = { $in: includeTags }; // или
+    }
+
+    if (excludeTags.length > 0) {
+      matchStage.tags = {
+        ...matchStage.tags,
+        $nin: excludeTags, // не должно быть НИ ОДНОГО из этих тегов
+      };
+    }
+
     const getStats = async (weeksAgo: number) => {
       const from = new Date(now.getTime() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
       const to = new Date(
@@ -499,7 +547,7 @@ export const StatisticsController = {
       );
 
       return Guest.aggregate([
-        { $match: { projectId: Number(projectId) } },
+        { $match: matchStage },
         { $match: { pages: { $exists: true, $ne: [] } } },
         { $match: { createdAt: { $gte: from, $lt: to } } },
         { $unwind: "$pages" },

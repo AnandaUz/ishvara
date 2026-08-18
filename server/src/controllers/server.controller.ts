@@ -47,7 +47,7 @@ export const ServerController = {
 
     const guests = await Guest.find({ b: { $exists: false } })
       .sort({ createdAt: -1 })
-      // .limit(1000)
+      .limit(100)
       .lean();
 
     res.write(`data: ${guests.length} ...\n\n`);
@@ -82,48 +82,17 @@ export const ServerController = {
 
       if (Array.isArray(tags)) {
         let f = ServerTools.arrays.hasIntersection(
-          [TAGS.scroll.was.code, TAGS.page.tours.code],
+          [
+            TAGS.scroll.was.code,
+            TAGS.page.tours.code,
+            TAGS.page.emptyTours.code,
+          ],
           tags as number[],
         );
 
         if (f) {
           isEmpty = false;
         }
-
-        /*
-        // проверяю если это есть ли событие скролла (пока не понимаю как проскакивают они)
-        if (f) {
-          let wasRealScroll = false;
-          guest.events?.some((event) => {
-            const code = event[1];
-            const fParam = event[0];
-            if (
-              code === CLIENT_EVENTS.scroll.down.oldCode ||
-              code === CLIENT_EVENTS.scroll.up.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll1.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll2.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll3.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll4.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll5.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll6.oldCode ||
-              code === CLIENT_EVENTS.scroll.scroll7.oldCode
-            ) {
-              if (typeof fParam !== "string") {
-                wasRealScroll = true;
-                return true;
-              }
-            }
-            return false;
-          });
-
-          if (wasRealScroll) {
-            isEmpty = false;
-          } else {
-            neUdalennie++;
-            console.log(neUdalennie, "с тегом но без события", guest.events);
-          }
-        }
-        */
       }
 
       if (!!guest.level && guest.level > 0) isEmpty = false;

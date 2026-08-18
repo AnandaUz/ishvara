@@ -52,6 +52,13 @@ export const TAGS = {
       bgColor: "#2ca09aff",
       fontColor: "#021853ff",
     },
+    advTourClick: {
+      // клики по рекламе внутри статьи
+      code: 106,
+      name: "клик по рекламе внут. статьи",
+      bgColor: "#1ca8a1ff",
+      fontColor: "#021853ff",
+    },
   },
 
   scroll: {
@@ -69,6 +76,12 @@ export const TAGS = {
       name: "стр Туры",
       description: "Страница туры",
       bgColor: "#d8b281ff",
+    },
+    emptyTours: {
+      code: 21,
+      name: "Туры-пустые",
+      description: "Страница туров без событий",
+      bgColor: "#b2d881ff",
     },
     openTourDetails: {
       code: 26,

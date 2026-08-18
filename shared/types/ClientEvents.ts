@@ -83,6 +83,13 @@ export const CLIENT_EVENTS = {
       bgColor: "#2ca09aff",
       txColor: "#021853ff",
     },
+    advTourClick: {
+      code: 38,
+      name: "клик по рекламе внут. статьи",
+      oldCode: "adv-tour-click",
+      bgColor: "#1ca8a1ff",
+      txColor: "#e9feffff",
+    },
   },
 } as const satisfies Record<string, Record<string, IClientEventCodeItem>>;
 
