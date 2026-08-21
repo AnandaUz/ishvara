@@ -47,7 +47,7 @@ export const ServerController = {
 
     const guests = await Guest.find({ b: { $exists: false } })
       .sort({ createdAt: -1 })
-      .limit(100)
+      // .limit(100)
       .lean();
 
     res.write(`data: ${guests.length} ...\n\n`);

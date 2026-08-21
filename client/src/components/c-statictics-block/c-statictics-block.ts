@@ -110,6 +110,8 @@ export class CStaticticsBlock extends HTMLElement {
           TAGS.events.tourFilter.code,
           TAGS.events.smallSearchTours.code,
           TAGS.page.openTourDetails.code,
+          TAGS.page.emptyTours.code,
+          TAGS.events.advTourClick.code,
         ],
       });
     const dataBots = await api.statistics.countBots({
@@ -137,6 +139,7 @@ export class CStaticticsBlock extends HTMLElement {
         TAGS.events.tourFilter.code,
         TAGS.events.smallSearchTours.code,
         TAGS.page.openTourDetails.code,
+        TAGS.events.advTourClick.code,
       ],
       data,
     });
@@ -146,7 +149,12 @@ export class CStaticticsBlock extends HTMLElement {
     this.addGraphBlock({
       title: "Общие события",
       parentBlock: body,
-      tags: [TAGS.scroll.was.code, TAGS.page.tours.code, TAGS.bot.bot.code],
+      tags: [
+        TAGS.scroll.was.code,
+        TAGS.page.tours.code,
+        TAGS.bot.bot.code,
+        TAGS.page.emptyTours.code,
+      ],
       data,
     });
 

@@ -156,7 +156,7 @@ export const homePage: Page = () => {
         c.push({
           id: 4,
           name: `динамика страниц`,
-          bgColor: "rgb(204 161 229)",
+          bgColor: "rgb(204, 161, 229)",
         } as ITab);
         viewTypeTabs.init(c);
         let activeViewType = core.localPersistence.state.viewports;
