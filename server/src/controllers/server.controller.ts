@@ -6,6 +6,7 @@ import { ServerTools } from "../utils/ServerTools.js";
 
 import { Request, Response } from "express";
 import { cleanupUserAgents as runCleanup } from "../services/guestCleanup.service.js";
+import { runDailyArchive } from "../services/dailyArchive.service.js";
 // import { CLIENT_EVENTS } from "../../../shared/types/ClientEvents.js";
 
 const ToolsForBase = {
@@ -131,6 +132,28 @@ export const ServerController = {
     } catch (error) {
       console.error("cleanupUserAgents error:", error);
       res.status(500).json({ ok: false, error: "Failed to cleanup user agents" });
+    }
+  },
+
+  cronDailyArhive: async (req: Request, res: Response) => {
+    try {
+      const key =
+        (req.query.password as string) ||
+        (req.query.key as string) ||
+        (req.headers["x-cron-key"] as string);
+      const expectedKey =
+        process.env.PASSWORD || process.env.CRON_SECRET || "ishvara_daily_cron_2026";
+
+      if (!key || key !== expectedKey) {
+        res.status(401).json({ ok: false, error: "Unauthorized" });
+        return;
+      }
+
+      const result = await runDailyArchive();
+      res.json({ ok: true, result });
+    } catch (error: any) {
+      console.error("cronDailyArhive error:", error);
+      res.status(500).json({ ok: false, error: error.message || "Failed to run daily archive" });
     }
   },
 };
