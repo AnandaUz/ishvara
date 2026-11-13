@@ -7,6 +7,7 @@ export interface IGuest {
   referrer?: string;
   name?: string;
   userAgentString?: string;
+  iM?: boolean;
   phone?: string;
   projectId?: number;
   companyId?: number;

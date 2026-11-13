@@ -11,6 +11,8 @@ import { tgbots } from "./controllers/tgbots/TgBots.js";
 import chatsRouter from "./routers/chats.routers.js";
 import statisticsRouter from "./routers/statistics.routers.js";
 import serverRouter from "./routers/server.routers.js";
+import companyRouter from "./routers/company.routers.js";
+import { initGuestCleanupCron } from "./services/guestCleanup.service.js";
 
 const app = express();
 
@@ -42,6 +44,7 @@ app.use("/api/chats", chatsRouter);
 app.use("/api/statistics", statisticsRouter);
 app.use("/api/server", serverRouter);
 app.use("/api/pages", pagesRouter);
+app.use("/api/companies", companyRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);
@@ -62,4 +65,5 @@ app.post("/tgbots_user_webhook", (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
   connectDB();
+  initGuestCleanupCron();
 });

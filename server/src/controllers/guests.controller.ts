@@ -1,11 +1,12 @@
 import { IGuest } from "../../../shared/types/IGuest.js";
 import Guest from "../models/Guest.js";
+import Company from "../models/Company.js";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { pixels_configs } from "../pixels_configs.js";
 
 export async function getGuests(req: Request, res: Response) {
-  const { projectId, limit, skip, tags } = req.query;
+  const { projectId, limit, skip, tags, companyId, pageIds } = req.query;
 
   const match: Record<string, any> = {};
 
@@ -17,6 +18,22 @@ export async function getGuests(req: Request, res: Response) {
   if (tags && typeof tags === "string") {
     const filtersTags = tags.split(",").map(Number);
     match.tags = { $in: filtersTags };
+  }
+
+  if (pageIds && typeof pageIds === "string") {
+    const pIds = pageIds.split(",").map(Number).filter((n) => !isNaN(n));
+    if (pIds.length > 0) {
+      match.pages = { $in: pIds };
+    }
+  } else if (companyId && typeof companyId === "string") {
+    try {
+      const comp = await Company.findById(companyId);
+      if (comp && comp.pageIds && comp.pageIds.length > 0) {
+        match.pages = { $in: comp.pageIds };
+      }
+    } catch {
+      // ignore
+    }
   }
 
   // console.log("match", match);

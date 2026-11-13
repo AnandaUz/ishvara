@@ -11,8 +11,11 @@ export const sBlock_dinamic = async () => {
   // dynamics
   const list = document.querySelector(".dynamics-list") as HTMLElement;
   list.innerHTML = "";
+  const projectId = core.localPersistence.state.projectId;
+  const companyId = core.localPersistence.state.companiesIds?.[projectId || ""];
   const data = await api.statistics.pageVisitsForWeeks({
-    projectId: Number(core.localPersistence.state.projectId),
+    projectId: Number(projectId),
+    companyId: companyId,
   });
 
   const fragment = document.createDocumentFragment();

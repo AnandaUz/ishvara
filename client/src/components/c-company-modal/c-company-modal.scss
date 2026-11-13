@@ -1,0 +1,246 @@
+.company-modal-dialog {
+  .c-modal__box {
+    width: min(650px, 94vw);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+  }
+}
+
+.company-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      line-height: 1;
+      padding: 0 4px;
+
+      &:hover {
+        color: #ef4444;
+      }
+    }
+  }
+
+  .company-list-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .actions-bar {
+      display: flex;
+      justify-content: flex-end;
+
+      .btn-add-company {
+        background-color: #0284c7;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #0369a1;
+        }
+      }
+    }
+
+    .companies-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 50vh;
+      overflow-y: auto;
+
+      .empty-notice {
+        color: #64748b;
+        font-style: italic;
+        padding: 12px 0;
+        text-align: center;
+      }
+
+      .company-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        gap: 12px;
+
+        .company-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+
+          .company-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+          }
+
+          .company-pages-badge {
+            font-size: 12px;
+            color: #64748b;
+          }
+
+          .company-urls-preview {
+            font-size: 11px;
+            color: #0284c7;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .company-actions {
+          display: flex;
+          gap: 6px;
+          flex-shrink: 0;
+
+          button {
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &.btn-edit {
+              background: #e2e8f0;
+              color: #1e293b;
+
+              &:hover {
+                background: #cbd5e1;
+              }
+            }
+
+            &.btn-delete {
+              background: #fee2e2;
+              color: #dc2626;
+
+              &:hover {
+                background: #fecaca;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .company-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 16px;
+
+    .form-title {
+      margin: 0;
+      font-size: 15px;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      input[type="text"],
+      textarea {
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 13px;
+        font-family: inherit;
+        background: #ffffff;
+        color: #0f172a;
+
+        &:focus {
+          outline: none;
+          border-color: #0284c7;
+          box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        line-height: 1.4;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+
+      button {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &.btn-save {
+          background-color: #16a34a;
+          color: #ffffff;
+
+          &:hover {
+            background-color: #15803d;
+          }
+        }
+
+        &.btn-cancel {
+          background-color: #e2e8f0;
+          color: #475569;
+
+          &:hover {
+            background-color: #cbd5e1;
+          }
+        }
+      }
+    }
+  }
+}
+

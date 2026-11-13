@@ -1,6 +1,7 @@
 import type { IGuest } from "@shared/types/IGuest";
 import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
+import type { ICompanyEntity } from "@shared/types/ICompanyEntity";
 
 export const api = {
   /**
@@ -35,6 +36,46 @@ export const api = {
       });
     });
   },
+  company: {
+    getByProject: async (projectId: number): Promise<ICompanyEntity[]> => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/companies?projectId=${projectId}`,
+      );
+      if (!res.ok) return [];
+      return await res.json();
+    },
+    create: async (data: Partial<ICompanyEntity>): Promise<ICompanyEntity> => {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/api/companies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    },
+    update: async (
+      id: string,
+      data: Partial<ICompanyEntity>,
+    ): Promise<ICompanyEntity> => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/companies/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
+      return await res.json();
+    },
+    delete: async (id: string): Promise<{ ok: boolean }> => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/companies/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+      return await res.json();
+    },
+  },
   pages: {
     getAll: async () => {
       return fetch(import.meta.env.VITE_API_URL + "/api/pages/get");
@@ -57,7 +98,7 @@ export const api = {
       tags,
     }: {
       projectId: number;
-      companyId: number;
+      companyId?: string | number | undefined;
       tags: number[];
     }) => {
       const result = await fetch(
@@ -72,7 +113,7 @@ export const api = {
       companyId,
     }: {
       projectId: number;
-      companyId: number;
+      companyId?: string | number | undefined;
     }) => {
       const result = await fetch(
         import.meta.env.VITE_API_URL +
@@ -86,7 +127,7 @@ export const api = {
       companyId,
     }: {
       projectId: number;
-      companyId?: number;
+      companyId?: string | number | undefined;
     }) => {
       const result = await fetch(
         import.meta.env.VITE_API_URL +
@@ -100,7 +141,7 @@ export const api = {
       companyId,
     }: {
       projectId: number;
-      companyId?: number;
+      companyId?: string | number | undefined;
     }) => {
       const result = await fetch(
         import.meta.env.VITE_API_URL +
@@ -116,10 +157,11 @@ export const api = {
       limit: number = 20,
       skip: number = 0,
       tags: number[] = [],
+      companyId?: string | undefined,
     ) => {
       const response = await fetch(
         import.meta.env.VITE_API_URL +
-          `/api/guests/get?skip=${skip}&limit=${limit}&projectId=${projectId}&tags=${tags.join(",")}`,
+          `/api/guests/get?skip=${skip}&limit=${limit}&projectId=${projectId}&tags=${tags.join(",")}${companyId ? `&companyId=${companyId}` : ""}`,
       );
       const text = await response.text();
       console.log(

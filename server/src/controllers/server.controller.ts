@@ -5,6 +5,7 @@ import { TAGS } from "../../../shared/types/Tags.js";
 import { ServerTools } from "../utils/ServerTools.js";
 
 import { Request, Response } from "express";
+import { cleanupUserAgents as runCleanup } from "../services/guestCleanup.service.js";
 // import { CLIENT_EVENTS } from "../../../shared/types/ClientEvents.js";
 
 const ToolsForBase = {
@@ -43,42 +44,28 @@ export const ServerController = {
     res.write(`data: Архивинование 1го уровня - загружаю данные ...\n\n`);
     res.flush();
 
-    let neUdalennie = 0;
+    const totalCount = await Guest.countDocuments({ b: { $exists: false } });
 
-    const guests = await Guest.find({ b: { $exists: false } })
-      .sort({ createdAt: -1 })
-      // .limit(100)
-      .lean();
-
-    res.write(`data: ${guests.length} ...\n\n`);
+    res.write(`data: Найдено записей для проверки: ${totalCount} ...\n\n`);
     res.flush();
 
+    const cursor = Guest.find({ b: { $exists: false } })
+      .select("_id tags level projectId lastChange createdAt tg companyId")
+      .sort({ createdAt: -1 })
+      .lean()
+      .cursor({ batchSize: 500 });
+
     let delCount = 0;
+    let i = 0;
+    const bulkOps: any[] = [];
 
-    // let t = 0;
-    for (let i = 0; i < guests.length; i++) {
-      const guest = guests[i] as unknown as IGuest;
-
+    for await (const guestDoc of cursor) {
+      i++;
+      const guest = guestDoc as unknown as IGuest;
       if (!guest) continue;
       const tags = guest.tags;
 
       let isEmpty = true;
-
-      // if (guest._id?.toString() === "6a7e89b83efae06d5cd218ac") {
-      //   const f = ServerTools.arrays.hasIntersection(
-      //     [TAGS.page.tours.code],
-      //     tags as number[],
-      //   );
-      //   const f2 = ServerTools.arrays.hasIntersection(
-      //     [TAGS.scroll.was.code],
-      //     tags as number[],
-      //   );
-
-      //   if (f) {
-      //     console.log(f, f2, guest.tags);
-      //     // console.log("Found in tours", guest);
-      //   }
-      // }
 
       if (Array.isArray(tags)) {
         let f = ServerTools.arrays.hasIntersection(
@@ -97,41 +84,36 @@ export const ServerController = {
 
       if (!!guest.level && guest.level > 0) isEmpty = false;
 
-      if (isEmpty) {
+      if (isEmpty && guest._id) {
         delCount++;
         const g = ToolsForBase.arhivGuest(guest);
         g.b = true;
 
-        if (guest._id) {
-          // console.log("типо удалил", guest.events);
-
-          await Guest.replaceOne({ _id: guest._id }, g);
-        }
-
-        // res.write(`data: ${JSON.stringify(guest.events)} \n\n`);
-        if (guest.tags) res.write(`data: ${JSON.stringify(guest.tags)} \n\n`);
-        if (guest.level) res.write(`data: ${JSON.stringify(guest.level)} \n\n`);
-        res.write(`data: ${Math.round((i / guests.length) * 100)}% \n\n`);
-        res.write(`data: Удалено ${delCount} записей \n\n`);
-        res.write(`data: Неудалённых по скроллу ${neUdalennie} записей \n\n`);
-        res.flush();
+        bulkOps.push({
+          replaceOne: {
+            filter: { _id: guest._id },
+            replacement: g,
+          },
+        });
       }
 
-      // if (t++ > 200) {
-      //   t = 0;
+      if (bulkOps.length >= 500) {
+        await Guest.bulkWrite(bulkOps, { ordered: false });
+        bulkOps.length = 0;
+      }
 
-      //   res.flush();
-      // }
-
-      // 🔥 КРИТИЧЕСКИЙ МОМЕНТ ДЛЯ БОЛЬШИХ ОБЪЕМОВ:
-      // Каждые 100 итераций даем Node.js паузу в 1 миллисекунду.
-      // Это освобождает Event Loop и позволяет серверу физически отправить буфер в сеть.
-      // if (i % 100 === 0) {
-      //   await new Promise((resolve) => setTimeout(resolve, 1));
-      // }
+      if (i % 250 === 0) {
+        const percent = totalCount > 0 ? Math.round((i / totalCount) * 100) : 0;
+        res.write(`data: ${percent}% (обработано ${i}/${totalCount}, заархивировано: ${delCount})\n\n`);
+        res.flush();
+        await new Promise((resolve) => setTimeout(resolve, 1));
+      }
     }
 
-    // clearInterval(heartbeat);
+    if (bulkOps.length > 0) {
+      await Guest.bulkWrite(bulkOps, { ordered: false });
+      bulkOps.length = 0;
+    }
 
     res.write(
       `data: КОНЕЦ ПОТОКА. Успешно заархивировано ${delCount} записей\n\n`,
@@ -140,5 +122,15 @@ export const ServerController = {
     res.write(`event: end\n`);
     res.write(`data: stream_finished\n\n`);
     res.end();
+  },
+
+  cleanupUserAgents: async (_req: Request, res: Response) => {
+    try {
+      const stats = await runCleanup();
+      res.json({ ok: true, stats });
+    } catch (error) {
+      console.error("cleanupUserAgents error:", error);
+      res.status(500).json({ ok: false, error: "Failed to cleanup user agents" });
+    }
   },
 };

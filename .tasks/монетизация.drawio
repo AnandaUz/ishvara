@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" modified="2026-10-29T11:35:00.000Z" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="monetization-diagram" name="Монетизация world-travel.uz">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Источник трафика -->
+        <mxCell id="traffic" value="Трафик world-travel.uz&#xa;(SEO, SMM, Реклама)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Направления B2C и B2B -->
+        <mxCell id="b2c" value="B2C: Туристы" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="220" y="160" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="b2b" value="B2B: Партнеры&#xa;(Отели, Гиды, Агентства)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="680" y="160" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Стрелки от Трафика -->
+        <mxCell id="edge-traffic-b2c" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="traffic" target="b2c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-traffic-b2b" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;" edge="1" parent="1" source="traffic" target="b2b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Каналы B2C -->
+        <mxCell id="direct-sales" value="Прямые продажи&#xa;авторских туров" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="270" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="booking-comm" value="Комиссия за бронирование&#xa;отелей и трансферов" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="270" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="concierge" value="VIP-консьерж /&#xa;Индивидуальный маршрут" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="430" y="270" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Стрелки B2C -->
+        <mxCell id="edge-b2c-direct" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="b2c" target="direct-sales">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-b2c-booking" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="b2c" target="booking-comm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-b2c-concierge" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="b2c" target="concierge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Каналы B2B -->
+        <mxCell id="lead-gen" value="Продажа лидов&#xa;туроператорам" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="640" y="270" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="listing" value="Платное размещение /&#xa;Реклама в каталоге" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="830" y="270" width="170" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Стрелки B2B -->
+        <mxCell id="edge-b2b-lead" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="b2b" target="lead-gen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-b2b-listing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="b2b" target="listing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Итог: Выручка -->
+        <mxCell id="revenue" value="Выручка компании" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="440" y="430" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Стрелки в Выручку -->
+        <mxCell id="edge-direct-rev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="direct-sales" target="revenue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-booking-rev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="booking-comm" target="revenue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-concierge-rev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="concierge" target="revenue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-lead-rev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="lead-gen" target="revenue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-listing-rev" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="listing" target="revenue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

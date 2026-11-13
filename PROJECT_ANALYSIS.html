@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Анализ проекта Ishvara и Топ-10 рекомендаций</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --critical: #ef4444;
+      --high: #f59e0b;
+      --medium: #10b981;
+      --code-bg: #090d16;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 24px;
+      margin-bottom: 36px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin: 36px 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: var(--critical); border: 1px solid var(--critical); }
+    .badge-high { background: rgba(245, 158, 11, 0.2); color: var(--high); border: 1px solid var(--high); }
+    .badge-medium { background: rgba(16, 185, 129, 0.2); color: var(--medium); border: 1px solid var(--medium); }
+    
+    .item-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .file-link {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      background: var(--code-bg);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 12px;
+      text-decoration: none;
+    }
+    .desc {
+      color: #cbd5e1;
+      margin-bottom: 14px;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      margin-top: 10px;
+    }
+    code { font-family: Consolas, Monaco, monospace; color: #38bdf8; }
+    .solution {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--card-border);
+    }
+    .solution-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--medium);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    th, td {
+      border: 1px solid var(--card-border);
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th { background: #162032; color: var(--accent); }
+    td { color: #cbd5e1; }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .card { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+      h1 { -webkit-text-fill-color: #000; }
+      pre { background: #f4f4f4; color: #000; border: 1px solid #ddd; }
+      .file-link { color: #0066cc; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Анализ проекта Ishvara и Топ-10 рекомендаций</h1>
+      <p class="lead">Комплексный технический аудит: архитектура, безопасность, Mongoose, трекер и Meta CAPI.</p>
+    </header>
+
+    <h2>1. Архитектура и стек системы</h2>
+    <div class="card">
+      <p><strong>Ishvara</strong> объединяет четыре ключевые маркетинговые подсистемы:</p>
+      <ul>
+        <li><strong>Поведенческий трекер</strong>: клиентский легковесный скрипт <code>tracker.ts</code> для трекинга скролла, кликов, dwell time и перехвата Facebook cookies.</li>
+        <li><strong>Telegram-мультибот</strong>: модуль на Telegraf с маршрутизацией через вебхук и ретрансляцией сообщений администратора.</li>
+        <li><strong>Meta Conversions API (CAPI)</strong>: серверный шлюз передачи событий воронки лидов в Facebook Graph API.</li>
+        <li><strong>CRM-аналитика</strong>: SPA-приложение на чистом TypeScript и Web Components с таймлайнами активности гостей.</li>
+      </ul>
+    </div>
+
+    <h2>2. Топ-10 приоритетных рекомендаций</h2>
+
+    <!-- Рекомендация 1 -->
+    <div class="card">
+      <span class="badge badge-critical">Критический баг</span>
+      <h3 class="item-title">1. Двойное чтение Response (<code>result.json()</code>) в Meta CAPI</h3>
+      <div class="file-link">server/src/controllers/guests.controller.ts:82-87</div>
+      <p class="desc">При получении ошибки от Meta Graph API код повторно вызывает <code>await result.json()</code> на уже прочитанном потоке. В результате сервер падает с исключением <em>TypeError: Body has already been consumed</em>, скрывая саму причину ошибки от Facebook.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Использовать уже распарсенный результат первичного чтения <code>json</code> без повторного вызова метода.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 2 -->
+    <div class="card">
+      <span class="badge badge-critical">Производительность и память</span>
+      <h3 class="item-title">2. Утечка памяти при операциях без курсора (<code>.cursor()</code>)</h3>
+      <div class="file-link">server/src/controllers/statistics.controller.ts:98 & server.controller.ts:48</div>
+      <p class="desc">Методы <code>findUnregistredEvents</code>, <code>setTags</code> и <code>arhive1</code> вызывают <code>Guest.find().lean()</code> без ограничений. Загрузка десятков тысяч документов с массивами событий вызывает OOM (Out-of-memory) и намертво блокирует Event Loop Node.js.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Использовать потоковые Mongoose-курсоры: <code>Guest.find({...}).cursor({ batchSize: 500 })</code> с обработкой батчами.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 3 -->
+    <div class="card">
+      <span class="badge badge-high">Индексы базы данных</span>
+      <h3 class="item-title">3. Ошибочный индекс в Mongoose-схеме <code>Guest</code></h3>
+      <div class="file-link">server/src/models/Guest.ts:55</div>
+      <p class="desc">В схеме прописано <code>GuestSchema.index({ pid: 1 })</code>. Поля <code>pid</code> в модели нет (используется <code>projectId</code>). Запросы фильтрации по проекту выполняют полное сканирование коллекции (COLLSCAN).</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Заменить индекс на актуальный: <code>GuestSchema.index({ projectId: 1, createdAt: -1 })</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 4 -->
+    <div class="card">
+      <span class="badge badge-high">Кроссплатформенность сборки</span>
+      <h3 class="item-title">4. Ошибка в регистре экспорта типов (<code>IGuest.ts</code> vs <code>Guest.ts</code>)</h3>
+      <div class="file-link">shared/types/index.ts:3</div>
+      <p class="desc">Файл <code>index.ts</code> экспортирует <code>export * from "./Guest"</code>, в то время как файл на диске называется <code>IGuest.ts</code>. В Linux-системах (Docker, Cloud Run) сборка падает из-за case-sensitive путей.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Исправить экспорт на точное имя: <code>export * from "./IGuest.js"</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 5 -->
+    <div class="card">
+      <span class="badge badge-high">Оптимизация БД</span>
+      <h3 class="item-title">5. Проблема N+1 запросов при фоновой архивации</h3>
+      <div class="file-link">server/src/controllers/server.controller.ts:108</div>
+      <p class="desc">В цикле архивации на каждого гостя вызывается отдельный <code>await Guest.replaceOne(...)</code>. Это создает тысячи синхронных сетевых обращений к MongoDB.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Накапливать операции пакетами и выполнять через <code>Guest.bulkWrite([...])</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 6 -->
+    <div class="card">
+      <span class="badge badge-medium">Безопасность</span>
+      <h3 class="item-title">6. Неэффективный <code>rateLimit</code> эндпоинта создания сессий</h3>
+      <div class="file-link">server/src/controllers/tracker.controller.ts:8-14</div>
+      <p class="desc">Параметр <code>max: 10000</code> фактически не защищает сервер от ботов, генерирующих миллионы мусорных сессий гостей.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Снизить порог до разумных пределов (60–100 запросов/час) и включить доверенный прокси <code>app.set("trust proxy", 1)</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 7 -->
+    <div class="card">
+      <span class="badge badge-medium">Конфигурация</span>
+      <h3 class="item-title">7. Захардкоженный прод-URL в клиенте трекера</h3>
+      <div class="file-link">client/src/tracker.ts:1-4</div>
+      <p class="desc">URL Cloud Run прописан статичной строкой, требуя ручного комментирования при локальном тестировании.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Использовать <code>import.meta.env.VITE_API_URL</code> с переключением через режимы сборки Vite.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 8 -->
+    <div class="card">
+      <span class="badge badge-medium">CI/CD и развертывание</span>
+      <h3 class="item-title">8. Абсолютные Windows-пути в скрипте деплоя</h3>
+      <div class="file-link">deploy_project.ts:5-6</div>
+      <p class="desc">Константы <code>D:/_sites/worked/ishvara</code> жестко привязаны к локальной файловой структуре.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Использовать переменные окружения и метод <code>path.resolve(...)</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 9 -->
+    <div class="card">
+      <span class="badge badge-medium">Надежность API</span>
+      <h3 class="item-title">9. Отсутствие валидации схем запросов через Zod</h3>
+      <div class="file-link">server/src/controllers/tracker.controller.ts</div>
+      <p class="desc">Данные <code>req.body</code> в роутах трекера не валидируются. Некорректный формат событий может нарушить структуру документов базы.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Описать Zod-схемы для валидации тела запросов <code>/start</code>, <code>/push-events</code>, <code>/save-cookies</code>.</p>
+      </div>
+    </div>
+
+    <!-- Рекомендация 10 -->
+    <div class="card">
+      <span class="badge badge-medium">Гигиена кода</span>
+      <h3 class="item-title">10. Очистка репозитория от мусорных файлов и дубликатов</h3>
+      <div class="file-link">server/src/controllers/tgbot_admin.controller copy.ts</div>
+      <p class="desc">Файлы-копии и системные файлы <code>desktop.ini</code> засоряют поиск и тратят токены контекста.</p>
+      <div class="solution">
+        <div class="solution-title">Решение</div>
+        <p>Удалить файлы-дубликаты и добавить исключения в <code>.gitignore</code>.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

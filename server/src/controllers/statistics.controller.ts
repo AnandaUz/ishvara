@@ -9,10 +9,10 @@ import {
 import { TAGS } from "../../../shared/types/Tags.js";
 
 import { Request, Response } from "express";
-import { guestObj } from "./guests.controller.js";
 import { IPages } from "../../../shared/types/IPages.js";
 
 import Pages from "../models/Pages.js";
+import Company from "../models/Company.js";
 
 // const ToolsForBase = {
 //   arhivGuest: async (guest: IGuest) => {
@@ -71,6 +71,36 @@ class PagesStatistics {
       })),
     );
   }
+}
+
+async function getCompanyPageIds(
+  companyId?: any,
+  pageIds?: any,
+): Promise<number[] | null> {
+  if (pageIds && typeof pageIds === "string") {
+    const ids = pageIds
+      .split(",")
+      .map(Number)
+      .filter((n) => !isNaN(n));
+    if (ids.length > 0) return ids;
+  }
+  if (
+    companyId &&
+    typeof companyId === "string" &&
+    companyId !== "all" &&
+    companyId !== "-1" &&
+    companyId !== "-2"
+  ) {
+    try {
+      const comp = await Company.findById(companyId);
+      if (comp && comp.pageIds && comp.pageIds.length > 0) {
+        return comp.pageIds;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
 }
 
 export const StatisticsController = {
@@ -188,45 +218,35 @@ export const StatisticsController = {
     res.write(`data: Установить теги, загружаю данные...\n\n`);
     res.flush();
 
-    const guests = await Guest.find({ b: { $exists: false } })
-      .sort({ createdAt: -1 })
-      // .limit(1000)
-      .lean();
+    const totalCount = await Guest.countDocuments({ b: { $exists: false } });
 
     const pagesStatistics = new PagesStatistics();
     await pagesStatistics.init(res);
 
-    res.write(`data: ${guests.length} ...\n\n`);
+    res.write(`data: Найдено записей: ${totalCount} ...\n\n`);
     res.flush();
 
-    // Optional heartbeat to keep connection alive (every 15 seconds)
-    // const heartbeat = setInterval(() => {
-    //   res.write(`:heartbeat\n\n`);
-    // }, 15000);
+    const cursor = Guest.find({ b: { $exists: false } })
+      .select("_id events tags pages")
+      .sort({ createdAt: -1 })
+      .lean()
+      .cursor({ batchSize: 500 });
 
-    let tt = 0;
+    let i = 0;
     let ttt = 0;
-    let fRefEventString = false;
-    for (let i = 0; i < guests.length; i++) {
-      tt++;
-      const guest = guests[i] as unknown as IGuest;
+    const bulkOps: any[] = [];
+
+    for await (const guestDoc of cursor) {
+      i++;
+      const guest = guestDoc as unknown as IGuest;
       if (!guest) continue;
       const e = guest.events;
 
-      fRefEventString = false;
-
+      let fRefEventString = false;
       const pageIds: number[] = [];
+      const events: Array<number | string> = [];
 
-      let events: Array<number | string> = [];
       if (e && e.length > 0) {
-        //{"events":[["t1782360861713","/tours"],[8.9,2],[49,3],[86.9,4],[113.8,5],[158.3,"c"],[160.2,"open-tour-details"],[160.2,"c"],[160.4,"open-tour-details"],[160.4,"c"],[160.6,9],
-
-        // console.log(guest._id, e);
-
-        // if (guest._id?.toString() === "6a7f0c90b8260512ef9ff4bd") {
-        //   console.log("stop");
-        // }
-
         e.forEach((val) => {
           const v0 = val[0];
           const v1 = val[1];
@@ -237,23 +257,18 @@ export const StatisticsController = {
             if (v1 && typeof v1 === "string") {
               fRefEventString = true;
               ind = pagesStatistics.findOrCreatePage(v1 as string);
-
               val[1] = ind;
             } else {
               ind = v1 as number;
             }
             if (ind !== null && typeof ind === "number") {
-              const ex = pageIds.find((el) => {
-                return el === ind;
-              });
+              const ex = pageIds.find((el) => el === ind);
               if (!ex) {
                 pageIds.push(ind);
               }
             }
           } else {
-            const isExists = events.find((el) => {
-              return el === v1;
-            });
+            const isExists = events.find((el) => el === v1);
             if (!isExists) {
               if (!v1) {
                 console.log("Не нашёл объект");
@@ -263,6 +278,7 @@ export const StatisticsController = {
             }
           }
         });
+
         // назначение всех тегов
         const tags: Set<number> = new Set();
 
@@ -271,7 +287,6 @@ export const StatisticsController = {
 
           // групповые теги
           switch (code) {
-            // если есть событие скрола то сраду добавляем тег скролл
             case CLIENT_EVENTS.scroll.scroll1.code:
             case CLIENT_EVENTS.scroll.scroll2.code:
             case CLIENT_EVENTS.scroll.scroll3.code:
@@ -294,7 +309,7 @@ export const StatisticsController = {
               tags.add(TAGS.goals.top.code);
               break;
           }
-          //events tags
+          // events tags
           switch (code) {
             case CLIENT_EVENTS.click.topBaner.code:
               tags.add(TAGS.events.click_topBaner.code);
@@ -321,62 +336,66 @@ export const StatisticsController = {
         });
 
         let t = Array.from(tags);
+        let isHasSameTags = true;
         if (t.length > 0) {
           /** Фикс: Есть гости что заходят только на туры, но ничего не делали, если так
            * то им я задаю emptyTours
            */
           if (t.includes(TAGS.page.tours.code) && t.length === 1) {
             t = [TAGS.page.emptyTours.code];
-            // console.log("Found in tours", guest);
           }
 
-          /* **/
-          const isHasSameTags = ServerTools.arrays.isSubset(
+          isHasSameTags = ServerTools.arrays.isSubset(
             t,
             guest.tags || [],
           );
-
-          if (!isHasSameTags) {
-            await guestObj.patchOneGuest(guest._id || "", { tags: t });
-
-            ttt++;
-            res.write(`data: tags ${JSON.stringify(t)} \n\n`);
-            res.write(
-              `data: ${i} : ${((i / guests.length) * 100).toFixed(2)} % : Изменений ${ttt}\n\n`,
-            );
-            res.flush();
-          }
         }
 
         const isHasSameEvents = ServerTools.arrays.isSubset(
           pageIds,
           guest.pages || [],
         );
-        if (fRefEventString || !isHasSameEvents) {
-          const update = {} as IGuest;
 
-          if (!isHasSameEvents) {
-            update.pages = pageIds;
-          }
-          update.events = guest.events ?? [];
+        const toSet: Record<string, any> = {};
 
-          await guestObj.patchOneGuest(guest._id || "", update);
+        if (t.length > 0 && !isHasSameTags) {
+          toSet.tags = t;
         }
-        // if (tt > 100) {
-        //   res.write(
-        //     `data: ${i} : ${((i / guests.length) * 100).toFixed(2)} % : Изменений ${ttt}\n\n`,
-        //   );
-        //   res.flush();
-        //   tt = 0;
-        // }
 
-        // 🔥 КРИТИЧЕСКИЙ МОМЕНТ ДЛЯ БОЛЬШИХ ОБЪЕМОВ:
-        // Каждые 100 итераций даем Node.js паузу в 1 миллисекунду.
-        // Это освобождает Event Loop и позволяет серверу физически отправить буфер в сеть.
-        if (i % 100 === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 1));
+        if (fRefEventString || !isHasSameEvents) {
+          if (!isHasSameEvents) {
+            toSet.pages = pageIds;
+          }
+          toSet.events = guest.events ?? [];
+        }
+
+        if (Object.keys(toSet).length > 0 && guest._id) {
+          bulkOps.push({
+            updateOne: {
+              filter: { _id: guest._id },
+              update: { $set: toSet },
+            },
+          });
+          ttt++;
         }
       }
+
+      if (bulkOps.length >= 500) {
+        await Guest.bulkWrite(bulkOps, { ordered: false });
+        bulkOps.length = 0;
+      }
+
+      if (i % 250 === 0) {
+        const percent = totalCount > 0 ? ((i / totalCount) * 100).toFixed(1) : "0";
+        res.write(`data: ${percent}% (обработано ${i}/${totalCount}, изменений: ${ttt})\n\n`);
+        res.flush();
+        await new Promise((resolve) => setTimeout(resolve, 1));
+      }
+    }
+
+    if (bulkOps.length > 0) {
+      await Guest.bulkWrite(bulkOps, { ordered: false });
+      bulkOps.length = 0;
     }
 
     // clearInterval(heartbeat);
@@ -401,13 +420,13 @@ export const StatisticsController = {
     res.end();
   },
   stat_countTags: async (req: Request, res: Response) => {
-    const { tags, projectId, companyId } = req.query;
+    const { tags, projectId, companyId, pageIds } = req.query;
 
     if (!tags) {
       res.status(400).send("Не переданы теги");
       return;
     }
-    if (!projectId || !companyId) {
+    if (!projectId) {
       res.status(400).send("Не переданы projectId или companyId");
       return;
     }
@@ -415,11 +434,17 @@ export const StatisticsController = {
     console.log(projectId, companyId);
 
     const tagsData = (tags as string).split(",").map((tag) => parseInt(tag));
+    const targetPageIds = await getCompanyPageIds(companyId, pageIds);
+
+    const matchStage: any = { projectId: Number(projectId) };
+    if (targetPageIds && targetPageIds.length > 0) {
+      matchStage.pages = { $in: targetPageIds };
+    }
 
     const stats = await Guest.aggregate([
       {
         $match: {
-          projectId: Number(projectId),
+          ...matchStage,
         },
       },
       { $match: { tags: { $exists: true, $ne: [] } } },
@@ -452,15 +477,22 @@ export const StatisticsController = {
     res.json(stats);
   },
   stat_countBots: async (req: Request, res: Response) => {
-    const { projectId, companyId } = req.query;
+    const { projectId, companyId, pageIds } = req.query;
 
-    if (!projectId || !companyId) {
+    if (!projectId) {
       res.status(400).send("Не переданы projectId или companyId");
       return;
     }
 
+
+    const targetPageIds = await getCompanyPageIds(companyId, pageIds);
+    const matchStage: any = { projectId: Number(projectId), b: true };
+    if (targetPageIds && targetPageIds.length > 0) {
+      matchStage.pages = { $in: targetPageIds };
+    }
+
     const bStats = await Guest.aggregate([
-      { $match: { projectId: Number(projectId), b: true } },
+      { $match: matchStage },
       {
         $group: {
           _id: {
@@ -479,11 +511,14 @@ export const StatisticsController = {
     res.json(bStats);
   },
   stat_pageVisitsForMonth: async (req: Request, res: Response) => {
-    const { projectId } = req.query;
+
+    const { projectId, companyId, pageIds } = req.query;
     const now = new Date();
     const startOfMonth = new Date();
     startOfMonth.setMonth(now.getMonth() - 1);
 
+
+    const targetPageIds = await getCompanyPageIds(companyId, pageIds);
     const includeTags: number[] = [];
     const excludeTags: number[] = [TAGS.page.emptyTours.code];
 
@@ -500,6 +535,11 @@ export const StatisticsController = {
         ...matchStage.tags,
         $nin: excludeTags, // не должно быть НИ ОДНОГО из этих тегов
       };
+
+    }
+    if (targetPageIds && targetPageIds.length > 0) {
+      matchStage.pages = { $in: targetPageIds };
+
     }
 
     const stats = await Guest.aggregate([
@@ -518,10 +558,12 @@ export const StatisticsController = {
     res.json(stats);
   },
   stat_pageVisitsForWeeks: async (req: Request, res: Response) => {
-    const { projectId } = req.query;
+
+    const { projectId, companyId, pageIds } = req.query;
 
     const now = new Date();
 
+    const targetPageIds = await getCompanyPageIds(companyId, pageIds);
     const includeTags: number[] = [];
     const excludeTags: number[] = [TAGS.page.emptyTours.code];
 
@@ -538,6 +580,11 @@ export const StatisticsController = {
         ...matchStage.tags,
         $nin: excludeTags, // не должно быть НИ ОДНОГО из этих тегов
       };
+
+    }
+    if (targetPageIds && targetPageIds.length > 0) {
+      matchStage.pages = { $in: targetPageIds };
+
     }
 
     const getStats = async (weeksAgo: number) => {

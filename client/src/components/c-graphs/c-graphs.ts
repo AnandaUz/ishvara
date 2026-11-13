@@ -1,74 +1,71 @@
 import "./c-graphs.scss";
 import html from "./c-graphs.html?raw";
+import type {
+  GraphSettings,
+  IGraphsBounds,
+  IGraphsConstructorParams,
+  IGraphSeries,
+  TGraphPoint,
+} from "./types";
+
+export type * from "./types";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
 const Options = {
   scale: {
     forDay: 20,
     forValue: 1,
     scaleStep: 0.2,
   },
-  weedend_color: "#89cc983b",
+  weekend_color: "#89cc983b",
   supportLine_color: "#00000023",
   comment_color: "#00771eff",
   supportLine_width: 1,
 } as const;
-interface PointData {
-  x: number;
-  y: number;
-  value: number;
-  color?: string;
-  radius?: number;
-}
-interface GraphSettings {
-  color?: string;
-  strokeWidth?: number;
-  pointRadius?: number;
-}
-export class GraphData {
+
+export class GraphData implements IGraphSeries {
   points = new Map<number, TGraphPoint>();
   settings: GraphSettings = {
     color: "#ff8181ff",
     strokeWidth: 1,
     pointRadius: 1,
   };
+
   constructor(settings?: GraphSettings) {
-    if (settings) this.settings = { ...this.settings, ...settings };
+    if (settings) {
+      this.settings = { ...this.settings, ...settings };
+    }
   }
-}
-export interface TGraphPoint {
-  value: number;
-  date: number;
-  title?: string;
-  comment?: string;
-  isDashed?: boolean;
-}
-interface IBg {
-  svgStr: string;
-  position: { dx: number; dy: number };
-  size: { w: number; h: number };
-  repeat: string;
 }
 
 export class CGraphs extends HTMLElement {
+  private static instanceCounter = 0;
+  private uid = ++CGraphs.instanceCounter;
+
   private isDragging = false;
   private startX = 0;
   private startY = 0;
   private initialLeft = 0;
   private initialTop = 0;
-  private desk!: HTMLDivElement;
 
-  private svg!: SVGElement;
-  private bgs: Array<IBg> = [];
+  private desk!: HTMLDivElement;
+  private chartSvg!: SVGSVGElement;
+  private axisXGroup!: SVGGElement;
+  private axisYGroup!: SVGGElement;
+
+  // Алиас для обратной совместимости
+  svg!: SVGSVGElement;
+
   private destPosition = { x: 0, y: 0 };
-  private dYY = 0;
   private graphs: GraphData[] = [];
   private tooltip!: HTMLDivElement;
+  private resizeObserver: ResizeObserver | null = null;
   title: string = "";
 
-  optionsFromGraphs = {
-    minValue: -Infinity,
-    maxValue: Infinity,
+  optionsFromGraphs: IGraphsBounds = {
+    minValue: 0,
+    maxValue: 0,
     minDate: 0,
     maxDate: 0,
     dayCount: 0,
@@ -78,56 +75,339 @@ export class CGraphs extends HTMLElement {
     forDay: Options.scale.forDay,
     forValue: Options.scale.forValue,
   };
-  constructor({ title }: { title?: string }) {
+
+  // Слушатели для корректной очистки
+  private onMouseMoveBound = (e: MouseEvent) => this.onMouseMove(e);
+  private onMouseUpBound = () => this.onMouseUp();
+  private onTouchMoveBound = (e: TouchEvent) => this.onTouchMove(e);
+  private onTouchEndBound = () => this.onTouchEnd();
+  private onDeskMouseDownBound = (e: MouseEvent) => this.onDeskMouseDown(e);
+  private onDeskTouchStartBound = (e: TouchEvent) => this.onDeskTouchStart(e);
+  private onDeskWheelBound = (e: WheelEvent) => this.handleWheel(e);
+  private onDeskMouseOverBound = (e: MouseEvent) => this.onDeskMouseOver(e);
+  private onDeskMouseOutBound = (e: MouseEvent) => this.onDeskMouseOut(e);
+  private onDeskMouseLeaveBound = () => this.hideTooltip();
+
+  constructor(params?: IGraphsConstructorParams) {
     super();
-    this.title = title ?? "";
+    this.title = params?.title ?? "";
   }
+
   addGraph(graph: GraphData) {
     this.graphs.push(graph);
   }
-  refreshData() {
-    this.refresthOptionsFromGraphs();
-    this.renderBgs();
-    this.setDestPosition();
+
+  setData(graphs: GraphData[]) {
+    this.graphs = [...graphs];
+    if (!this.desk) {
+      this.init();
+    }
+    this.refreshOptionsFromGraphs();
+    this.setStartPosition();
+    this.render();
   }
+
+  refreshData() {
+    this.refreshOptionsFromGraphs();
+    this.render();
+    this.setDeskPosition();
+  }
+
+  // Алиас для обратной совместимости со старыми вызовами
+  refresthOptionsFromGraphs() {
+    this.refreshOptionsFromGraphs();
+  }
+
   init() {
+    if (this.desk) return;
     this.innerHTML = html;
     this.desk = this.querySelector(".desk")!;
-    this.initSvg();
+    this.initSvgs();
     this.initDrag();
     this.initTooltip();
-    this.querySelector(".title")!.textContent = this.title;
+    this.initResizeObserver();
+    const titleEl = this.querySelector(".title");
+    if (titleEl) {
+      titleEl.textContent = this.title;
+    }
   }
-  initSvg() {
-    // ── создаём SVG ───────────────────────────────────────────────────
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.desk.appendChild(svg);
-    this.svg = svg;
+
+  private initSvgs() {
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const chartSvg = document.createElementNS(svgNS, "svg");
+    chartSvg.classList.add("chart-svg");
+    this.desk.appendChild(chartSvg);
+    this.chartSvg = chartSvg;
+    this.svg = chartSvg;
+
+    const axisXSvg = document.createElementNS(svgNS, "svg");
+    axisXSvg.classList.add("axis-x-svg");
+    const axisXGroup = document.createElementNS(svgNS, "g");
+    axisXSvg.appendChild(axisXGroup);
+    this.desk.appendChild(axisXSvg);
+    this.axisXGroup = axisXGroup;
+
+    const axisYSvg = document.createElementNS(svgNS, "svg");
+    axisYSvg.classList.add("axis-y-svg");
+    const axisYGroup = document.createElementNS(svgNS, "g");
+    axisYSvg.appendChild(axisYGroup);
+    this.desk.appendChild(axisYSvg);
+    this.axisYGroup = axisYGroup;
   }
-  initTooltip() {
+
+  private initTooltip() {
     const tooltip = document.createElement("div");
     tooltip.classList.add("tooltip");
-    document.body.appendChild(tooltip);
+    this.appendChild(tooltip);
     this.tooltip = tooltip;
-
-    tooltip.innerHTML = ``;
   }
-  showTooltip(x: number, y: number, innerHTML: string) {
-    this.tooltip.style.left = x + "px";
-    this.tooltip.style.top = y + "px";
-    this.tooltip.innerHTML = `        
-            ${innerHTML}
-        `;
+
+  private showTooltip(x: number, y: number, innerHTML: string) {
+    if (!this.tooltip) return;
+    this.tooltip.style.left = `${x}px`;
+    this.tooltip.style.top = `${y}px`;
+    this.tooltip.innerHTML = innerHTML;
     this.tooltip.classList.add("active");
   }
-  hideTooltip() {
-    this.tooltip.classList.remove("active");
+
+  private hideTooltip() {
+    if (this.tooltip) {
+      this.tooltip.classList.remove("active");
+    }
   }
-  /*
-  private formatDate(date: Date | null): string {
-    if (!date) return "";
-    const d = String(date.getDate()).padStart(2, "0");
-    const months = [
+
+  refreshOptionsFromGraphs() {
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+    let minDate = Infinity;
+    let maxDate = -Infinity;
+
+    this.graphs.forEach((graph) => {
+      graph.points.forEach((point) => {
+        if (point.value < minValue) minValue = point.value;
+        if (point.value > maxValue) maxValue = point.value;
+        if (point.date < minDate) minDate = point.date;
+        if (point.date > maxDate) maxDate = point.date;
+      });
+    });
+
+    if (minValue === Infinity) minValue = 0;
+    if (maxValue === -Infinity) maxValue = 10;
+    if (minDate === Infinity) minDate = Date.now();
+    if (maxDate === -Infinity) maxDate = Date.now();
+
+    this.optionsFromGraphs.minValue = minValue;
+    this.optionsFromGraphs.maxValue = maxValue;
+    this.optionsFromGraphs.minDate = minDate;
+    this.optionsFromGraphs.maxDate = maxDate;
+
+    this.optionsFromGraphs.dayCount = Math.max(
+      1,
+      Math.ceil((maxDate - minDate) / DAY_IN_MS),
+    );
+  }
+
+  // Метод для обратной совместимости
+  renderBgs() {
+    this.render();
+  }
+
+  private calculateAxisStep(range: number): number {
+    if (range <= 0) return 1;
+    const roughStep = Math.max(1, range / 6);
+    const power = Math.pow(10, Math.floor(Math.log10(roughStep)));
+    const norm = roughStep / power;
+    let factor = 1;
+    if (norm > 5) factor = 10;
+    else if (norm > 2) factor = 5;
+    else if (norm > 1) factor = 2;
+    return Math.max(1, factor * power);
+  }
+
+  render() {
+    if (!this.chartSvg || !this.axisXGroup || !this.axisYGroup) return;
+
+    const grOptions = this.optionsFromGraphs;
+    const deskH =
+      (this.desk && this.desk.getBoundingClientRect().height) || 500;
+    const topPadding = 20;
+    const bottomPadding = 35;
+    const availableH = Math.max(50, deskH - topPadding - bottomPadding);
+
+    const maxVal = Math.max(1, grOptions.maxValue);
+    const minVal = Math.min(0, grOptions.minValue);
+    const valRange = maxVal - minVal;
+
+    if (!this.scale.forValue || this.scale.forValue <= 0) {
+      this.scale.forValue = availableH / (valRange || 1);
+    }
+
+    const W = (grOptions.dayCount + 3) * this.scale.forDay;
+    const contentH =
+      topPadding + valRange * this.scale.forValue + bottomPadding;
+    const H = Math.max(deskH, contentH);
+
+    this.chartSvg.setAttribute("width", `${W + 5}px`);
+    this.chartSvg.setAttribute("height", `${H}px`);
+    this.chartSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+    // --- 1. Сетка и выходные через SVG pattern ---
+    const weekW = this.scale.forDay * 7;
+    const workW = this.scale.forDay * 5;
+    const weekendW = this.scale.forDay * 2;
+    const minD = new Date(grOptions.minDate);
+    const dayOfWeek = (minD.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+    const patternOffsetX = -dayOfWeek * this.scale.forDay;
+
+    let dayLines = "";
+    if (this.scale.forDay >= 15) {
+      for (let i = 0; i < 7; i++) {
+        dayLines += `<line x1="${i * this.scale.forDay}" y1="0" x2="${i * this.scale.forDay}" y2="100%" stroke="${Options.supportLine_color}" stroke-width="${Options.supportLine_width}" />`;
+      }
+    }
+
+    let monthLinesSvg = "";
+    const ddMonth = new Date(grOptions.minDate);
+    for (let i = 0; i <= grOptions.dayCount; i++) {
+      if (ddMonth.getDate() === 1) {
+        const monthX = i * this.scale.forDay;
+        monthLinesSvg += `<line x1="${monthX}" y1="0" x2="${monthX}" y2="${H}" stroke="#00000045" stroke-width="1.5" />`;
+      }
+      ddMonth.setDate(ddMonth.getDate() + 1);
+    }
+
+    const step = this.calculateAxisStep(valRange);
+    const startVal = Math.floor(minVal / step) * step;
+
+    let gridLinesSvg = "";
+    let valuesSvg = "";
+
+    for (let val = startVal; val <= maxVal + step * 0.5; val += step) {
+      if (val < minVal || val > maxVal) continue;
+      const y = topPadding + (maxVal - val) * this.scale.forValue;
+      gridLinesSvg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${Options.supportLine_color}" stroke-width="${Options.supportLine_width}" stroke-dasharray="2 4"/>`;
+
+      valuesSvg += `
+        <rect x="2" y="${y - 9}" width="42" height="18" rx="9" fill="#fffffff2" stroke="#00000015" stroke-width="1" />
+        <text x="23" y="${y}" fill="#4e7940" font-size="11" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="central">${val}</text>
+      `;
+    }
+
+    const patternId = `week-pattern-${this.uid}`;
+    this.chartSvg.innerHTML = `
+      <defs>
+        <pattern id="${patternId}" width="${weekW}" height="100%" patternUnits="userSpaceOnUse" x="${patternOffsetX}">
+          <rect x="${workW}" y="0" width="${weekendW}" height="100%" fill="${Options.weekend_color}" />
+          ${dayLines}
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="${W}" height="${H}" fill="url(#${patternId})" />
+      <g class="month-lines">${monthLinesSvg}</g>
+      <g class="horizontal-grid">${gridLinesSvg}</g>
+    `;
+
+    // --- 2. Серии графиков (Path вместо Line + интерактивные точки) ---
+    const minDate = grOptions.minDate;
+    const dxOffset = this.scale.forDay * 0.5;
+
+    for (let ii = 0; ii < this.graphs.length; ii++) {
+      const graph = this.graphs[ii];
+      if (!graph || graph.points.size === 0) continue;
+
+      const layer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      this.chartSvg.appendChild(layer);
+
+      const settings = graph.settings;
+      const strokeColor = settings?.color || "#ff8181ff";
+      const strokeWidth = settings?.strokeWidth ?? 1;
+      const pointRadius = settings?.pointRadius ?? 0;
+      const dYForGraph = ii * 2;
+
+      const sorted = [...graph.points.entries()].sort((a, b) => a[0] - b[0]);
+
+      let pathD = "";
+      let dashedPathD = "";
+
+      for (let idx = 0; idx < sorted.length; idx++) {
+        const curr = sorted[idx]![1];
+        const prev = idx > 0 ? sorted[idx - 1]![1] : null;
+
+        const x =
+          Math.floor((curr.date - minDate) / DAY_IN_MS) * this.scale.forDay +
+          dxOffset;
+        const y =
+          topPadding + (maxVal - curr.value) * this.scale.forValue + dYForGraph;
+
+        if (idx === 0) {
+          pathD += `M ${x} ${y}`;
+        } else if (curr.isDashed) {
+          if (prev) {
+            const prevX =
+              Math.floor((prev.date - minDate) / DAY_IN_MS) *
+                this.scale.forDay +
+              dxOffset;
+            const prevY =
+              topPadding +
+              (maxVal - prev.value) * this.scale.forValue +
+              dYForGraph;
+            dashedPathD += ` M ${prevX} ${prevY} L ${x} ${y}`;
+          }
+          pathD += ` M ${x} ${y}`;
+        } else {
+          pathD += ` L ${x} ${y}`;
+        }
+
+        if (pointRadius > 0 || curr.title) {
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle",
+          );
+          circle.setAttribute("cx", String(x));
+          circle.setAttribute("cy", String(y));
+          circle.setAttribute("r", String(Math.max(pointRadius, 4)));
+          circle.setAttribute(
+            "fill",
+            pointRadius > 0 ? strokeColor : "transparent",
+          );
+          circle.classList.add("chart-point");
+          if (curr.title) {
+            circle.setAttribute("data-tooltip", curr.title);
+          }
+          layer.appendChild(circle);
+        }
+      }
+
+      if (pathD) {
+        const path = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path",
+        );
+        path.setAttribute("d", pathD);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", strokeColor);
+        path.setAttribute("stroke-width", String(strokeWidth));
+        layer.insertBefore(path, layer.firstChild);
+      }
+
+      if (dashedPathD) {
+        const dashedPath = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path",
+        );
+        dashedPath.setAttribute("d", dashedPathD);
+        dashedPath.setAttribute("fill", "none");
+        dashedPath.setAttribute("stroke", strokeColor);
+        dashedPath.setAttribute("stroke-width", String(strokeWidth));
+        dashedPath.setAttribute("stroke-dasharray", "6 4");
+        layer.insertBefore(dashedPath, layer.firstChild);
+      }
+    }
+
+    // --- 3. Шкала X (даты) в SVG ---
+    let dateSvg = "";
+    const isSmallScale = this.scale.forDay < 15;
+    const MONTH_GENITIVE = [
       "янв",
       "фев",
       "мар",
@@ -141,588 +421,207 @@ export class CGraphs extends HTMLElement {
       "ноя",
       "дек",
     ];
-    const m = months[date.getMonth()];
-    const y = String(date.getFullYear()).slice(-2);
-    return `${d} ${m} ${y}`;
-  }
-*/
-  createPoint(data: PointData, svg: SVGElement, innerHTML: string) {
-    const radius = data.radius ?? 6;
-    const c2 = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    c2.setAttribute("cx", data.x.toString());
-    c2.setAttribute("cy", data.y.toString());
-    c2.setAttribute("r", radius.toString());
-    if (data.color) {
-      c2.setAttribute("fill", data.color);
-    }
-    svg.appendChild(c2);
-    //-
-    const circle = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle",
-    );
-    circle.setAttribute("cx", data.x.toString());
-    circle.setAttribute("cy", data.y.toString());
-    circle.setAttribute("r", "6");
-    circle.classList.add("chart-point");
-    circle.setAttribute("fill", "rgba(255, 255, 255, 0)");
 
-    circle.addEventListener("mouseover", () => {
-      const rect = circle.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
+    const dd = new Date(grOptions.minDate);
+    for (let i = 0; i <= grOptions.dayCount; i++) {
+      const isFirstDayOfMonth = dd.getDate() === 1;
 
-      this.showTooltip(x, y, innerHTML);
-    });
-    circle.addEventListener("mouseout", () => {
-      this.hideTooltip();
-    });
-    svg.appendChild(circle);
-  }
-  /*
-  createPoint_kosatelnay(data: PointData): SVGCircleElement {
-    const circle = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle",
-    );
-    circle.setAttribute("cx", data.x.toString());
-    circle.setAttribute("cy", data.y.toString());
-    circle.setAttribute("r", "10");
-    circle.classList.add("chart-point");
-    circle.setAttribute("fill", "#00000000");
-
-    circle.addEventListener("mouseover", () => {
-      const rect = circle.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-
-      const dW = this.drawTangent(this.graphs[2]!, data.ind) || 0;
-
-      const w = data.value;
-      const goalW = 60;
-      const delta = goalW - w;
-      let days: number | undefined = undefined;
-      let goalDate: Date | null = null;
-      let st = "";
-      let st2 = "";
-      if (dW > 0) {
-        st = `Через год`;
-        st2 = `вес будет: ${Math.round((w + dW * 365) * 100) / 100}`;
-      } else {
-        days = Math.round(delta / dW);
-        st = `До цели ${goalW} кг: ${days} дней`;
-        goalDate = new Date(data.date!.getTime() + days * 24 * 60 * 60 * 1000);
-        st2 = `Цель ${this.formatDate(goalDate)}`;
-      }
-
-      let html = "";
-      html += `<div class="date">${Math.round(dW * 1000)} г/день</div>
-      <div class="date">${Math.round(dW * 1000 * 7)} г/нед</div>
-      <div class="date">${Math.round(dW * 1000 * 30)} г/мес</div>
-      <div class="date"> ${st}</div>
-      <div class="date">${st2}</div>`;
-      this.showTooltip(x, y, html);
-    });
-
-    circle.addEventListener("mouseout", () => {
-      this.hideTooltip();
-    });
-    return circle;
-  }
-  */
-  refresthOptionsFromGraphs() {
-    let minValue = Infinity;
-    let maxValue = -Infinity;
-    let minDate = Infinity;
-    let maxDate = -Infinity;
-
-    this.graphs.forEach((graph) => {
-      graph.points.forEach((point) => {
-        minValue = Math.min(minValue, point.value);
-        maxValue = Math.max(maxValue, point.value);
-
-        if (minDate === null || point.date < minDate) {
-          minDate = point.date;
-        }
-        if (maxDate === null || point.date > maxDate) {
-          maxDate = point.date;
-        }
-      });
-    });
-
-    this.optionsFromGraphs.minValue = minValue;
-    this.optionsFromGraphs.maxValue = maxValue;
-    this.optionsFromGraphs.minDate = minDate;
-    this.optionsFromGraphs.maxDate = maxDate;
-
-    this.optionsFromGraphs.dayCount = Math.ceil(
-      (maxDate - minDate) / (1000 * 60 * 60 * 24),
-    );
-  }
-  renderBgs() {
-    //- svgBG
-
-    const bgs: IBg[] = [];
-    this.bgs = bgs;
-
-    const grOptions = this.optionsFromGraphs;
-
-    this.dYY = (grOptions.maxValue - grOptions.minValue) * this.scale.forValue;
-    const wForAllDay = (grOptions.dayCount + 1) * this.scale.forDay;
-    const w1 = this.scale.forDay * 5;
-    const w2 = this.scale.forDay * 2;
-    const w = w1 + w2;
-    const h = Math.max(1, this.scale.forValue);
-    let s = "";
-    //- вертикальные линии
-    if (this.scale.forDay > 10) {
-      for (let i = 0; i < 7; i++) {
-        s += `<line x1="${i * this.scale.forDay}" y1="0" x2="${i * this.scale.forDay}" y2="${h}" stroke="${Options.supportLine_color}" stroke-width="${Options.supportLine_width}"/>`;
-      }
-    }
-    const svg = `             
-            <rect x="${w1}" y="0" width="${w2}" height="${h}" fill="${Options.weedend_color}"/>
-            ${s}            
+      if (isFirstDayOfMonth || (isSmallScale && i === 0)) {
+        const monthX = i * this.scale.forDay;
+        const label = isFirstDayOfMonth
+          ? `1 ${MONTH_GENITIVE[dd.getMonth()]}`
+          : `${MONTH_GENITIVE[dd.getMonth()]}`;
+        const badgeW = 44;
+        dateSvg += `
+          <rect x="${monthX - badgeW / 2}" y="2" width="${badgeW}" height="20" rx="10" fill="#fffffff0" stroke="#00000025" stroke-width="1" />
+          <text x="${monthX}" y="12" fill="#000000c0" font-size="11" font-weight="bold" font-family="Arial" text-anchor="middle" dominant-baseline="central">${label}</text>
         `;
-
-    const minD = new Date(grOptions.minDate);
-    const dx = minD.getDay() === 0 ? 6 : minD.getDay() - 1;
-
-    bgs[2] = {
-      svgStr: svg,
-      position: { dx: -dx * this.scale.forDay, dy: 0 },
-      size: { w: w, h: h },
-      repeat: "repeat",
-    };
-
-    //- горизонтальные линии
-    // const svg2 = `
-    //         <line x1="0" y1="0" x2="${w}" y2="0" stroke="#00000023" stroke-width="1"/>
-    //     `;
-    // bgs[3] = {
-    //   svgStr: svg2,
-    //   position: { dx: 0, dy: -this.dYY },
-    //   size: { w: w, h: h },
-    //   repeat: "repeat",
-    // };
-
-    //- цифры даты снизу
-    if (this.scale.forDay > 10) {
-      s = "";
-      const r = 9;
-      const dd = new Date(grOptions.minDate);
-
-      for (let i = 0; i <= grOptions.dayCount; i++) {
-        const dx = (i + 0.5) * this.scale.forDay;
-        const d = dd.getDate();
-        s += `<circle cx="${dx}" cy="${r}" r="${r}" fill="#ffffff62" />    
-              <text 
-                  x="${dx}" 
-                  y="${r}" 
-                  fill="#00000090" 
-                  font-size="12" 
-                  font-family="Arial"
-                  text-anchor="middle" 
-                  dominant-baseline="central"
-              >${d}</text>`;
-        dd.setDate(dd.getDate() + 1);
-      }
-      bgs[0] = {
-        svgStr: s,
-        position: { dx: 0, dy: -Infinity },
-        size: { w: wForAllDay, h: r * 2 },
-        repeat: "no-repeat",
-      };
-    }
-
-    // - цифры веса ----------------
-    s = "";
-    const r2 = 12;
-    for (let i = grOptions.minValue; i < grOptions.maxValue; i++) {
-      const dy = (i - grOptions.minValue - 1) * this.scale.forValue;
-
-      s += `<circle cx="${r2}" cy="${dy}" r="${r2}" fill="#ffffffff" />    
-            <text 
-                x="${r2}" 
-                y="${dy}" 
-                fill="#00000090" 
-                font-size="12" 
-                font-family="Arial"
-                text-anchor="middle" 
-                dominant-baseline="central"
-            >${grOptions.maxValue + grOptions.minValue - i}</text>`;
-    }
-
-    bgs[1] = {
-      svgStr: s,
-      position: { dx: -Infinity, dy: -this.dYY },
-      size: {
-        w: r2 * 2,
-        h: (grOptions.maxValue - grOptions.minValue) * this.scale.forValue,
-      },
-      repeat: "no-repeat",
-    };
-    /*
-    //- коментарии -------------------
-    const graph0 = this.graphs[0];
-    if (graph0) {
-      let svgContent = "";
-      const maxChars = Math.max(
-        ...graph0.map((curr) => curr?.comment?.length || 0),
-      );
-      const padding = 20;
-      const estimatedHeight = maxChars * 7 + padding; // Примерный расчет: 7px на символ + отступ
-      for (let i = 0; i < graph0.length; i++) {
-        const curr = graph0[i];
-        if (curr && curr.comment) {
-          const x = i * this.scale.forDay - 30;
-          const y = estimatedHeight - padding; // Нижняя точка
-
-          // Формируем строку SVG
-          svgContent += `
-                        <text 
-                            x="${x}" 
-                            y="${y}" 
-                            fill="${Options.comment_color}"
-                            font-size="12"
-                            font-family="Arial"
-                            text-anchor="start"
-                            transform="rotate(-90, ${x}, ${y})"
-                        >${curr.comment}</text>
-                    `; // Нижняя точка (базовая линия)
+      } else if (!isSmallScale) {
+        const dayStep =
+          this.scale.forDay >= 25 ? 1 : this.scale.forDay >= 18 ? 2 : 3;
+        if (i % dayStep === 0) {
+          const posX = (i + 0.5) * this.scale.forDay;
+          const d = dd.getDate();
+          dateSvg += `
+            <circle cx="${posX}" cy="13" r="9" fill="#ffffff95" />
+            <text x="${posX}" y="13" fill="#000000a0" font-size="11" font-family="Arial" text-anchor="middle" dominant-baseline="central">${d}</text>
+          `;
         }
       }
-      bgs[4] = {
-        svgStr: svgContent,
-        position: { dx: 0, dy: -100 },
-        size: { w: wForAllDay, h: estimatedHeight },
-        repeat: "no-repeat",
-      };
+      dd.setDate(dd.getDate() + 1);
     }
-*/
-    //- заполнение бэкграундов в стили ---
-    let bgStr = "";
-    let bgSize = "";
-
-    let bgRepeat = "";
-    bgs.forEach((bg) => {
-      const svg = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${bg.size.w} ${bg.size.h}">${bg.svgStr}</svg>
-            `;
-      bgStr += `url("data:image/svg+xml,${encodeURIComponent(svg)}"),`;
-      bgSize += `${bg.size.w}px ${bg.size.h}px,`;
-
-      bgRepeat += `${bg.repeat},`;
-    });
-    bgStr = bgStr.slice(0, -1);
-    bgSize = bgSize.slice(0, -1);
-
-    bgRepeat = bgRepeat.slice(0, -1);
-
-    this.desk.style.backgroundImage = bgStr;
-    this.desk.style.backgroundSize = bgSize;
-    this.desk.style.backgroundRepeat = bgRepeat;
+    this.axisXGroup.innerHTML = dateSvg;
+    this.axisYGroup.innerHTML = valuesSvg;
   }
 
-  render() {
-    //- svgDesk
-    // this.renderBgs();
-
-    const svgDesk = this.svg;
-
-    const grOptions = this.optionsFromGraphs;
-
-    const W = (grOptions.dayCount + 3) * this.scale.forDay; //+ 30 * 12
-    const H = (grOptions.maxValue - grOptions.minValue) * this.scale.forValue;
-
-    svgDesk.setAttribute("width", W + 5 + "px");
-    svgDesk.setAttribute("height", H + 5 + "px");
-    svgDesk.setAttribute("viewBox", `0 0 ${W} ${H}`);
-
-    this.svg.innerHTML = "";
-
-    for (let ii = 0; ii < this.graphs.length; ii++) {
-      const layer = document.createElementNS("http://www.w3.org/2000/svg", "g");
-
-      let dY_forGraph = ii * 2;
-      this.svg.appendChild(layer);
-      const graph = this.graphs[ii];
-      const settings = graph?.settings;
-      let prevPoint: TGraphPoint | null = null;
-      if (graph) {
-        let i = 0;
-        const minDate = grOptions.minDate;
-        const sorted = [...graph.points.entries()].sort((a, b) => a[0] - b[0]);
-        for (const [_date, curr] of sorted) {
-          i++;
-          // const next = graph.points.values.next().value;
-
-          // curr.date?.setHours(12, 0, 0, 0);
-
-          // берём значение: если null — берём соседнее для визуального соединения
-          if (curr && prevPoint) {
-            const y1 =
-              (grOptions.maxValue - (prevPoint as TGraphPoint).value) *
-                this.scale.forValue +
-              dY_forGraph;
-            const y2 =
-              (grOptions.maxValue - curr?.value) * this.scale.forValue +
-              dY_forGraph;
-
-            const dx = this.scale.forDay * 0.5;
-            const d1 = prevPoint.date || 0;
-            const d2 = curr.date || 0;
-            // const dd = (d2 - d1) / DAY_IN_MS;
-            const k = 0.9996; // погрешность отображения свг и бг;
-            const x1 =
-              Math.floor((d1 - minDate) / DAY_IN_MS) * this.scale.forDay * k +
-              dx;
-            const x2 =
-              Math.floor((d2 - minDate) / DAY_IN_MS) * this.scale.forDay * k +
-              dx;
-
-            const innerHTML = `${curr.title || ""}`;
-
-            this.createPoint(
-              {
-                x: x2,
-                y: y2,
-                value: curr.value,
-                color: settings?.color || "",
-                radius: settings?.pointRadius || 1,
-              },
-              this.svg,
-              innerHTML,
-            );
-
-            if (i == 2) {
-              this.createPoint(
-                {
-                  x: x1,
-                  y: y1,
-                  value: prevPoint.value,
-                  color: settings?.color || "",
-                  radius: settings?.pointRadius || 1,
-                },
-                this.svg,
-                innerHTML,
-              );
-            }
-            if (ii == 2) {
-              // this.svg.appendChild(
-              //   this.createPoint_kosatelnay({
-              //     x: x2,
-              //     y: y2,
-              //     weight: next.weight,
-              //     ind: i + 1,
-              //     date: next.date || null,
-              //   }),
-              // );
-            }
-
-            const line = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "line",
-            );
-            line.setAttribute("x1", String(x1));
-            line.setAttribute("y1", String(y1));
-            line.setAttribute("x2", String(x2));
-            line.setAttribute("y2", String(y2));
-            line.setAttribute("stroke", settings?.color || "");
-            line.setAttribute(
-              "stroke-width",
-              settings?.strokeWidth + "" || "1",
-            );
-
-            if (curr.isDashed) {
-              line.setAttribute("stroke-dasharray", "6 4");
-            }
-
-            layer.appendChild(line);
-          }
-          prevPoint = curr;
-        }
-      }
-    }
-
-    // const g2 = this.graphs[2]!;
-    // if (g2.length) this.drawTangent(this.graphs[2]!, g2.length - 1);
-
-    // this.setDestPosition();
-  }
-  drawTangent(graph: TGraphPoint[], pointIndex: number) {
-    // 1. Переводим координату SVG → индекс дня
-    const loessGraph = graph; // или graphs[1] — какой нужен
-    if (!loessGraph || loessGraph.length < 3) return;
-
-    const i = pointIndex;
-    const iClamped = Math.max(1, Math.min(loessGraph.length - 2, i));
-
-    // 2. Численная производная (центральная разность)
-    const wPrev = loessGraph[iClamped - 1]?.value ?? 0;
-    const wNext = loessGraph[iClamped + 1]?.value ?? 0;
-
-    // скорость в кг/день (отрицательная = похудение)
-    const dw_per_day = (wNext - wPrev) / 2;
-
-    // 3. Координаты точки касания в SVG
-    const wCurr = loessGraph[iClamped]?.value ?? 0;
-    const px = (iClamped - 1) * this.scale.forDay;
-    const py = (this.optionsFromGraphs.maxValue - wCurr) * this.scale.forValue;
-
-    // 4. Наклон в SVG-пикселях
-    // dy/dx в пикселях: dy = -dw * scaleWeight (минус т.к. Y перевёрнут), dx = scaleDay
-    const slope_svg = (-dw_per_day * this.scale.forValue) / this.scale.forDay;
-
-    // 5. Рисуем касательную
-    const len = 300; // полудлина линии в пикселях
-    const mag = Math.sqrt(1 + slope_svg * slope_svg);
-    const dx = len / mag;
-    const dy = slope_svg * dx;
-
-    // Удаляем старую
-    this.svg.querySelector("#tangent-line")?.remove();
-    this.svg.querySelector("#tangent-dot")?.remove();
-
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("id", "tangent-line");
-    line.setAttribute("x1", String(px - dx));
-    line.setAttribute("y1", String(py - dy));
-    line.setAttribute("x2", String(px + dx));
-    line.setAttribute("y2", String(py + dy));
-    line.setAttribute("stroke", "#000e2c6c");
-    line.setAttribute("stroke-width", "1");
-    // line.setAttribute("stroke-dasharray", "8 4");
-    this.svg.appendChild(line);
-
-    // const dot = document.createElementNS(
-    //   "http://www.w3.org/2000/svg",
-    //   "circle",
-    // );
-    // dot.setAttribute("id", "tangent-dot");
-    // dot.setAttribute("cx", String(px));
-    // dot.setAttribute("cy", String(py));
-    // dot.setAttribute("r", "5");
-    // dot.setAttribute("fill", "#FF6B6B");
-    // this.svg.appendChild(dot);
-
-    return dw_per_day; // кг/день — скорость сброса
-  }
-  setDestPosition() {
+  setDeskPosition() {
+    this.clampPosition();
     const dx = this.destPosition.x;
     const dy = this.destPosition.y;
-    let bgPosition = "";
 
-    this.bgs.forEach((bg) => {
-      let x: number | string;
-      if (bg.position.dx == -Infinity) x = "right";
-      else x = bg.position.dx + dx + "px";
-
-      let y: number | string;
-      if (bg.position.dy == -Infinity) y = " bottom";
-      else y = bg.position.dy + dy + "px";
-      bgPosition += `${x} ${y},`;
-    });
-
-    bgPosition = bgPosition.slice(0, -1);
-
-    this.desk.style.backgroundPosition = bgPosition;
-
-    this.svg.style.transform = `translate(${dx}px, ${dy}px)`;
-  }
-  setStartPosition() {
-    let rect: DOMRect;
-    if (this.desk) {
-      rect = this.desk.getBoundingClientRect();
-    } else {
-      rect = new DOMRect(0, 0, 0, 0);
+    if (this.chartSvg) {
+      this.chartSvg.style.transform = `translate(${dx}px, ${dy}px)`;
     }
-
-    // const grOptions = this.optionsFromGraphs;
-
-    // let totalDays = grOptions.dayCount;
-    const dayInDesk = rect.width / this.scale.forDay;
-
-    let minValue = Infinity;
-    let maxValue = -Infinity;
-
-    const maxDate = new Date().getTime();
-    // maxDate.setHours(12, 0, 0, 0);
-    const minDate = new Date(maxDate - dayInDesk * DAY_IN_MS).getTime();
-
-    this.graphs.forEach((graph) => {
-      graph.points.forEach((point) => {
-        if (point.date < minDate || point.date > maxDate) return;
-        minValue = Math.min(minValue, point.value);
-        maxValue = Math.max(maxValue, point.value);
-      });
-    });
-    const padding = 10;
-
-    const scaleValue = rect.height / (maxValue - minValue + padding);
-    this.scale.forValue = scaleValue; //Math.min(scaleValue, this.scale.forValue);
-    this.setDestPosition();
+    if (this.axisXGroup) {
+      this.axisXGroup.setAttribute("transform", `translate(${dx}, 0)`);
+    }
+    if (this.axisYGroup) {
+      this.axisYGroup.setAttribute("transform", `translate(0, ${dy})`);
+    }
   }
+
+  // Алиас для обратной совместимости
+  setDestPosition() {
+    this.setDeskPosition();
+  }
+
+  private clampPosition() {
+    const rect = this.desk ? this.desk.getBoundingClientRect() : null;
+    const deskW = rect?.width || 800;
+    const deskH = rect?.height || 500;
+
+    const grOptions = this.optionsFromGraphs;
+    const totalW = (grOptions.dayCount + 1) * this.scale.forDay;
+
+    const minX = Math.min(60 - totalW, deskW - totalW);
+    const maxX = Math.max(deskW - 60, 60);
+    this.destPosition.x = Math.max(minX, Math.min(maxX, this.destPosition.x));
+
+    const topPadding = 20;
+    const bottomPadding = 35;
+    const valRange =
+      Math.max(1, grOptions.maxValue) - Math.min(0, grOptions.minValue);
+    const totalH = topPadding + valRange * this.scale.forValue + bottomPadding;
+
+    const minY = Math.min(60 - totalH, deskH - totalH);
+    const maxY = Math.max(deskH - 60, 60);
+    this.destPosition.y = Math.max(minY, Math.min(maxY, this.destPosition.y));
+  }
+
+  autoScaleY() {
+    const deskH =
+      (this.desk && this.desk.getBoundingClientRect().height) || 500;
+    const topPadding = 20;
+    const bottomPadding = 35;
+    const availableH = Math.max(50, deskH - topPadding - bottomPadding);
+    const maxVal = Math.max(1, this.optionsFromGraphs.maxValue);
+    const minVal = Math.min(0, this.optionsFromGraphs.minValue);
+    const valRange = maxVal - minVal;
+    this.scale.forValue = availableH / (valRange || 1);
+    this.destPosition.y = 0;
+  }
+
+  setStartPosition() {
+    const rect = this.desk
+      ? this.desk.getBoundingClientRect()
+      : new DOMRect(0, 0, 0, 0);
+    const deskW = rect.width || 800;
+
+    const grOptions = this.optionsFromGraphs;
+    const totalW = (grOptions.dayCount + 1) * this.scale.forDay;
+
+    // Позиционируем на последние даты
+    if (totalW > deskW) {
+      this.destPosition.x = deskW - totalW - 20;
+    } else {
+      this.destPosition.x = 20;
+    }
+    this.autoScaleY();
+
+    this.clampPosition();
+    this.render();
+    this.setDeskPosition();
+  }
+
   private initDrag() {
-    // --- Мышь ---
-    this.desk.addEventListener("mousedown", (e) => {
+    this.desk.addEventListener("mousedown", this.onDeskMouseDownBound);
+    this.desk.addEventListener("touchstart", this.onDeskTouchStartBound, {
+      passive: false,
+    });
+    this.desk.addEventListener("wheel", this.onDeskWheelBound, {
+      passive: false,
+    });
+    this.desk.addEventListener("mouseover", this.onDeskMouseOverBound);
+    this.desk.addEventListener("mouseout", this.onDeskMouseOutBound);
+    this.desk.addEventListener("mouseleave", this.onDeskMouseLeaveBound);
+
+    window.addEventListener("mousemove", this.onMouseMoveBound);
+    window.addEventListener("mouseup", this.onMouseUpBound);
+    window.addEventListener("touchmove", this.onTouchMoveBound, {
+      passive: false,
+    });
+    window.addEventListener("touchend", this.onTouchEndBound);
+  }
+
+  private cleanupListeners() {
+    window.removeEventListener("mousemove", this.onMouseMoveBound);
+    window.removeEventListener("mouseup", this.onMouseUpBound);
+    window.removeEventListener("touchmove", this.onTouchMoveBound);
+    window.removeEventListener("touchend", this.onTouchEndBound);
+
+    if (this.desk) {
+      this.desk.removeEventListener("mousedown", this.onDeskMouseDownBound);
+      this.desk.removeEventListener("touchstart", this.onDeskTouchStartBound);
+      this.desk.removeEventListener("wheel", this.onDeskWheelBound);
+      this.desk.removeEventListener("mouseover", this.onDeskMouseOverBound);
+      this.desk.removeEventListener("mouseout", this.onDeskMouseOutBound);
+      this.desk.removeEventListener("mouseleave", this.onDeskMouseLeaveBound);
+    }
+  }
+
+  private onDeskMouseDown(e: MouseEvent) {
+    e.preventDefault();
+    this.startDragging(e.clientX, e.clientY);
+  }
+
+  private onDeskTouchStart(e: TouchEvent) {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      if (touch) this.startDragging(touch.clientX, touch.clientY);
+    }
+  }
+
+  private onDeskMouseOver(e: MouseEvent) {
+    const target = e.target as SVGElement | null;
+    const pointEl = target?.closest(".chart-point") as SVGElement | null;
+    if (!pointEl) return;
+
+    const info = pointEl.getAttribute("data-tooltip");
+    if (!info) return;
+
+    const rect = pointEl.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    this.showTooltip(x, y, info);
+  }
+
+  private onDeskMouseOut(e: MouseEvent) {
+    const target = e.target as SVGElement | null;
+    if (target?.closest(".chart-point")) {
+      this.hideTooltip();
+    }
+  }
+
+  private onMouseMove(e: MouseEvent) {
+    if (!this.isDragging) return;
+    this.moveDragging(e.clientX, e.clientY);
+  }
+
+  private onMouseUp() {
+    this.stopDragging();
+  }
+
+  private onTouchMove(e: TouchEvent) {
+    if (!this.isDragging || e.touches.length === 0) return;
+    const touch = e.touches[0];
+    if (touch) {
       e.preventDefault();
-      this.startDragging(e.clientX, e.clientY);
-      this.desk.style.cursor = "grabbing";
-    });
+      this.moveDragging(touch.clientX, touch.clientY);
+    }
+  }
 
-    window.addEventListener("mousemove", (e) => {
-      if (!this.isDragging) return;
-      this.moveDragging(e.clientX, e.clientY);
-    });
-
-    window.addEventListener("mouseup", () => {
-      this.stopDragging();
-      this.desk.style.cursor = "default";
-    });
-
-    // --- Скролл (Zoom) ---
-    this.desk.addEventListener(
-      "wheel",
-      (e) => {
-        e.preventDefault();
-        this.handleWheel(e);
-      },
-      { passive: false },
-    );
-
-    // --- Тач (Мобилки) ---
-    this.desk.addEventListener(
-      "touchstart",
-      (e) => {
-        // Предотвращаем скролл страницы при перетаскивании канваса
-        if (e.touches.length > 0) {
-          // e.preventDefault(); // Может блокировать клики, если неаккуратно
-          const touch = e.touches[0];
-          if (!touch) return;
-          this.startDragging(touch.clientX, touch.clientY);
-        }
-      },
-      { passive: false },
-    );
-
-    window.addEventListener(
-      "touchmove",
-      (e) => {
-        if (!this.isDragging) return;
-        if (e.touches.length > 0) {
-          e.preventDefault(); // Обязательно для плавности и блокировки скролла
-          const touch = e.touches[0];
-          if (!touch) return;
-          this.moveDragging(touch.clientX, touch.clientY);
-        }
-      },
-      { passive: false },
-    );
-
-    window.addEventListener("touchend", () => {
-      this.stopDragging();
-    });
+  private onTouchEnd() {
+    this.stopDragging();
   }
 
   private startDragging(clientX: number, clientY: number) {
@@ -734,63 +633,88 @@ export class CGraphs extends HTMLElement {
   }
 
   private moveDragging(clientX: number, clientY: number) {
-    const dx = clientX - this.startX;
-    const dy = clientY - this.startY;
-
-    const newLeft = this.initialLeft + dx;
-    const newTop = this.initialTop + dy;
-
-    this.destPosition.x = newLeft;
-    this.destPosition.y = newTop;
-    this.setDestPosition();
+    this.destPosition.x = this.initialLeft + (clientX - this.startX);
+    this.destPosition.y = this.initialTop + (clientY - this.startY);
+    this.setDeskPosition();
   }
 
   private stopDragging() {
-    if (this.isDragging) {
-      this.isDragging = false;
-    }
+    this.isDragging = false;
   }
 
   private handleWheel(e: WheelEvent) {
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.85 : 1.18;
     const rect = this.desk.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    // Позиция относительно канваса
     const canvasX = mouseX - this.destPosition.x;
     const canvasY = mouseY - this.destPosition.y;
-
-    // Новые масштабы
     const oldScaleH = this.scale.forDay;
     const oldScaleV = this.scale.forValue;
 
-    this.scale.forDay *= zoomFactor;
-    this.scale.forValue *= zoomFactor;
+    // Зумим ось X (даты)
+    this.scale.forDay = Math.max(
+      2,
+      Math.min(300, this.scale.forDay * zoomFactor),
+    );
+    const actualZoomH = this.scale.forDay / oldScaleH;
+    this.destPosition.x = mouseX - canvasX * actualZoomH;
 
-    // Ограничения
-    this.scale.forDay = Math.max(0.1, Math.min(1000, this.scale.forDay));
-    this.scale.forValue = Math.max(0.1, Math.min(1000, this.scale.forValue));
+    // Зумим ось Y (значения)
+    this.scale.forValue = Math.max(
+      0.0001,
+      Math.min(10000, this.scale.forValue * zoomFactor),
+    );
+    const actualZoomV = this.scale.forValue / oldScaleV;
+    const topPadding = 20;
+    this.destPosition.y =
+      mouseY - (topPadding + (canvasY - topPadding) * actualZoomV);
 
-    const actualZoomFactorH = this.scale.forDay / oldScaleH;
-    const actualZoomFactorV = this.scale.forValue / oldScaleV;
-
-    // Новая позиция, чтобы точка под мышкой осталась на месте
-    const newLeft = mouseX - canvasX * actualZoomFactorH;
-    const newTop = mouseY - canvasY * actualZoomFactorV;
-
-    this.destPosition.x = newLeft;
-    this.destPosition.y = newTop;
-
-    this.renderBgs();
-    this.setDestPosition();
-
+    this.clampPosition();
     this.render();
+    this.setDeskPosition();
+  }
+
+  private initResizeObserver() {
+    if (typeof ResizeObserver === "undefined") return;
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.graphs.length > 0) {
+        this.clampPosition();
+        this.render();
+        this.setDeskPosition();
+      }
+    });
+    this.resizeObserver.observe(this.desk);
   }
 
   connectedCallback() {
-    // this.init();
+    if (!this.desk) {
+      this.init();
+    }
+    if (this.graphs.length > 0) {
+      this.refreshOptionsFromGraphs();
+      if (
+        !this.scale.forValue ||
+        this.scale.forValue === Options.scale.forValue
+      ) {
+        this.autoScaleY();
+      }
+      this.render();
+      this.setDeskPosition();
+    }
+  }
+
+  disconnectedCallback() {
+    this.cleanupListeners();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    if (this.tooltip) {
+      this.tooltip.remove();
+    }
   }
 }
 

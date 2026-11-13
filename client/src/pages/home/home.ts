@@ -13,6 +13,9 @@ import "@/components/c-statictics-block/c-statictics-block";
 import type { CStaticticsBlock } from "@/components/c-statictics-block/c-statictics-block";
 import { api } from "@/services/api";
 import { sBlock_dinamic } from "./sBlock_dinamic";
+import "@/components/c-company-modal/c-company-modal";
+import type { CCompanyModal } from "@/components/c-company-modal/c-company-modal";
+import type { ICompanyEntity } from "@shared/types/ICompanyEntity";
 
 interface ITabData {
   companyId?: number;
@@ -52,12 +55,87 @@ export const homePage: Page = () => {
           activeProjectId = id;
           core.localPersistence.state.projectId = id || "";
           core.localPersistence.save();
+          updateCompanySelector();
           core.store.emit(EVENTS.options.MainTabsChanged, [id]);
         }
       });
       if (activeProjectId) {
         projectsTabs.setActive(activeProjectId);
       }
+
+      // #region dynamicCompanySelector
+      const companySelector = document.getElementById(
+        "company-selector",
+      ) as HTMLSelectElement;
+      const btnEditCompanies = document.getElementById(
+        "btn-edit-companies",
+      ) as HTMLButtonElement;
+      const companyModal = document.getElementById(
+        "company-modal",
+      ) as CCompanyModal;
+
+      const updateCompanySelector = async () => {
+        const curProjId =
+          Number(core.localPersistence.state.projectId) ||
+          Number(bigProjects[0]?.id) ||
+          0;
+        if (!curProjId || !companySelector) return;
+
+        const companies: ICompanyEntity[] =
+          await api.company.getByProject(curProjId);
+        const savedCompanyId =
+          core.localPersistence.state.companiesIds?.[curProjId.toString()] ||
+          "";
+
+        companySelector.innerHTML = '<option value="">Все страницы</option>';
+        companies.forEach((comp) => {
+          const opt = document.createElement("option");
+          opt.value = comp._id || "";
+          opt.textContent = comp.name;
+          companySelector.appendChild(opt);
+        });
+
+        if (savedCompanyId && companies.some((c) => c._id === savedCompanyId)) {
+          companySelector.value = savedCompanyId;
+        } else {
+          companySelector.value = "";
+        }
+      };
+
+      companySelector?.addEventListener("change", () => {
+        const selectedId = companySelector.value;
+        const curProjId = core.localPersistence.state.projectId || "";
+        if (curProjId) {
+          if (!core.localPersistence.state.companiesIds) {
+            core.localPersistence.state.companiesIds = {};
+          }
+          core.localPersistence.state.companiesIds[curProjId] = selectedId;
+          core.localPersistence.save();
+          core.store.emit(EVENTS.options.MainTabsChanged, [
+            "companySelectorChanged",
+          ]);
+        }
+      });
+
+      btnEditCompanies?.addEventListener("click", () => {
+        const curProjId =
+          Number(core.localPersistence.state.projectId) ||
+          Number(bigProjects[0]?.id) ||
+          0;
+        if (curProjId) {
+          companyModal.open(curProjId);
+        }
+      });
+
+      if (companyModal) {
+        companyModal.onChange = async () => {
+          await updateCompanySelector();
+          core.store.emit(EVENTS.options.MainTabsChanged, ["companiesUpdated"]);
+        };
+      }
+
+      await updateCompanySelector();
+      // #endregion dynamicCompanySelector
       // #region companyTabs
       const companyTabs = document.getElementById("company-tabs") as CTabs;
 
@@ -198,6 +276,8 @@ export const homePage: Page = () => {
                 "c-statictics-block",
               ) as CStaticticsBlock;
               activBlock.appendChild(cStaticticsBlock);
+            } else {
+              cStaticticsBlock.init();
             }
           } else if (activeViewportId === "2") {
             // guest list
@@ -207,6 +287,7 @@ export const homePage: Page = () => {
               ) as CGuestsList;
               activBlock.appendChild(cGuestList);
             }
+            core.serverPersistence.clear();
             cGuestList.render();
             core.cGuestList = cGuestList;
           } else if (activeViewportId === "3") {
@@ -215,8 +296,12 @@ export const homePage: Page = () => {
               ".visits-list",
             ) as HTMLElement;
             visitsList.innerHTML = "";
+            const prId = core.localPersistence.state.projectId;
+            const compId =
+              core.localPersistence.state.companiesIds?.[prId || ""];
             const data = await api.statistics.pageVisitsForMonth({
-              projectId: Number(core.localPersistence.state.projectId),
+              projectId: Number(prId),
+              companyId: compId,
             });
 
             for (let i = 0; i < 100; i++) {

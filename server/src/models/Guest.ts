@@ -13,6 +13,7 @@ const GuestSchema = new Schema<IGuestDocument>(
 
     name: { type: String },
     userAgentString: { type: String },
+    iM: { type: Boolean },
     phone: { type: String },
     projectId: { type: Number },
     companyId: { type: Schema.Types.Number },

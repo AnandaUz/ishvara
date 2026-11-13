@@ -45,6 +45,7 @@ export class CGuestsList extends HTMLElement {
   async loadNextGuests() {
     const projectId = core.localPersistence.state.projectId!;
     const tags = core.localPersistence.state.filterTags?.[projectId];
+    const companyId = core.localPersistence.state.companiesIds?.[projectId];
 
     if (!projectId) {
       return;
@@ -52,6 +53,7 @@ export class CGuestsList extends HTMLElement {
     const guests = await core.serverPersistence.loadNextGuests(
       Number(core.localPersistence.state.projectId!),
       tags,
+      companyId,
     );
     if (guests.length > 0) {
       this.addGuestsBlocks(guests);

@@ -96,7 +96,7 @@ export class CStaticticsBlock extends HTMLElement {
     const data: Array<{ _id: string; data: Array<ITagStat> }> =
       await api.statistics.countTags({
         projectId: Number(projectId),
-        companyId: Number(companyId),
+        companyId: companyId,
         tags: [
           TAGS.scroll.was.code,
           TAGS.page.tours.code,
@@ -116,7 +116,7 @@ export class CStaticticsBlock extends HTMLElement {
       });
     const dataBots = await api.statistics.countBots({
       projectId: Number(projectId),
-      companyId: Number(companyId),
+      companyId: companyId,
     });
     dataBots.forEach((bot: { _id: string; count: number }) => {
       const d = data.find((item) => {

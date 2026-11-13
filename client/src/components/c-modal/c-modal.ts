@@ -28,6 +28,16 @@ export class CModal extends HTMLElement {
     // Это позволит .modalBox быть в DOM и иметь размеры, пока модал закрыт
     this.innerHTML = template;
   }
+
+  connectedCallback() {
+    const box = this.querySelector(".c-modal__box");
+    if (!box) return;
+    Array.from(this.childNodes).forEach((node) => {
+      if (node !== box) {
+        box.appendChild(node);
+      }
+    });
+  }
 }
 
 customElements.define("c-modal", CModal);

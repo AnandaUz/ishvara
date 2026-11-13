@@ -13,6 +13,7 @@ export class ServerPersistence {
   async loadNextGuests(
     projectId: number,
     filtersTags: number[] = [],
+    companyId?: string | undefined,
   ): Promise<IGuest[]> {
     const from = this.skip;
     this.skip += LIMIT;
@@ -21,6 +22,7 @@ export class ServerPersistence {
       LIMIT,
       from,
       filtersTags,
+      companyId,
     );
   }
 }

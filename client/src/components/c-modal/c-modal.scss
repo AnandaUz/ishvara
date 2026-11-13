@@ -14,7 +14,7 @@ c-modal {
     animation: fadeIn 0.25s ease forwards;
   }
 
-  &[open] &__box {
+  &[open] .c-modal__box {
     transform: translateY(0);
   }
 }
