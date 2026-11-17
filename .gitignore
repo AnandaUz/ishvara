@@ -17,6 +17,7 @@ npm-debug.log*
 client/dist/
 
 .data/
+backups/
 
 # Logs
 logs

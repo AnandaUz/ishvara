@@ -16,6 +16,8 @@ import { sBlock_dinamic } from "./sBlock_dinamic";
 import "@/components/c-company-modal/c-company-modal";
 import type { CCompanyModal } from "@/components/c-company-modal/c-company-modal";
 import type { ICompanyEntity } from "@shared/types/ICompanyEntity";
+import "@/components/c-project-modal/c-project-modal";
+import type { CProjectModal } from "@/components/c-project-modal/c-project-modal";
 
 interface ITabData {
   companyId?: number;
@@ -33,22 +35,67 @@ export const homePage: Page = () => {
         ".company-tabs-block",
       ) as HTMLElement;
 
-      const data = bigProjects.map(
-        (proj) =>
-          ({
-            id: proj.id,
-            name: proj.name,
-            isOff: proj.isOff,
-            data: proj.id,
-          }) as ITab,
-      );
-
       let oldProjectId = "";
       let oldCompanyId = "";
       // projectsTabs
       const projectsTabs = document.getElementById("projects-tabs") as CTabs;
       let activeProjectId = core.localPersistence.state.projectId;
-      projectsTabs.init(data as ITab[]);
+      const projectModal = document.getElementById("project-modal") as CProjectModal;
+      const btnEditProjects = document.getElementById("btn-edit-projects") as HTMLButtonElement;
+
+      btnEditProjects?.addEventListener("click", () => {
+        projectModal?.open();
+      });
+
+      const reloadProjects = async () => {
+        let projects: { id: number; name: string; isOff?: boolean }[] = [];
+        try {
+          const res = await api.project.getAll();
+          if (Array.isArray(res) && res.length > 0) {
+            projects = res.map((p) => ({
+              id: p.projectId,
+              name: p.name,
+              ...(p.isOff !== undefined && { isOff: p.isOff }),
+            }));
+          }
+        } catch (e) {
+          console.error("Failed to load projects from DB", e);
+        }
+        if (projects.length === 0) {
+          projects = bigProjects.map((p) => ({
+            id: p.id,
+            name: p.name,
+            ...(p.isOff !== undefined && { isOff: p.isOff }),
+          }));
+        }
+        const tabsData = projects.map(
+          (proj) =>
+            ({
+              id: proj.id,
+              name: proj.name,
+              ...(proj.isOff !== undefined && { isOff: proj.isOff }),
+              data: proj.id,
+            }) as ITab,
+        );
+        projectsTabs.init(tabsData);
+        if (activeProjectId) {
+          projectsTabs.setActive(activeProjectId);
+        } else if (tabsData.length > 0 && tabsData[0]) {
+          const firstId = tabsData[0].id.toString();
+          activeProjectId = firstId;
+          core.localPersistence.state.projectId = firstId;
+          core.localPersistence.save();
+          projectsTabs.setActive(firstId);
+        }
+      };
+
+      if (projectModal) {
+        projectModal.onChange = async () => {
+          await reloadProjects();
+          core.store.emit(EVENTS.options.MainTabsChanged, ["projectsUpdated"]);
+        };
+      }
+
       projectsTabs.addEventChange((tabId) => {
         const id = tabId.toString();
         if (activeProjectId !== id) {
@@ -59,9 +106,7 @@ export const homePage: Page = () => {
           core.store.emit(EVENTS.options.MainTabsChanged, [id]);
         }
       });
-      if (activeProjectId) {
-        projectsTabs.setActive(activeProjectId);
-      }
+      await reloadProjects();
 
       // #region dynamicCompanySelector
       const companySelector = document.getElementById(
@@ -163,7 +208,10 @@ export const homePage: Page = () => {
           }
         } else {
           const projectData = bigProjectsGet.projectById(Number(projectId));
-          if (!projectData) return;
+          if (!projectData || !projectData.companys) {
+            companyTabs_block.style.display = "none";
+            return;
+          }
 
           if (projectData.companys) {
             let c: ITab[] = [];

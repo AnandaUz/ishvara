@@ -2,6 +2,7 @@ import type { IGuest } from "@shared/types/IGuest";
 import type { IMessage } from "@shared/types/IMessage";
 import type { IPixelEventData } from "@shared/types/Is";
 import type { ICompanyEntity } from "@shared/types/ICompanyEntity";
+import type { IProjectEntity } from "@shared/types/IProjectEntity";
 
 export const api = {
   /**
@@ -35,6 +36,44 @@ export const api = {
         resolve();
       });
     });
+  },
+  project: {
+    getAll: async (): Promise<IProjectEntity[]> => {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/api/projects");
+      if (!res.ok) return [];
+      return await res.json();
+    },
+    create: async (data: Partial<IProjectEntity>): Promise<IProjectEntity> => {
+      const res = await fetch(import.meta.env.VITE_API_URL + "/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    },
+    update: async (
+      id: string,
+      data: Partial<IProjectEntity>,
+    ): Promise<IProjectEntity> => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/projects/${id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
+      return await res.json();
+    },
+    delete: async (id: string): Promise<{ ok: boolean }> => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + `/api/projects/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+      return await res.json();
+    },
   },
   company: {
     getByProject: async (projectId: number): Promise<ICompanyEntity[]> => {

@@ -6,8 +6,8 @@ const API_URL =
 const STORAGE_ID = "guestID";
 
 function getCookie(name: string): string {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match && match[2] ? match[2] : "";
+  const match = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]+)"));
+  return match && match[1] ? decodeURIComponent(match[1]) : "";
 }
 interface IEventCodeItem {
   name?: string;
@@ -23,6 +23,7 @@ const EVENT_CODE = {
   scroll3: { code: 4 },
   scroll4: { code: 5 },
   scroll5: { code: 6 },
+  scroll6: { code: 7 },
   inPage: { code: 8 }, //Вход на страницу
   outPage: { code: 9 }, //Выход со страницы
   goalBtnClick: { code: 10 }, //Клик по кнопке цели
@@ -94,69 +95,69 @@ class Guest {
   setBaseEvents() {
     let scrollInd = 0;
     const yShag = 300;
-    window.addEventListener("scroll", () => {
-      let i = Math.round(
-        (window.scrollY /
-          (document.documentElement.scrollHeight - window.innerHeight)) *
-          100,
-      );
-      i = Math.ceil((i * 6) / 100);
+    window.addEventListener(
+      "scroll",
+      () => {
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll <= 0) return;
 
-      if (i !== this.scrollLever) {
-        this.scrollLever = i;
-        const key = `scroll${i}` as keyof typeof EVENT_CODE;
-        if (EVENT_CODE[key]) this.track(EVENT_CODE[key]!.code);
-      }
+        let i = Math.round((window.scrollY / maxScroll) * 100);
+        i = Math.ceil((i * 6) / 100);
 
-      const y = Math.ceil(window.scrollY / yShag);
-      if (y !== scrollInd) {
-        if (y > scrollInd) {
-          this.track("D");
-        } else {
-          this.track("U");
+        if (i !== this.scrollLever) {
+          this.scrollLever = i;
+          const key = `scroll${i}` as keyof typeof EVENT_CODE;
+          if (EVENT_CODE[key]) this.track(EVENT_CODE[key]!.code);
         }
-        scrollInd = y;
-      }
-    });
+
+        const y = Math.ceil(window.scrollY / yShag);
+        if (y !== scrollInd) {
+          if (y > scrollInd) {
+            this.track("D");
+          } else {
+            this.track("U");
+          }
+          scrollInd = y;
+        }
+      },
+      { passive: true },
+    );
+
     let count = 0;
     const checkFbq = setInterval(() => {
       count++;
-
-      const isPixel = typeof (window as any).fbq == "function";
-      const fbp = getCookie("_fbp");
-      const fbc = getCookie("_fbc");
-
-      if (fbp || fbc) {
-        const result: Record<string, string> = {};
-        if (fbp) result.fbp = fbp;
-        if (fbc) result.fbc = fbc;
-        if (isPixel) result.pixel = "true";
-
-        if (this._id) {
-          navigator.sendBeacon(
-            API_URL + "/save-cookies",
-            new Blob([JSON.stringify({ _id: this._id, result })], {
-              type: "application/json",
-            }),
-          );
-          clearInterval(checkFbq);
-        }
-      }
-      if (count > 10) {
+      if (this.sendCookies() || count > 15) {
         clearInterval(checkFbq);
       }
     }, 1000);
 
-    window.document.body.addEventListener("click", (e) => {
-      //- for WT
-      const banner = (e.target as HTMLElement).closest(".top-banner");
-
-      if (banner) {
-        this.track("c-tBaner");
-      } else {
-        this.track("c");
-      }
+    document.addEventListener("click", () => {
+      this.track("c");
     });
+  }
+
+  sendCookies(): boolean {
+    if (!this._id) return false;
+    const isPixel = typeof (window as any).fbq == "function";
+    const fbp = getCookie("_fbp");
+    const fbc = getCookie("_fbc");
+
+    if (fbp || fbc) {
+      const result: Record<string, string> = {};
+      if (fbp) result.fbp = fbp;
+      if (fbc) result.fbc = fbc;
+      if (isPixel) result.pixel = "true";
+
+      navigator.sendBeacon(
+        API_URL + "/save-cookies",
+        new Blob([JSON.stringify({ _id: this._id, result })], {
+          type: "application/json",
+        }),
+      );
+      return true;
+    }
+    return false;
   }
 
   async init() {
@@ -183,7 +184,7 @@ class Guest {
       urlParamsString: window.location.search.slice(1),
       projectId: (window as any).trackerProjectID,
     };
-    const name = urlParams.get("name");
+    const name = urlParams.get("n") || urlParams.get("name");
     if (name) {
       data.name = name;
     }
@@ -207,6 +208,7 @@ class Guest {
         this._id = newData._id;
 
         this.flush();
+        this.sendCookies();
         return newData._id;
       }
     } catch (err) {
@@ -238,15 +240,17 @@ class Guest {
     if (!this._id) return;
 
     const payload = [...this.events]; // копия
-    this.events = []; // очищаем сразу
 
-    navigator.sendBeacon(
+    const sent = navigator.sendBeacon(
       API_URL + "/push-events",
       new Blob(
         [JSON.stringify({ _id: this._id, events: payload, lastChange })],
         { type: "application/json" },
       ),
     );
+    if (sent) {
+      this.events = this.events.slice(payload.length);
+    }
   }
 }
 const guest = new Guest();

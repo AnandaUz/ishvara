@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import Guest from "../models/Guest.js";
+import Project from "../models/Project.js";
 import mongoose from "mongoose";
 import { IGuest } from "../../../shared/types/IGuest.js";
 
@@ -13,10 +14,12 @@ export const idCreateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-function checkOrigin(origin: string | undefined) {
+async function checkOrigin(origin: string | undefined): Promise<boolean> {
   if (!origin) return false;
   const allowedOrigin = process.env.CLIENT_URL?.split(",") || [];
-  return allowedOrigin.includes(origin);
+  if (allowedOrigin.includes(origin)) return true;
+  const exists = await Project.exists({ allowedOrigins: origin });
+  return Boolean(exists);
 }
 // interface IInstagram {
 //   comp_name?: number;
@@ -27,7 +30,7 @@ export const start = async (req: Request, res: Response) => {
   const origin = req.headers.origin;
 
   // 2. Проверка Origin
-  if (!checkOrigin(origin)) {
+  if (!(await checkOrigin(origin))) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
@@ -39,6 +42,7 @@ export const start = async (req: Request, res: Response) => {
       urlParamsString,
       projectId,
       userAgentString,
+      name,
     } = req.body;
 
     let _idGuest;
@@ -76,7 +80,9 @@ export const start = async (req: Request, res: Response) => {
       const b = fMainKey?.[2];
       if (b) adId = Number(b);
 
-      guestName = urlParams.get("n")?.toString();
+      guestName = (urlParams.get("n") || urlParams.get("name") || name)?.toString();
+    } else if (name) {
+      guestName = name.toString();
     }
 
     if (f) {
@@ -141,7 +147,7 @@ export async function pushEvents(req: Request, res: Response) {
   const origin = req.headers.origin;
 
   // 2. Проверка Origin
-  if (!checkOrigin(origin)) {
+  if (!(await checkOrigin(origin))) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
@@ -162,7 +168,7 @@ export async function saveCookies(req: Request, res: Response) {
   const origin = req.headers.origin;
 
   // 2. Проверка Origin
-  if (!checkOrigin(origin)) {
+  if (!(await checkOrigin(origin))) {
     return res.status(403).json({ error: "Forbidden" });
   }
 

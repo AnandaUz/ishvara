@@ -1,0 +1,85 @@
+<div class="project-modal-content">
+  <div class="modal-header">
+    <h2>Управление проектами</h2>
+    <button class="btn-close" type="button">&times;</button>
+  </div>
+
+  <div class="project-list-section">
+    <div class="actions-bar">
+      <button class="btn-add-project" type="button">+ Создать проект</button>
+    </div>
+    <div class="projects-list">
+      <!-- Список проектов -->
+    </div>
+  </div>
+
+  <div class="project-form-section" style="display: none;">
+    <h3 class="form-title">Новый проект</h3>
+    <input type="hidden" class="project-mongo-id" />
+    
+    <div class="form-row">
+      <div class="form-group flex-2">
+        <label>Название проекта:</label>
+        <input type="text" class="input-name" placeholder="Например: World Travel" required />
+      </div>
+      <div class="form-group flex-1">
+        <label>ID проекта (число):</label>
+        <input type="number" class="input-project-id" placeholder="Автоматически" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Разрешенные домены (Origin для трекера, по одному на строку):</label>
+      <textarea class="textarea-origins" rows="3" placeholder="https://world-travel.uz&#10;https://tour.world-travel.uz"></textarea>
+      <small class="hint">Запросы трекера с этих сайтов будут автоматически разрешаться без редактирования .env</small>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Основной URL сайта:</label>
+        <input type="text" class="input-url" placeholder="https://world-travel.uz" />
+      </div>
+      <div class="form-group flex-1">
+        <label>Город / Страна:</label>
+        <div class="flex-row">
+          <input type="text" class="input-city" placeholder="Город (tashkent)" />
+          <input type="text" class="input-country" placeholder="Страна (uz)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Meta Pixel ID:</label>
+        <input type="text" class="input-pixel-id" placeholder="Pixel ID" />
+      </div>
+      <div class="form-group flex-1">
+        <label>Meta Pixel Token (CAPI):</label>
+        <input type="password" class="input-pixel-token" placeholder="Pixel Access Token" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label>Telegram Bot Имя / Режим:</label>
+        <input type="text" class="input-tgbot-name" placeholder="world_travel_bot" />
+      </div>
+      <div class="form-group flex-1">
+        <label>Telegram Bot Токен:</label>
+        <input type="password" class="input-tgbot-token" placeholder="Bot Token" />
+      </div>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" class="input-is-off" />
+        Отключить проект (скрыть из активных)
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-save" type="button">Сохранить</button>
+      <button class="btn-cancel" type="button">Отмена</button>
+    </div>
+  </div>
+</div>

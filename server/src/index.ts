@@ -12,6 +12,8 @@ import chatsRouter from "./routers/chats.routers.js";
 import statisticsRouter from "./routers/statistics.routers.js";
 import serverRouter from "./routers/server.routers.js";
 import companyRouter from "./routers/company.routers.js";
+import projectRouter from "./routers/project.routers.js";
+import Project from "./models/Project.js";
 import { initGuestCleanupCron } from "./services/guestCleanup.service.js";
 
 const app = express();
@@ -24,9 +26,17 @@ app.use(
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return;
       }
+      Project.exists({ allowedOrigins: origin })
+        .then((exists) => {
+          if (exists) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        })
+        .catch(() => callback(new Error("Not allowed by CORS")));
     },
     credentials: true,
   }),
@@ -45,6 +55,7 @@ app.use("/api/statistics", statisticsRouter);
 app.use("/api/server", serverRouter);
 app.use("/api/pages", pagesRouter);
 app.use("/api/companies", companyRouter);
+app.use("/api/projects", projectRouter);
 
 // app.use('/api/users', userRoutes);
 // app.use('/api/auth', authRoutes);

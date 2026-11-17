@@ -128,8 +128,8 @@
 ---
 
 ### 8. Абсолютные Windows-пути в скрипте деплоя
-* **Расположение:** [deploy_project.ts:5-6](file:///d:/_sites/ishvara/deploy_project.ts#L5-L6)
-* **Проблема:** Константы `DEPLOY = "D:/_sites/worked/ishvara"` и `SOURCE = "D:/_sites/ishvara"` привязаны к конкретному диску и структуре папок локальной машины.
+* **Расположение:** [deploy_project.ts:5-6](file:///A:/ishvara/deploy_project.ts#L5-L6)
+* **Проблема:** Константы `DEPLOY = "A:/pProd/ishvara"` и `SOURCE = "A:/ishvara"` привязаны к конкретному диску и структуре папок локальной машины.
 * **Решение:** Использовать переменные среды (`process.env.DEPLOY_PATH`) или относительные пути `path.resolve(...)`.
 
 ---

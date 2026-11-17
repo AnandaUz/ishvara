@@ -13,6 +13,8 @@
     "build:client": "npm run build -w client",
     "build:server": "npm run build -w server",
     "deploy": "tsx ./deploy_project.ts",
+    "db:backup": "tsx _tools/backup_db.ts",
+    "db:restore": "tsx _tools/restore_db.ts",
     "build:tracker": "vite build --config client/vite.tracker.config.ts"
   },
   "workspaces": [

@@ -2,7 +2,7 @@ import { rmSync, cpSync, copyFileSync } from "fs";
 import { execSync } from "child_process";
 import { join } from "path";
 
-const DEPLOY = "D:/_sites/worked/ishvara";
+const DEPLOY = "A:/pProd/ishvara";
 const SOURCE = import.meta.dirname;
 
 console.log("Starting build client");
