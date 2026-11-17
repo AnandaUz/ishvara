@@ -15,6 +15,7 @@ import companyRouter from "./routers/company.routers.js";
 import projectRouter from "./routers/project.routers.js";
 import Project from "./models/Project.js";
 import { initGuestCleanupCron } from "./services/guestCleanup.service.js";
+import { initHourlyProcessorCron } from "./services/hourlyProcessor.service.js";
 
 const app = express();
 
@@ -77,4 +78,5 @@ app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
   connectDB();
   initGuestCleanupCron();
+  initHourlyProcessorCron();
 });

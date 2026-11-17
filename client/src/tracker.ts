@@ -49,6 +49,8 @@ class Guest {
   startTime: Date = new Date();
   events: TEventItem[] = [];
   scrollLever: number = 0;
+  private hasFirstScroll = false;
+  private lastScrollY = 0;
 
   constructor() {
     setInterval(() => this.flush(), 2_000);
@@ -84,6 +86,9 @@ class Guest {
     this.setBaseEvents();
   }
   onInPage() {
+    this.hasFirstScroll = false;
+    this.lastScrollY = 0;
+    this.scrollLever = 0;
     if (this.isFirstInPage) {
       this.isFirstInPage = false;
     } else {
@@ -93,8 +98,7 @@ class Guest {
   }
 
   setBaseEvents() {
-    let scrollInd = 0;
-    const yShag = 300;
+    const yShag = 600;
     window.addEventListener(
       "scroll",
       () => {
@@ -111,14 +115,17 @@ class Guest {
           if (EVENT_CODE[key]) this.track(EVENT_CODE[key]!.code);
         }
 
-        const y = Math.ceil(window.scrollY / yShag);
-        if (y !== scrollInd) {
-          if (y > scrollInd) {
-            this.track("D");
-          } else {
-            this.track("U");
-          }
-          scrollInd = y;
+        const currentY = window.scrollY;
+        if (!this.hasFirstScroll && currentY >= 5) {
+          this.track("D");
+          this.hasFirstScroll = true;
+          this.lastScrollY = currentY;
+        } else if (
+          this.hasFirstScroll &&
+          Math.abs(currentY - this.lastScrollY) >= yShag
+        ) {
+          this.track(currentY > this.lastScrollY ? "D" : "U");
+          this.lastScrollY = currentY;
         }
       },
       { passive: true },

@@ -1,4 +1,5 @@
 import { IGuest } from "../../../shared/types/IGuest.js";
+import { normalizeEvents } from "../../../shared/utils/eventCodec.js";
 import { IPages } from "../../../shared/types/IPages.js";
 import { TAGS } from "../../../shared/types/Tags.js";
 import {
@@ -82,13 +83,14 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
   for await (const guestDoc of tagsCursor) {
     tagsProcessed++;
     const guest = guestDoc as unknown as IGuest;
-    if (!guest || !guest.events || guest.events.length === 0) continue;
+    const guestEvents = normalizeEvents(guest?.events);
+    if (!guest || guestEvents.length === 0) continue;
 
     let fRefEventString = false;
     const pageIds: number[] = [];
     const events: Array<number | string> = [];
 
-    guest.events.forEach((val) => {
+    guestEvents.forEach((val) => {
       const v0 = val[0];
       const v1 = val[1];
 
@@ -173,7 +175,7 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
       if (!isHasSameEvents) {
         toSet.pages = pageIds;
       }
-      toSet.events = guest.events ?? [];
+      toSet.events = guestEvents;
     }
 
     if (Object.keys(toSet).length > 0 && guest._id) {

@@ -3,19 +3,22 @@ import { IGuest } from "../../../shared/types/IGuest.js";
 
 interface IGuestDocument extends Omit<IGuest, "_id"> {
   _id: mongoose.Types.ObjectId;
+  ca?: Date;
+  lc?: Date;
+  pid?: number;
 }
 
 const GuestSchema = new Schema<IGuestDocument>(
   {
-    createdAt: { type: Date, default: Date.now },
-    lastChange: { type: Date },
+    ca: { type: Date, default: Date.now, alias: "createdAt" },
+    lc: { type: Date, alias: "lastChange" },
     referrer: { type: String },
 
     name: { type: String },
     userAgentString: { type: String },
     iM: { type: Boolean },
     phone: { type: String },
-    projectId: { type: Number },
+    pid: { type: Number, alias: "projectId" },
     companyId: { type: Schema.Types.Number },
     adsetId: { type: Number },
     adId: { type: Number },
@@ -34,7 +37,7 @@ const GuestSchema = new Schema<IGuestDocument>(
     },
     paramsString: { type: String },
 
-    events: { type: [[Schema.Types.Mixed]], default: undefined },
+    events: { type: Schema.Types.Mixed, default: undefined },
     tags: { type: [Schema.Types.Int32], default: undefined },
     notes: { type: String },
     b: { type: Schema.Types.Boolean },
@@ -45,11 +48,11 @@ const GuestSchema = new Schema<IGuestDocument>(
     },
     pages: { type: [Number], default: undefined },
   },
-  // {
-  //   // Важно включить, чтобы алиасы корректно преобразовывались в .toJSON() и .toObject()
-  //   toObject: { aliases: true, virtuals: true },
-  //   toJSON: { aliases: true, virtuals: true },
-  // },
+  {
+    versionKey: false,
+    toJSON: { aliases: true, virtuals: true },
+    toObject: { aliases: true, virtuals: true },
+  },
 );
 
 // В индексах нужно использовать КОРОТКОЕ имя, которое идет в базу!

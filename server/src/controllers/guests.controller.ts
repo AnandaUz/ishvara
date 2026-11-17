@@ -13,7 +13,7 @@ export async function getGuests(req: Request, res: Response) {
   match.b = { $in: [false, null] };
 
   if (projectId) {
-    match.projectId = Number(projectId);
+    match.$or = [{ pid: Number(projectId) }, { projectId: Number(projectId) }];
   }
   if (tags && typeof tags === "string") {
     const filtersTags = tags.split(",").map(Number);
@@ -42,7 +42,15 @@ export async function getGuests(req: Request, res: Response) {
     { $match: match },
     {
       $addFields: {
-        sortField: { $ifNull: ["$lastChange", "$createdAt"] },
+        sortField: {
+          $ifNull: [
+            "$lc",
+            { $ifNull: ["$lastChange", { $ifNull: ["$ca", "$createdAt"] }] },
+          ],
+        },
+        createdAt: { $ifNull: ["$ca", "$createdAt"] },
+        lastChange: { $ifNull: ["$lc", "$lastChange"] },
+        projectId: { $ifNull: ["$pid", "$projectId"] },
       },
     },
     { $sort: { sortField: -1 } },

@@ -30,7 +30,7 @@ export interface IGuest {
     ad_name?: string | number;
   };
   paramsString?: string;
-  events?: [number | string, number | string][]; // [[время, код], ...]
+  events?: [number | string, number | string][] | Uint8Array | Buffer | any; // [[время, код], ...] или сжатый бинарный буфер
   tags?: number[];
   notes?: string;
   b?: boolean;

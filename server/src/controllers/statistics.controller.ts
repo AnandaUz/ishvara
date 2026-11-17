@@ -1,4 +1,5 @@
 import { IGuest } from "../../../shared/types/IGuest.js";
+import { normalizeEvents } from "../../../shared/utils/eventCodec.js";
 import Guest from "../models/Guest.js";
 import { ServerTools } from "../utils/ServerTools.js";
 
@@ -140,7 +141,7 @@ export const StatisticsController = {
       // if (t-- < 0) break;
       const guest = guests[i] as unknown as IGuest;
       if (!guest) continue;
-      const e = guest.events;
+      const e = normalizeEvents(guest.events);
       let newEventsStr = "";
       let events: Array<number | string> = [];
       if (e && e.length > 0) {
@@ -240,7 +241,7 @@ export const StatisticsController = {
       i++;
       const guest = guestDoc as unknown as IGuest;
       if (!guest) continue;
-      const e = guest.events;
+      const e = normalizeEvents(guest.events);
 
       let fRefEventString = false;
       const pageIds: number[] = [];
@@ -436,7 +437,9 @@ export const StatisticsController = {
     const tagsData = (tags as string).split(",").map((tag) => parseInt(tag));
     const targetPageIds = await getCompanyPageIds(companyId, pageIds);
 
-    const matchStage: any = { projectId: Number(projectId) };
+    const matchStage: any = {
+      $or: [{ pid: Number(projectId) }, { projectId: Number(projectId) }],
+    };
     if (targetPageIds && targetPageIds.length > 0) {
       matchStage.pages = { $in: targetPageIds };
     }
@@ -456,7 +459,7 @@ export const StatisticsController = {
             date: {
               $dateToString: {
                 format: "%Y-%m-%d",
-                date: "$createdAt",
+                date: { $ifNull: ["$ca", "$createdAt"] },
                 timezone: "+05:00", // Ташкент
               },
             },
@@ -486,7 +489,10 @@ export const StatisticsController = {
 
 
     const targetPageIds = await getCompanyPageIds(companyId, pageIds);
-    const matchStage: any = { projectId: Number(projectId), b: true };
+    const matchStage: any = {
+      $or: [{ pid: Number(projectId) }, { projectId: Number(projectId) }],
+      b: true,
+    };
     if (targetPageIds && targetPageIds.length > 0) {
       matchStage.pages = { $in: targetPageIds };
     }
@@ -498,7 +504,12 @@ export const StatisticsController = {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$lastChange",
+              date: {
+                $ifNull: [
+                  "$lc",
+                  { $ifNull: ["$lastChange", { $ifNull: ["$ca", "$createdAt"] }] },
+                ],
+              },
               timezone: "+05:00",
             },
           },
@@ -523,7 +534,7 @@ export const StatisticsController = {
     const excludeTags: number[] = [TAGS.page.emptyTours.code];
 
     const matchStage: any = {
-      projectId: Number(projectId),
+      $or: [{ pid: Number(projectId) }, { projectId: Number(projectId) }],
     };
 
     if (includeTags.length > 0) {
@@ -568,7 +579,7 @@ export const StatisticsController = {
     const excludeTags: number[] = [TAGS.page.emptyTours.code];
 
     const matchStage: any = {
-      projectId: Number(projectId),
+      $or: [{ pid: Number(projectId) }, { projectId: Number(projectId) }],
     };
 
     if (includeTags.length > 0) {
@@ -596,7 +607,14 @@ export const StatisticsController = {
       return Guest.aggregate([
         { $match: matchStage },
         { $match: { pages: { $exists: true, $ne: [] } } },
-        { $match: { createdAt: { $gte: from, $lt: to } } },
+        {
+          $match: {
+            $or: [
+              { ca: { $gte: from, $lt: to } },
+              { createdAt: { $gte: from, $lt: to } },
+            ],
+          },
+        },
         { $unwind: "$pages" },
         { $group: { _id: "$pages", count: { $sum: 1 } } },
         { $sort: { count: -1 } },

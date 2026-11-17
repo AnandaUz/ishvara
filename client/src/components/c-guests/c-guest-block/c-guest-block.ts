@@ -1,4 +1,5 @@
 import type { IGuest } from "@shared/types/IGuest";
+import { normalizeEvents } from "@shared/utils/eventCodec";
 import "./c-guest-block.scss";
 import template from "./c-guest-block.html?raw";
 import { bigProjectsGet } from "@shared/projects_config";
@@ -385,8 +386,9 @@ export class CGuestBlock extends HTMLElement {
     let t = 0;
 
     let currentDate: string = "";
-    for (let i = 0; i < (this.data.events?.length ?? 0); i++) {
-      const event = this.data.events?.[i];
+    const events = normalizeEvents(this.data.events);
+    for (let i = 0; i < (events.length ?? 0); i++) {
+      const event = events[i];
       if (!event) continue;
       const eventElement = document.createElement("div");
 
