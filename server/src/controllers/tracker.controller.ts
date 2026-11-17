@@ -162,7 +162,10 @@ export async function pushEvents(req: Request, res: Response) {
 
   try {
     const result = await Guest.updateOne(
-      { _id, events: { $not: { $type: "binData" } } },
+      {
+        _id,
+        $or: [{ events: { $type: "array" } }, { events: { $exists: false } }],
+      },
       { $push: { events: { $each: events } }, $set: { lastChange } },
     );
 
