@@ -45,12 +45,18 @@ interface IInitData {
 class Guest {
   private _id: string | null = null;
   private isFirstInPage = true;
+  private lastPagePath = "";
 
   startTime: Date = new Date();
   events: TEventItem[] = [];
   scrollLever: number = 0;
   private hasFirstScroll = false;
   private lastScrollY = 0;
+
+  private getPagePath(): string {
+    const hash = window.location.hash;
+    return window.location.pathname + (hash && hash !== "#" ? hash : "");
+  }
 
   constructor() {
     setInterval(() => this.flush(), 2_000);
@@ -78,14 +84,26 @@ class Guest {
       originalPushState(...args);
       this.onInPage(); // новая страница
     };
+    const originalReplaceState = history.replaceState.bind(history);
+    history.replaceState = (...args) => {
+      originalReplaceState(...args);
+      this.onInPage();
+    };
 
     window.addEventListener("popstate", () => {
       this.onInPage(); // кнопки назад/вперёд
+    });
+    window.addEventListener("hashchange", () => {
+      this.onInPage(); // переход по хэшу
     });
     //---------------------
     this.setBaseEvents();
   }
   onInPage() {
+    const currentPath = this.getPagePath();
+    if (this.lastPagePath === currentPath) return;
+    this.lastPagePath = currentPath;
+
     this.hasFirstScroll = false;
     this.lastScrollY = 0;
     this.scrollLever = 0;
@@ -226,7 +244,7 @@ class Guest {
   track(code: number | string) {
     const sec = Math.round((Date.now() - this.startTime.getTime()) / 100) / 10;
     if (code === EVENT_CODE.inPage.code) {
-      this.events.push(["t" + new Date().getTime(), window.location.pathname]);
+      this.events.push(["t" + new Date().getTime(), this.getPagePath()]);
       return;
     }
     this.events.push([sec, code]);

@@ -4,6 +4,7 @@ import Guest from "../models/Guest.js";
 import Project from "../models/Project.js";
 import mongoose from "mongoose";
 import { IGuest } from "../../../shared/types/IGuest.js";
+import { normalizeEvents } from "../../../shared/utils/eventCodec.js";
 
 // 1. Ограничиваем создание сессий: 10 штук в час с одного IP
 export const idCreateLimiter = rateLimit({
@@ -93,7 +94,7 @@ export const start = async (req: Request, res: Response) => {
     if (oldGuest) {
       if (companyId && companyId !== oldGuest.companyId) {
         isNew = true;
-        oldEvents = oldGuest.events;
+        oldEvents = oldGuest.events ? normalizeEvents(oldGuest.events) : undefined;
       }
     } else {
       isNew = true;
@@ -153,16 +154,37 @@ export async function pushEvents(req: Request, res: Response) {
 
   const { _id, events } = req.body;
 
-  if (!_id) {
+  if (!_id || !Array.isArray(events) || events.length === 0) {
     return res.status(400).json({ error: "Bad request" });
   }
 
-  const lastChange = req.body.lastChange || undefined;
-  await Guest.updateOne(
-    { _id },
-    { $push: { events: { $each: events } }, $set: { lastChange } },
-  );
-  res.status(200).json({ ok: true });
+  const lastChange = req.body.lastChange || new Date();
+
+  try {
+    const result = await Guest.updateOne(
+      { _id, events: { $not: { $type: "binData" } } },
+      { $push: { events: { $each: events } }, $set: { lastChange } },
+    );
+
+    if (result.matchedCount === 0) {
+      const guest = await Guest.findById(_id, "events");
+      if (!guest) {
+        return res.status(404).json({ error: "Guest not found" });
+      }
+
+      const decoded = normalizeEvents(guest.events);
+      const merged = [...decoded, ...events];
+      await Guest.updateOne(
+        { _id },
+        { $set: { events: merged, lastChange } },
+      );
+    }
+
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    console.error("pushEvents error:", error);
+    res.status(500).json({ error: "Server error" });
+  }
 }
 export async function saveCookies(req: Request, res: Response) {
   const origin = req.headers.origin;
