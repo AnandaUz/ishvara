@@ -1,9 +1,12 @@
 import { EVENTS } from "./store";
 import type { IGuest } from "@shared/types/IGuest";
+import type { IProjectEntity } from "@shared/types/IProjectEntity";
 import {
   bigProjectsGet,
+  bigProjectsRegistry,
   type IBigProjectConfig,
 } from "@shared/projects_config";
+import { api } from "@/services/api";
 import { core } from "./core";
 
 class TProject {
@@ -26,20 +29,34 @@ class TProject {
     if (c) {
       this.config = c;
     } else {
-      throw new Error(`Project ${id} not found`);
+      this.config = {
+        projectId: id,
+        id,
+        name: `Project ${id}`,
+      };
     }
   }
-  // async initGuests() {
-  //   if (this.guests.length) return;
-  //   this.guests = await core.serverPersistence.loadNextGuests();
-  // }
 }
 
 export class ProjectsManager {
   private _activeProject: TProject | null = null;
   private projects: Map<number, TProject> = new Map();
+  public projectsList: IProjectEntity[] = [];
+
   constructor() {
     core.store.on(EVENTS.options.MainTabsChanged, () => {});
+  }
+
+  async loadProjects(): Promise<IProjectEntity[]> {
+    try {
+      const res = await api.project.getAll();
+      this.projectsList = Array.isArray(res) ? res : [];
+      bigProjectsRegistry.setProjects(this.projectsList);
+      return this.projectsList;
+    } catch (e) {
+      console.error("Failed to load projects from DB", e);
+      return [];
+    }
   }
 
   async setProject(
@@ -52,7 +69,6 @@ export class ProjectsManager {
     } else {
       newProject = new TProject(id);
       this.projects.set(id, newProject);
-      // await newProject.initGuests();
     }
     if (filterFunc) {
       newProject.filterFunc = filterFunc;
@@ -65,12 +81,7 @@ export class ProjectsManager {
     return this._activeProject;
   }
 
-  // getProject() {
-  //   return localStorage.getItem("project") || projects_configs[0]!.id;
-  // }
-
   async init() {
-    //
-    // this.setProject(localStorage.getItem("project") || projects_configs[0]!.id);
+    await this.loadProjects();
   }
 }

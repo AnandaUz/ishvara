@@ -34,6 +34,8 @@ export const ProjectController = {
           city: bp.city || "",
           country: bp.country || "",
           url: bp.url || "",
+          summary: bp.summary || "",
+          companys: bp.companys || [],
           isOff: bp.isOff || false,
         };
       });
@@ -54,6 +56,8 @@ export const ProjectController = {
       city,
       country,
       url,
+      summary,
+      companys,
       isOff,
     } = req.body;
 
@@ -83,6 +87,8 @@ export const ProjectController = {
       city: city ? String(city).trim() : "",
       country: country ? String(country).trim() : "",
       url: url ? String(url).trim() : "",
+      summary: summary ? String(summary).trim() : "",
+      companys: Array.isArray(companys) ? companys : [],
       isOff: Boolean(isOff),
     });
 
@@ -101,6 +107,8 @@ export const ProjectController = {
       city,
       country,
       url,
+      summary,
+      companys,
       isOff,
     } = req.body;
 
@@ -118,6 +126,8 @@ export const ProjectController = {
     if (city !== undefined) updateData.city = String(city).trim();
     if (country !== undefined) updateData.country = String(country).trim();
     if (url !== undefined) updateData.url = String(url).trim();
+    if (summary !== undefined) updateData.summary = String(summary).trim();
+    if (companys !== undefined && Array.isArray(companys)) updateData.companys = companys;
     if (isOff !== undefined) updateData.isOff = Boolean(isOff);
 
     const project = await Project.findByIdAndUpdate(

@@ -30,7 +30,7 @@ class Core {
     this.localPersistence = new LocalPersistence();
 
     this.localPersistence.init();
-    this.projectsManager.init();
+    await this.projectsManager.init();
     this.pagesURLData = new PagesURLData();
     await this.pagesURLData.init();
 

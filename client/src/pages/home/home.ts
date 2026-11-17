@@ -5,7 +5,7 @@ import "@/components/c-chats/c-chats";
 import "./home.scss";
 import "@components/c-tabs/c-tabs";
 import type { CTabs, ITab } from "@components/c-tabs/c-tabs";
-import { bigProjectsGet, bigProjects } from "@shared/projects_config";
+import { bigProjectsGet } from "@shared/projects_config";
 import { core } from "@/features/core";
 import type { CGuestsList } from "@/components/c-guests/c-guests-list/c-guests-list";
 import { EVENTS } from "@/features/store";
@@ -50,7 +50,7 @@ export const homePage: Page = () => {
       const reloadProjects = async () => {
         let projects: { id: number; name: string; isOff?: boolean }[] = [];
         try {
-          const res = await api.project.getAll();
+          const res = await core.projectsManager.loadProjects();
           if (Array.isArray(res) && res.length > 0) {
             projects = res.map((p) => ({
               id: p.projectId,
@@ -62,8 +62,8 @@ export const homePage: Page = () => {
           console.error("Failed to load projects from DB", e);
         }
         if (projects.length === 0) {
-          projects = bigProjects.map((p) => ({
-            id: p.id,
+          projects = core.projectsManager.projectsList.map((p) => ({
+            id: p.projectId,
             name: p.name,
             ...(p.isOff !== undefined && { isOff: p.isOff }),
           }));
@@ -122,7 +122,7 @@ export const homePage: Page = () => {
       const updateCompanySelector = async () => {
         const curProjId =
           Number(core.localPersistence.state.projectId) ||
-          Number(bigProjects[0]?.id) ||
+          Number(core.projectsManager.projectsList[0]?.projectId) ||
           0;
         if (!curProjId || !companySelector) return;
 
@@ -165,7 +165,7 @@ export const homePage: Page = () => {
       btnEditCompanies?.addEventListener("click", () => {
         const curProjId =
           Number(core.localPersistence.state.projectId) ||
-          Number(bigProjects[0]?.id) ||
+          Number(core.projectsManager.projectsList[0]?.projectId) ||
           0;
         if (curProjId) {
           companyModal.open(curProjId);
