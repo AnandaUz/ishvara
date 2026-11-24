@@ -42,18 +42,6 @@ class PagesStatistics {
   }
 }
 
-const arhivGuest = (guest: IGuest) => {
-  const lastChange = guest.lastChange ?? guest.createdAt;
-  return {
-    _id: guest._id,
-    projectId: guest.projectId,
-    lastChange,
-    tg: guest.tg,
-    companyId: guest.companyId,
-    b: true,
-  } as IGuest;
-};
-
 export interface IDailyArchiveResult {
   tagsProcessed: number;
   tagsChanged: number;
@@ -206,8 +194,8 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
 
   // 2. Архивирование 1 уровня
   const archiveCursor = Guest.find({ b: { $exists: false } })
-    .select("_id tags level projectId lastChange createdAt tg companyId")
-    .sort({ createdAt: -1 })
+    .select("_id tags level pid projectId lc lastChange ca createdAt tg companyId")
+    .sort({ _id: -1 })
     .lean()
     .cursor({ batchSize: 500 });
 
@@ -217,7 +205,7 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
 
   for await (const guestDoc of archiveCursor) {
     archiveChecked++;
-    const guest = guestDoc as unknown as IGuest;
+    const guest = guestDoc as unknown as IGuest & { pid?: number; ca?: Date; lc?: Date };
     if (!guest) continue;
 
     let isEmpty = true;
@@ -237,11 +225,35 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
 
     if (isEmpty && guest._id) {
       archivedCount++;
-      const g = arhivGuest(guest);
+      const lastChange =
+        guest.lc ?? guest.lastChange ?? guest.ca ?? guest.createdAt ?? new Date();
+      const pid = guest.pid ?? guest.projectId;
+
       archiveOps.push({
-        replaceOne: {
+        updateOne: {
           filter: { _id: guest._id },
-          replacement: g,
+          update: {
+            $set: {
+              b: true,
+              lc: lastChange,
+              ...(pid !== undefined && { pid }),
+              ...(guest.companyId !== undefined && { companyId: guest.companyId }),
+              ...(guest.tg && { tg: guest.tg }),
+            },
+            $unset: {
+              events: "",
+              ca: "",
+              createdAt: "",
+              lastChange: "",
+              projectId: "",
+              userAgentString: "",
+              paramsString: "",
+              ip: "",
+              name: "",
+              referrer: "",
+              instagram: "",
+            },
+          },
         },
       });
     }
