@@ -1,2 +1,3 @@
-export { CGraphs, GraphData } from "./c-graphs";
-export type * from "./types";
+export * from "./types";
+export * from "./math";
+export * from "./c-graphs";

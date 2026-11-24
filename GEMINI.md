@@ -9,8 +9,6 @@
 
 # Project Keywords
 
-- If message contains `..<name>`, read `.tasks/<name>.md` first (supports Cyrillic/Latin). If the file does not exist, create it.
-- If message contains `!<term>` (e.g. `!фрейм`, `!группа`) or a project keyword, read only that term's section in `GLOSSARY.md` before coding. Use its mapped classes/files directly without code searches. Report if term is missing.
 
 # Glossary Contribution Rules
 
@@ -32,10 +30,6 @@ Ishvara — маркетинговая CRM-система, легковесны�
 ## 2. Terminology & Glossary Rule
 
 - **При появлении терминов проекта** («гость», «эдсет», «кампания», «пиксель», «трекер», «уровень воронки/мета-уровень», «теги», «архивация», «боты») — **обращайся к [GLOSSARY.md](file:///d:/_sites/ishvara/GLOSSARY.md)** вместо долгого поиска по репозиторию.
-
-## 3. Tasks Shortcuts
-
-- Если в запросе пользователя встречается паттерн `..<имя>`, первым шагом прочитай `.tasks/<имя>.md` (например, `..трекер` -> `.tasks/трекер.md`) и следуй инструкциям из файла. Если файл отсутствует — создай его.
 
 ## 4. Coding & Architecture Guidelines
 

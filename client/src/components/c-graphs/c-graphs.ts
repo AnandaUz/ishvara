@@ -7,8 +7,10 @@ import type {
   IGraphSeries,
   TGraphPoint,
 } from "./types";
+import { calculateTangent, type TangentResult } from "./math";
 
 export type * from "./types";
+export * from "./math";
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -37,6 +39,14 @@ export class GraphData implements IGraphSeries {
       this.settings = { ...this.settings, ...settings };
     }
   }
+
+  /** Вспомогательный метод для добавления точек из массива */
+  setPointsArray(points: TGraphPoint[]) {
+    this.points.clear();
+    points.forEach((p) => {
+      this.points.set(p.date, p);
+    });
+  }
 }
 
 export class CGraphs extends HTMLElement {
@@ -48,6 +58,12 @@ export class CGraphs extends HTMLElement {
   private startY = 0;
   private initialLeft = 0;
   private initialTop = 0;
+
+  private initialPinchDistance: number | null = null;
+  private initialPinchScaleX = 0;
+  private initialPinchScaleY = 0;
+  private initialMidX = 0;
+  private initialMidY = 0;
 
   private desk!: HTMLDivElement;
   private chartSvg!: SVGSVGElement;
@@ -80,7 +96,7 @@ export class CGraphs extends HTMLElement {
   private onMouseMoveBound = (e: MouseEvent) => this.onMouseMove(e);
   private onMouseUpBound = () => this.onMouseUp();
   private onTouchMoveBound = (e: TouchEvent) => this.onTouchMove(e);
-  private onTouchEndBound = () => this.onTouchEnd();
+  private onTouchEndBound = (e: TouchEvent) => this.onTouchEnd(e);
   private onDeskMouseDownBound = (e: MouseEvent) => this.onDeskMouseDown(e);
   private onDeskTouchStartBound = (e: TouchEvent) => this.onDeskTouchStart(e);
   private onDeskWheelBound = (e: WheelEvent) => this.handleWheel(e);
@@ -225,6 +241,48 @@ export class CGraphs extends HTMLElement {
     return Math.max(1, factor * power);
   }
 
+  /**
+   * Отрисовка касательной линии к серии графика
+   */
+  drawTangent(
+    graphIndex: number,
+    pointIndex: number,
+    length: number = 300,
+  ): TangentResult | null {
+    const graph = this.graphs[graphIndex];
+    if (!graph || graph.points.size < 3) return null;
+
+    const sortedPoints = [...graph.points.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map((entry) => entry[1]);
+
+    const res = calculateTangent({
+      points: sortedPoints,
+      pointIndex,
+      scale: this.scale,
+      maxValue: Math.max(1, this.optionsFromGraphs.maxValue),
+      topPadding: 20,
+      length,
+    });
+
+    if (!res) return null;
+
+    this.chartSvg.querySelector("#tangent-line")?.remove();
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("id", "tangent-line");
+    line.setAttribute("x1", String(res.line.x1));
+    line.setAttribute("y1", String(res.line.y1));
+    line.setAttribute("x2", String(res.line.x2));
+    line.setAttribute("y2", String(res.line.y2));
+    line.setAttribute("stroke", "#000e2c6c");
+    line.setAttribute("stroke-width", "1.5");
+    line.setAttribute("stroke-dasharray", "6 3");
+    this.chartSvg.appendChild(line);
+
+    return res;
+  }
+
   render() {
     if (!this.chartSvg || !this.axisXGroup || !this.axisYGroup) return;
 
@@ -294,6 +352,38 @@ export class CGraphs extends HTMLElement {
       `;
     }
 
+    // --- Отрисовка комментариев по дням ---
+    let commentsSvg = "";
+    const minDate = grOptions.minDate;
+    const dxOffset = this.scale.forDay * 0.5;
+
+    this.graphs.forEach((graph) => {
+      graph.points.forEach((p) => {
+        if (!p.comment) return;
+        const dayIdx = Math.floor((p.date - minDate) / DAY_IN_MS);
+        const cx = dayIdx * this.scale.forDay + dxOffset;
+        const cy = topPadding + 14;
+        const escaped = p.comment
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        commentsSvg += `
+          <g class="chart-comment-group" transform="translate(${cx}, ${cy})">
+            <line x1="0" y1="0" x2="0" y2="${H - cy - bottomPadding}" stroke="${Options.comment_color}" stroke-width="1" stroke-dasharray="2 3" opacity="0.4" />
+            <text 
+              x="0" 
+              y="0" 
+              fill="${Options.comment_color}" 
+              font-size="12" 
+              font-family="Arial" 
+              text-anchor="start" 
+              transform="rotate(-90)"
+            >${escaped}</text>
+          </g>
+        `;
+      });
+    });
+
     const patternId = `week-pattern-${this.uid}`;
     this.chartSvg.innerHTML = `
       <defs>
@@ -305,12 +395,10 @@ export class CGraphs extends HTMLElement {
       <rect x="0" y="0" width="${W}" height="${H}" fill="url(#${patternId})" />
       <g class="month-lines">${monthLinesSvg}</g>
       <g class="horizontal-grid">${gridLinesSvg}</g>
+      <g class="chart-comments">${commentsSvg}</g>
     `;
 
-    // --- 2. Серии графиков (Path вместо Line + интерактивные точки) ---
-    const minDate = grOptions.minDate;
-    const dxOffset = this.scale.forDay * 0.5;
-
+    // --- 2. Серии графиков (Path + интерактивные точки) ---
     for (let ii = 0; ii < this.graphs.length; ii++) {
       const graph = this.graphs[ii];
       if (!graph || graph.points.size === 0) continue;
@@ -322,6 +410,7 @@ export class CGraphs extends HTMLElement {
       const strokeColor = settings?.color || "#ff8181ff";
       const strokeWidth = settings?.strokeWidth ?? 1;
       const pointRadius = settings?.pointRadius ?? 0;
+      const interactiveRadius = settings?.interactiveRadius ?? 10;
       const dYForGraph = ii * 2;
 
       const sorted = [...graph.points.entries()].sort((a, b) => a[0] - b[0]);
@@ -358,19 +447,30 @@ export class CGraphs extends HTMLElement {
           pathD += ` L ${x} ${y}`;
         }
 
-        if (pointRadius > 0 || curr.title) {
+        const isInteractive =
+          pointRadius > 0 ||
+          curr.title ||
+          settings?.enableTangent ||
+          settings?.onHoverPoint;
+
+        if (isInteractive) {
           const circle = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "circle",
           );
           circle.setAttribute("cx", String(x));
           circle.setAttribute("cy", String(y));
-          circle.setAttribute("r", String(Math.max(pointRadius, 4)));
+          circle.setAttribute(
+            "r",
+            String(Math.max(pointRadius, interactiveRadius)),
+          );
           circle.setAttribute(
             "fill",
             pointRadius > 0 ? strokeColor : "transparent",
           );
           circle.classList.add("chart-point");
+          circle.setAttribute("data-graph-index", String(ii));
+          circle.setAttribute("data-point-index", String(idx));
           if (curr.title) {
             circle.setAttribute("data-tooltip", curr.title);
           }
@@ -551,6 +651,7 @@ export class CGraphs extends HTMLElement {
       passive: false,
     });
     window.addEventListener("touchend", this.onTouchEndBound);
+    window.addEventListener("touchcancel", this.onTouchEndBound);
   }
 
   private cleanupListeners() {
@@ -558,6 +659,7 @@ export class CGraphs extends HTMLElement {
     window.removeEventListener("mouseup", this.onMouseUpBound);
     window.removeEventListener("touchmove", this.onTouchMoveBound);
     window.removeEventListener("touchend", this.onTouchEndBound);
+    window.removeEventListener("touchcancel", this.onTouchEndBound);
 
     if (this.desk) {
       this.desk.removeEventListener("mousedown", this.onDeskMouseDownBound);
@@ -575,7 +677,23 @@ export class CGraphs extends HTMLElement {
   }
 
   private onDeskTouchStart(e: TouchEvent) {
-    if (e.touches.length > 0) {
+    if (e.touches.length >= 2) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      if (!t1 || !t2) return;
+      this.isDragging = false;
+      this.desk.classList.remove("dragging");
+      this.initialPinchDistance = Math.hypot(
+        t2.clientX - t1.clientX,
+        t2.clientY - t1.clientY,
+      );
+      this.initialPinchScaleX = this.scale.forDay;
+      this.initialPinchScaleY = this.scale.forValue;
+      this.initialMidX = (t1.clientX + t2.clientX) / 2;
+      this.initialMidY = (t1.clientY + t2.clientY) / 2;
+      this.initialLeft = this.destPosition.x;
+      this.initialTop = this.destPosition.y;
+    } else if (e.touches.length === 1 && !this.initialPinchDistance) {
       const touch = e.touches[0];
       if (touch) this.startDragging(touch.clientX, touch.clientY);
     }
@@ -586,18 +704,52 @@ export class CGraphs extends HTMLElement {
     const pointEl = target?.closest(".chart-point") as SVGElement | null;
     if (!pointEl) return;
 
-    const info = pointEl.getAttribute("data-tooltip");
-    if (!info) return;
+    const grIdx = Number(pointEl.getAttribute("data-graph-index"));
+    const ptIdx = Number(pointEl.getAttribute("data-point-index"));
+    const graph = this.graphs[grIdx];
 
     const rect = pointEl.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-    this.showTooltip(x, y, info);
+
+    let contentHtml = pointEl.getAttribute("data-tooltip") || "";
+
+    if (graph) {
+      const sorted = [...graph.points.entries()].sort((a, b) => a[0] - b[0]);
+      const curr = sorted[ptIdx]?.[1];
+
+      let tangentRes: TangentResult | null = null;
+      if (graph.settings?.enableTangent) {
+        tangentRes = this.drawTangent(grIdx, ptIdx);
+      }
+
+      if (graph.settings?.onHoverPoint && curr) {
+        const prev = ptIdx > 0 ? sorted[ptIdx - 1]?.[1] : null;
+        const prevWeek = ptIdx >= 7 ? sorted[ptIdx - 7]?.[1] : null;
+        const customContent = graph.settings.onHoverPoint({
+          point: curr,
+          index: ptIdx,
+          prev,
+          prevWeek,
+          tangent: tangentRes
+            ? { dValPerDay: tangentRes.dValPerDay }
+            : null,
+        });
+        if (typeof customContent === "string") {
+          contentHtml = customContent;
+        }
+      }
+    }
+
+    if (contentHtml) {
+      this.showTooltip(x, y, contentHtml);
+    }
   }
 
   private onDeskMouseOut(e: MouseEvent) {
     const target = e.target as SVGElement | null;
     if (target?.closest(".chart-point")) {
+      this.chartSvg.querySelector("#tangent-line")?.remove();
       this.hideTooltip();
     }
   }
@@ -612,16 +764,70 @@ export class CGraphs extends HTMLElement {
   }
 
   private onTouchMove(e: TouchEvent) {
-    if (!this.isDragging || e.touches.length === 0) return;
-    const touch = e.touches[0];
-    if (touch) {
+    if (e.touches.length >= 2 && this.initialPinchDistance) {
       e.preventDefault();
-      this.moveDragging(touch.clientX, touch.clientY);
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      if (!t1 || !t2) return;
+
+      const currentDist = Math.hypot(
+        t2.clientX - t1.clientX,
+        t2.clientY - t1.clientY,
+      );
+      if (currentDist <= 0 || this.initialPinchDistance <= 0) return;
+
+      const zoomFactor = currentDist / this.initialPinchDistance;
+      const newScaleX = Math.max(
+        3,
+        Math.min(100, this.initialPinchScaleX * zoomFactor),
+      );
+      const newScaleY = Math.max(
+        0.05,
+        Math.min(50, this.initialPinchScaleY * zoomFactor),
+      );
+
+      const rect = this.desk.getBoundingClientRect();
+      const midDeskX = this.initialMidX - rect.left;
+      const midDeskY = this.initialMidY - rect.top;
+
+      const contentX = midDeskX - this.initialLeft;
+      const contentY = midDeskY - this.initialTop;
+
+      const currentMidX = (t1.clientX + t2.clientX) / 2;
+      const currentMidY = (t1.clientY + t2.clientY) / 2;
+
+      this.scale.forDay = newScaleX;
+      this.scale.forValue = newScaleY;
+
+      this.destPosition.x =
+        midDeskX -
+        contentX * (newScaleX / this.initialPinchScaleX) +
+        (currentMidX - this.initialMidX);
+      this.destPosition.y =
+        midDeskY -
+        contentY * (newScaleY / this.initialPinchScaleY) +
+        (currentMidY - this.initialMidY);
+
+      this.clampPosition();
+      this.render();
+      this.setDeskPosition();
+    } else if (this.isDragging && e.touches.length === 1) {
+      const touch = e.touches[0];
+      if (touch) this.moveDragging(touch.clientX, touch.clientY);
     }
   }
 
-  private onTouchEnd() {
-    this.stopDragging();
+  private onTouchEnd(e?: TouchEvent) {
+    if (e && e.touches.length === 1 && this.initialPinchDistance) {
+      this.initialPinchDistance = null;
+      const touch = e.touches[0];
+      if (touch) {
+        this.startDragging(touch.clientX, touch.clientY);
+      }
+    } else if (!e || e.touches.length === 0) {
+      this.initialPinchDistance = null;
+      this.stopDragging();
+    }
   }
 
   private startDragging(clientX: number, clientY: number) {
@@ -630,47 +836,51 @@ export class CGraphs extends HTMLElement {
     this.startY = clientY;
     this.initialLeft = this.destPosition.x;
     this.initialTop = this.destPosition.y;
+    this.desk.classList.add("dragging");
   }
 
   private moveDragging(clientX: number, clientY: number) {
-    this.destPosition.x = this.initialLeft + (clientX - this.startX);
-    this.destPosition.y = this.initialTop + (clientY - this.startY);
+    const dx = clientX - this.startX;
+    const dy = clientY - this.startY;
+    this.destPosition.x = this.initialLeft + dx;
+    this.destPosition.y = this.initialTop + dy;
     this.setDeskPosition();
   }
 
   private stopDragging() {
-    this.isDragging = false;
+    if (this.isDragging) {
+      this.isDragging = false;
+      this.desk.classList.remove("dragging");
+    }
   }
 
   private handleWheel(e: WheelEvent) {
     e.preventDefault();
-    const zoomFactor = e.deltaY > 0 ? 0.85 : 1.18;
     const rect = this.desk.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const canvasX = mouseX - this.destPosition.x;
-    const canvasY = mouseY - this.destPosition.y;
-    const oldScaleH = this.scale.forDay;
-    const oldScaleV = this.scale.forValue;
+    const contentX = mouseX - this.destPosition.x;
+    const contentY = mouseY - this.destPosition.y;
 
-    // Зумим ось X (даты)
-    this.scale.forDay = Math.max(
-      2,
-      Math.min(300, this.scale.forDay * zoomFactor),
-    );
-    const actualZoomH = this.scale.forDay / oldScaleH;
-    this.destPosition.x = mouseX - canvasX * actualZoomH;
+    const oldScaleX = this.scale.forDay;
+    const oldScaleY = this.scale.forValue;
 
-    // Зумим ось Y (значения)
-    this.scale.forValue = Math.max(
-      0.0001,
-      Math.min(10000, this.scale.forValue * zoomFactor),
-    );
-    const actualZoomV = this.scale.forValue / oldScaleV;
-    const topPadding = 20;
-    this.destPosition.y =
-      mouseY - (topPadding + (canvasY - topPadding) * actualZoomV);
+    const zoomFactor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+
+    // Zoom по X при Shift или обычном скролле
+    if (e.shiftKey || !e.ctrlKey) {
+      const newScaleX = Math.max(3, Math.min(100, oldScaleX * zoomFactor));
+      this.scale.forDay = newScaleX;
+      this.destPosition.x = mouseX - contentX * (newScaleX / oldScaleX);
+    }
+
+    // Zoom по Y при Ctrl или обычном скролле
+    if (e.ctrlKey || !e.shiftKey) {
+      const newScaleY = Math.max(0.05, Math.min(50, oldScaleY * zoomFactor));
+      this.scale.forValue = newScaleY;
+      this.destPosition.y = mouseY - contentY * (newScaleY / oldScaleY);
+    }
 
     this.clampPosition();
     this.render();
