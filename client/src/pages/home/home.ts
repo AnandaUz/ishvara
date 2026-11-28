@@ -115,9 +115,48 @@ export const homePage: Page = () => {
       const btnEditCompanies = document.getElementById(
         "btn-edit-companies",
       ) as HTMLButtonElement;
+      const btnRunArchive = document.getElementById(
+        "btn-run-archive",
+      ) as HTMLButtonElement;
       const companyModal = document.getElementById(
         "company-modal",
       ) as CCompanyModal;
+
+      btnRunArchive?.addEventListener("click", async () => {
+        if (btnRunArchive.disabled) return;
+        btnRunArchive.disabled = true;
+        btnRunArchive.classList.add("loading");
+        const span = btnRunArchive.querySelector("span");
+        const oldText = span?.textContent || "Архив";
+        if (span) span.textContent = "Архивация...";
+
+        try {
+          const res = await api.server.runDailyArchive();
+          if (res?.ok) {
+            core.serverPersistence.clear();
+            if (core.cGuestList) {
+              await core.cGuestList.render();
+            } else {
+              core.store.emit(EVENTS.options.MainTabsChanged, ["archived"]);
+            }
+            if (span) span.textContent = "Готово!";
+            setTimeout(() => {
+              if (span) span.textContent = oldText;
+            }, 1200);
+          } else {
+            console.error("Archive failed:", res?.error);
+            alert(res?.error || "Ошибка архивации");
+            if (span) span.textContent = oldText;
+          }
+        } catch (err: any) {
+          console.error("Archive request error:", err);
+          alert(err?.message || "Ошибка соединения при архивации");
+          if (span) span.textContent = oldText;
+        } finally {
+          btnRunArchive.disabled = false;
+          btnRunArchive.classList.remove("loading");
+        }
+      });
 
       const updateCompanySelector = async () => {
         const curProjId =

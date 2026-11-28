@@ -27,7 +27,40 @@ export class CPopup extends HTMLElement {
     this.onOpen(this.targetElement);
 
     setTimeout(
-      () => document.addEventListener("click", this._onOutsideClick),
+      () => {
+        document.addEventListener("click", this._onOutsideClick);
+        document.addEventListener("contextmenu", this._onOutsideClick);
+      },
+      0,
+    );
+  }
+
+  openAt(x: number, y: number, targetElement: any = null) {
+    if (targetElement) {
+      this.targetElement = targetElement;
+    }
+    this.setAttribute("open", "");
+    this.style.position = "fixed";
+
+    let posX = x;
+    let posY = y;
+
+    if (posX + this.offsetWidth > window.innerWidth) {
+      posX = Math.max(10, window.innerWidth - this.offsetWidth - 10);
+    }
+    if (posY + this.offsetHeight > window.innerHeight) {
+      posY = Math.max(10, window.innerHeight - this.offsetHeight - 10);
+    }
+
+    this.style.top = `${posY}px`;
+    this.style.left = `${posX}px`;
+    this.onOpen(this.targetElement);
+
+    setTimeout(
+      () => {
+        document.addEventListener("click", this._onOutsideClick);
+        document.addEventListener("contextmenu", this._onOutsideClick);
+      },
       0,
     );
   }
@@ -35,6 +68,8 @@ export class CPopup extends HTMLElement {
   close() {
     this.removeAttribute("open");
     document.removeEventListener("click", this._onOutsideClick);
+    document.removeEventListener("contextmenu", this._onOutsideClick);
+    this.onClose(this.targetElement);
   }
 
   toggle(anchor?: HTMLElement, targetElement: any = null) {

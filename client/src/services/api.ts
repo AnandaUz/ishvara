@@ -124,6 +124,15 @@ export const api = {
     arhive1: async () => {
       return fetch(import.meta.env.VITE_API_URL + "/api/server/arhive1");
     },
+    runDailyArchive: async () => {
+      const res = await fetch(
+        import.meta.env.VITE_API_URL + "/api/server/run-daily-archive",
+        {
+          method: "POST",
+        },
+      );
+      return await res.json();
+    },
   },
   statistics: {
     doFormatingData: async () => {

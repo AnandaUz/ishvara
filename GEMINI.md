@@ -24,6 +24,7 @@ When adding or updating terms in `GLOSSARY.md`:
 
 Ishvara — маркетинговая CRM-система, легковесный поведенческий трекер (`client/src/tracker.ts`), мультибот-модуль на Telegraf (`server/src/controllers/tgbots/`) и серверный мост в Meta Conversions API (CAPI).
 
+- **Целевой ресурс отслеживания событий:** [world-travel.uz](https://world-travel.uz/) (туристический портал Узбекистана: витрины туров, карточки предложений, агентства, направления и блог).
 - Архитектура: npm workspaces (`client`, `server`, `shared`), общий сабмодуль `_base`, утилиты `_tools`.
 - Стек: Vanilla TypeScript, Web Components (Custom Elements), SCSS, Vite, Express 5, Mongoose 9, Telegraf 4.
 

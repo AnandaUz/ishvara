@@ -14,4 +14,53 @@
   &[open] {
     display: block;
   }
+
+  &.context-menu {
+    min-height: auto;
+    min-width: 155px;
+    padding: 4px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+
+    .context-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      color: #1e293b;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+
+      svg {
+        stroke: #64748b;
+        flex-shrink: 0;
+      }
+
+      &:hover {
+        background: #f1f5f9;
+        color: #0284c7;
+
+        svg {
+          stroke: #0284c7;
+        }
+      }
+
+      &.copied {
+        color: #16a34a;
+
+        svg {
+          stroke: #16a34a;
+        }
+      }
+    }
+  }
 }

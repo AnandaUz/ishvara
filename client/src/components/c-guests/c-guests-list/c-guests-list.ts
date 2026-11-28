@@ -23,6 +23,7 @@ const daysName = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 export class CGuestsList extends HTMLElement {
   guests_list_block: HTMLElement | null = null;
   menu: CPopup | null = null;
+  contextMenu: CPopup | null = null;
   modalMenu: CModal | null = null;
   guestForm: CGuestCard | null = null;
   observer!: IntersectionObserver;
@@ -262,6 +263,64 @@ export class CGuestsList extends HTMLElement {
         core.tagsTreeMenu?.toggle(filterBtn);
       });
     }
+
+    this.contextMenu = new CPopup();
+    this.contextMenu.classList.add("context-menu");
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "context-menu-item";
+    copyBtn.type = "button";
+    copyBtn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span>Скопировать ID</span>
+    `;
+
+    copyBtn.addEventListener("click", async (e: MouseEvent) => {
+      e.stopPropagation();
+      const guestBlock = this.contextMenu?.targetElement as CGuestBlock | null;
+      if (!guestBlock || !guestBlock.data?._id) return;
+
+      const id = String(guestBlock.data._id);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(id);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = id;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        copyBtn.classList.add("copied");
+        const span = copyBtn.querySelector("span");
+        if (span) span.textContent = "Скопировано!";
+        setTimeout(() => {
+          copyBtn.classList.remove("copied");
+          if (span) span.textContent = "Скопировать ID";
+          this.contextMenu?.close();
+        }, 600);
+      } catch (err) {
+        console.error("Failed to copy ID:", err);
+        this.contextMenu?.close();
+      }
+    });
+
+    this.contextMenu.appendChild(copyBtn);
+    this.appendChild(this.contextMenu);
+
+    this.addEventListener("contextmenu", (e: MouseEvent) => {
+      const guestBlock = (e.target as HTMLElement).closest("c-guest-block") as CGuestBlock | null;
+      if (!guestBlock) return;
+      e.preventDefault();
+      this.menu?.close();
+      this.contextMenu?.openAt(e.clientX, e.clientY, guestBlock);
+    });
   }
 }
 

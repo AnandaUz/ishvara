@@ -51,8 +51,15 @@ export interface IDailyArchiveResult {
   durationMs: number;
 }
 
+let isArchiveRunning = false;
+
 export async function runDailyArchive(): Promise<IDailyArchiveResult> {
-  const startTime = Date.now();
+  if (isArchiveRunning) {
+    throw new Error("Архивация уже выполняется");
+  }
+  isArchiveRunning = true;
+  try {
+    const startTime = Date.now();
 
   // 1. Установка тегов
   const pagesStatistics = new PagesStatistics();
@@ -278,4 +285,7 @@ export async function runDailyArchive(): Promise<IDailyArchiveResult> {
     archivedCount,
     durationMs,
   };
+  } finally {
+    isArchiveRunning = false;
+  }
 }

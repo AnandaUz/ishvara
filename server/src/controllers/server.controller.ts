@@ -156,4 +156,14 @@ export const ServerController = {
       res.status(500).json({ ok: false, error: error.message || "Failed to run daily archive" });
     }
   },
+
+  runDailyArchive: async (_req: Request, res: Response) => {
+    try {
+      const result = await runDailyArchive();
+      res.json({ ok: true, result });
+    } catch (error: any) {
+      console.error("runDailyArchive error:", error);
+      res.status(500).json({ ok: false, error: error.message || "Failed to run daily archive" });
+    }
+  },
 };
